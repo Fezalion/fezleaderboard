@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
-import axios from "axios";
 
 const LEAGUE_NAME = "xXxBaboonLeaguexXx (PL74225)";
 const LIMIT = 200;
@@ -13,13 +12,20 @@ function App() {
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [search, setSearch] = useState("");
   const [showDelve, setShowDelve] = useState(false);
+  const [sortConfig, setSortConfig] = useState({
+    key: "rank",
+    direction: "asc",
+  });
+
+  // Fetch ladder function
 
   // Fetch ladder function
   const fetchLadder = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_URL);
-      const newLadder = res.data.entries || [];
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      const newLadder = data.entries || [];
       setLadder(newLadder);
     } catch (err) {
       console.error("Error fetching ladder:", err);
@@ -46,6 +52,27 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // Sorting function
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort indicator component
+  const SortIndicator = ({ column }) => {
+    if (sortConfig.key !== column) {
+      return <span className="text-gray-500 ml-1">↕️</span>;
+    }
+    return (
+      <span className="text-blue-400 ml-1">
+        {sortConfig.direction === "asc" ? "↑" : "↓"}
+      </span>
+    );
+  };
+
   // Compute top 5 accounts with most deaths
   const topDeaths = (() => {
     const deathCounts = {};
@@ -69,6 +96,62 @@ function App() {
           entry.account?.name?.toLowerCase().includes(search.toLowerCase())
       )
     : ladder;
+
+  // Sort filtered ladder
+  const sortedLadder = [...filteredLadder].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    let aValue, bValue;
+
+    switch (sortConfig.key) {
+      case "rank":
+        aValue = a.rank || 0;
+        bValue = b.rank || 0;
+        break;
+      case "character":
+        aValue = a.character?.name?.toLowerCase() || "";
+        bValue = b.character?.name?.toLowerCase() || "";
+        break;
+      case "class":
+        aValue = a.character?.class?.toLowerCase() || "";
+        bValue = b.character?.class?.toLowerCase() || "";
+        break;
+      case "level":
+        aValue = a.character?.level || 0;
+        bValue = b.character?.level || 0;
+        break;
+      case "account":
+        aValue = a.account?.name?.toLowerCase() || "";
+        bValue = b.account?.name?.toLowerCase() || "";
+        break;
+      case "experience":
+        aValue = a.character?.experience || 0;
+        bValue = b.character?.experience || 0;
+        break;
+      case "dead":
+        aValue = a.dead ? 1 : 0;
+        bValue = b.dead ? 1 : 0;
+        break;
+      case "delve":
+        aValue = a.character?.depth?.default || 0;
+        bValue = b.character?.depth?.default || 0;
+        break;
+      case "challenges":
+        aValue = a.account?.challenges?.completed || 0;
+        bValue = b.account?.challenges?.completed || 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
 
   return (
     <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
@@ -95,6 +178,14 @@ function App() {
           />
           Show Delve
         </label>
+        {sortConfig.key && (
+          <button
+            onClick={() => setSortConfig({ key: null, direction: "asc" })}
+            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
+          >
+            Clear Sort
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -105,9 +196,6 @@ function App() {
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left text-base font-bold font-sans">
                   Rank
-                </th>
-                <th className="p-2 text-left text-base font-bold font-sans">
-                  Real Rank
                 </th>
                 <th className="p-2 text-left text-base font-bold font-sans">
                   Character
@@ -139,12 +227,6 @@ function App() {
                   className="bg-gray-700 animate-pulse transition-all duration-700"
                 >
                   <td className="p-2 relative pl-8">
-                    <div
-                      className="h-4 w-8 bg-gray-600 rounded animate-pulse"
-                      style={{ animationDelay: `${i * 0.02}s` }}
-                    />
-                  </td>
-                  <td className="p-2">
                     <div
                       className="h-4 w-8 bg-gray-600 rounded animate-pulse"
                       style={{ animationDelay: `${i * 0.02}s` }}
@@ -226,27 +308,68 @@ function App() {
           <table className="w-6/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
-                <th className="p-2 text-left">Rank</th>
-                <th className="p-2 text-left">RR</th>
-                <th className="p-2 text-left">Character</th>
-                <th className="p-2 text-left">Class</th>
-                <th className="p-2 text-left">Level</th>
-                <th className="p-2 text-left">Account</th>
-                <th className="p-2 text-left">Exp</th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("rank")}
+                >
+                  Rank
+                  <SortIndicator column="rank" />
+                </th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("character")}
+                >
+                  Character
+                  <SortIndicator column="character" />
+                </th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("class")}
+                >
+                  Class
+                  <SortIndicator column="class" />
+                </th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("level")}
+                >
+                  Level
+                  <SortIndicator column="level" />
+                </th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("account")}
+                >
+                  Account
+                  <SortIndicator column="account" />
+                </th>
+                <th
+                  className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleSort("experience")}
+                >
+                  Exp
+                  <SortIndicator column="experience" />
+                </th>
                 <th className="p-2 text-left">Exp%</th>
                 <th className="p-2 text-left">Diff</th>
-                {showDelve && <th className="p-2 text-left">Delve Depth</th>}
+                {showDelve && (
+                  <th
+                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                    onClick={() => handleSort("delve")}
+                  >
+                    Delve Depth
+                    <SortIndicator column="delve" />
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
               {(() => {
-                let liveRank = 0;
                 // Find top1 experience (first non-dead, highest exp)
-                const top1 = filteredLadder.find((e) => !e.dead);
+                const top1 = sortedLadder.find((e) => !e.dead);
                 const top1Exp = top1?.character?.experience || 0;
-                return filteredLadder.map((entry, i) => {
+                return sortedLadder.map((entry, i) => {
                   const isDead = entry.dead;
-                  if (!isDead) liveRank++;
                   const exp = entry.character?.experience || 0;
                   const lvl = entry.character?.level || 1;
                   // Use cumulative experience table values directly
@@ -284,9 +407,6 @@ function App() {
                           />
                         )}
                         {entry.rank}
-                      </td>
-                      <td className="text-sm font-medium font-sans">
-                        {isDead ? "-" : liveRank}
                       </td>
                       <td className="text-sm font-medium font-sans">
                         {entry.character?.name}
