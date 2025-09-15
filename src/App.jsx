@@ -12,6 +12,7 @@ function App() {
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [search, setSearch] = useState("");
   const [showDelve, setShowDelve] = useState(false);
+  const [onlyAlive, setOnlyAlive] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: "rank",
     direction: "asc",
@@ -88,14 +89,18 @@ function App() {
       .slice(0, 5); // top 5
   })();
 
-  // Filtered ladder based on search
-  const filteredLadder = search.trim()
-    ? ladder.filter(
-        (entry) =>
-          entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
-          entry.account?.name?.toLowerCase().includes(search.toLowerCase())
-      )
-    : ladder;
+  // Filtered ladder based on search and onlyAlive
+  let filteredLadder = ladder;
+  if (search.trim()) {
+    filteredLadder = filteredLadder.filter(
+      (entry) =>
+        entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        entry.account?.name?.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+  if (onlyAlive) {
+    filteredLadder = filteredLadder.filter((entry) => !entry.dead);
+  }
 
   // Sort filtered ladder
   const sortedLadder = [...filteredLadder].sort((a, b) => {
@@ -177,6 +182,15 @@ function App() {
             className="form-checkbox h-4 w-4 text-blue-600"
           />
           Show Delve
+        </label>
+        <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={onlyAlive}
+            onChange={(e) => setOnlyAlive(e.target.checked)}
+            className="form-checkbox h-4 w-4 text-green-600"
+          />
+          Only Alive
         </label>
         {(sortConfig.key !== "rank" || sortConfig.direction !== "asc") && (
           <button
