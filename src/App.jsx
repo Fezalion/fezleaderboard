@@ -95,7 +95,8 @@ function App() {
     filteredLadder = filteredLadder.filter(
       (entry) =>
         entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
-        entry.account?.name?.toLowerCase().includes(search.toLowerCase())
+        entry.account?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        entry.character?.class?.toLowerCase().includes(search.toLowerCase())
     );
   }
   if (onlyAlive) {
@@ -171,7 +172,7 @@ function App() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search character or account..."
+          placeholder="Search character, class or account..."
           className="px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md text-base font-sans"
         />
         <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
