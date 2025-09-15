@@ -178,9 +178,9 @@ function App() {
           />
           Show Delve
         </label>
-        {sortConfig.key && (
+        {(sortConfig.key !== "rank" || sortConfig.direction !== "asc") && (
           <button
-            onClick={() => setSortConfig({ key: null, direction: "asc" })}
+            onClick={() => setSortConfig({ key: "rank", direction: "asc" })}
             className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
           >
             Clear Sort
