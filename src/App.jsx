@@ -88,7 +88,7 @@ function App() {
     );
   };
 
-  // Compute top 5 accounts with most deaths
+  // Compute top 10 accounts with most deaths
   const topDeaths = (() => {
     const deathCounts = {};
     ladder.forEach((entry) => {
@@ -100,7 +100,7 @@ function App() {
 
     return Object.entries(deathCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5); // top 5
+      .slice(0, 10); // top 10
   })();
 
   // Filtered ladder based on search and onlyAlive
@@ -334,7 +334,7 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {[...Array(5)].map((_, i) => (
+                {[...Array(10)].map((_, i) => (
                   <tr key={i} className="bg-gray-700 animate-pulse">
                     <td className="p-2">
                       <div className="h-4 w-24 bg-gray-600 rounded" />
