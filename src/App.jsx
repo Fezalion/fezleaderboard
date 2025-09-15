@@ -41,7 +41,6 @@ function App() {
       const res = await fetch(API2_URL);
       const data = await res.json();
       setDetails(data);
-      console.log("League data:", data);
     } catch (err) {
       console.error("Error fetching league data:", err);
     }
