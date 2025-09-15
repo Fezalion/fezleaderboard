@@ -69,7 +69,7 @@ function App() {
     : ladder;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-900 text-gray-100">
+    <div className="w-full mx-auto px-64 pt-8 pb-4 bg-gray-900 text-gray-100">
       <h1 className="text-3xl font-bold mb-2 text-center">
         {LEAGUE_NAME} Leaderboard
       </h1>
@@ -90,7 +90,7 @@ function App() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table with skeleton rows */}
           <table className="w-full lg:w-2/3 border-collapse text-gray-100">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left">Rank</th>
                 <th className="p-2 text-left">Real Rank</th>
@@ -98,6 +98,8 @@ function App() {
                 <th className="p-2 text-left">Class</th>
                 <th className="p-2 text-left">Level</th>
                 <th className="p-2 text-left">Account</th>
+                <th className="p-2 text-left">Exp</th>
+                <th className="p-2 text-left">Diff</th>
               </tr>
             </thead>
             <tbody>
@@ -142,12 +144,24 @@ function App() {
                       style={{ animationDelay: `${i * 0.02}s` }}
                     />
                   </td>
+                  <td className="p-2">
+                    <div
+                      className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
+                  </td>
+                  <td className="p-2">
+                    <div
+                      className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {/* Top deaths table skeleton */}
-          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto">
+          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
@@ -174,7 +188,7 @@ function App() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table */}
           <table className="w-full lg:w-2/3 border-collapse text-gray-100">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left">Rank</th>
                 <th className="p-2 text-left">Real Rank</th>
@@ -182,15 +196,21 @@ function App() {
                 <th className="p-2 text-left">Class</th>
                 <th className="p-2 text-left">Level</th>
                 <th className="p-2 text-left">Account</th>
+                <th className="p-2 text-left">Exp</th>
+                <th className="p-2 text-left">Diff</th>
               </tr>
             </thead>
             <tbody>
               {(() => {
                 let liveRank = 0;
+                // Find top1 experience (first non-dead, highest exp)
+                const top1 = filteredLadder.find((e) => !e.dead);
+                const top1Exp = top1?.character?.experience || 0;
                 return filteredLadder.map((entry, i) => {
                   const isDead = entry.dead;
                   if (!isDead) liveRank++;
-                  // Animate row: fade/slide in, highlight if new/changed
+                  const exp = entry.character?.experience || 0;
+                  const expDiff = i === 0 || isDead ? null : exp - top1Exp;
                   return (
                     <tr
                       key={entry.rank}
@@ -216,6 +236,14 @@ function App() {
                       <td className="p-2">{entry.character?.class}</td>
                       <td className="p-2">{entry.character?.level}</td>
                       <td className="p-2">{entry.account?.name}</td>
+                      <td className="p-2">{entry.character?.experience}</td>
+                      <td className="p-2">
+                        {i === 0 || isDead
+                          ? "0"
+                          : expDiff < 0
+                          ? expDiff
+                          : `+${expDiff}`}
+                      </td>
                     </tr>
                   );
                 });
@@ -224,7 +252,7 @@ function App() {
           </table>
 
           {/* Top deaths table */}
-          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto">
+          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
