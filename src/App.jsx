@@ -85,7 +85,7 @@ function App() {
                     <td className="p-2 relative pl-8">
                       {isDead && (
                         <img
-                          src="/4x.avif"
+                          src={`${import.meta.env.BASE_URL}4x.avif`}
                           alt="Dead"
                           className="absolute left-0 top-1/2 -translate-y-1/2 w-64 h-16 object-contain"
                         />
