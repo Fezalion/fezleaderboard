@@ -3,11 +3,13 @@ import { poeExperienceTable } from "./poeExperienceTable";
 
 const LEAGUE_NAME = "xXxBaboonLeaguexXx (PL74225)";
 const LIMIT = 200;
-const API_URL = `https://poe-proxy-five.vercel.app/api/ladder?league=${LEAGUE_NAME}&limit=${LIMIT}`;
+const API_URL = `https://poe-proxy-6mvi.vercel.app/api/ladder?league=${LEAGUE_NAME}&limit=${LIMIT}`;
+const API2_URL = `https://poe-proxy-6mvi.vercel.app/api/league?league=${LEAGUE_NAME}`;
 const REFRESH_INTERVAL = 300; // seconds
 
 function App() {
   const [ladder, setLadder] = useState([]);
+  const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [search, setSearch] = useState("");
@@ -17,8 +19,6 @@ function App() {
     key: "rank",
     direction: "asc",
   });
-
-  // Fetch ladder function
 
   // Fetch ladder function
   const fetchLadder = async () => {
@@ -35,6 +35,21 @@ function App() {
       setCountdown(REFRESH_INTERVAL);
     }
   };
+
+  const fetchLeague = async () => {
+    try {
+      const res = await fetch(API2_URL);
+      const data = await res.json();
+      setDetails(data);
+      console.log("League data:", data);
+    } catch (err) {
+      console.error("Error fetching league data:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeague();
+  }, []);
 
   useEffect(() => {
     fetchLadder();
@@ -158,12 +173,29 @@ function App() {
     }
     return 0;
   });
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+  };
 
   return (
     <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
       <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
         {LEAGUE_NAME} Leaderboard
       </h1>
+      {details && details.name && (
+        // Then use it like:
+        <p className="text-center mb-4 text-gray-400 font-sans">
+          {details.rules[0].name} {details.category.id} -{" "}
+          {formatDate(details.startAt)} to {formatDate(details.endAt)}
+        </p>
+      )}
       <p className="text-center mb-6 text-lg text-gray-400 font-medium font-sans">
         Auto-refresh in {countdown}s
       </p>
