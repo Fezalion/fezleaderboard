@@ -528,7 +528,7 @@ function App() {
           </table>
 
           {/* Top deaths table */}
-          <div className="w-2/8 max-h-[400px] overflow-y-auto sticky top-0">
+          <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
