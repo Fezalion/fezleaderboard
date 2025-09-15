@@ -257,14 +257,14 @@ function App() {
                   return (
                     <tr
                       key={entry.rank}
-                      className={`relative transition-all duration-700 transform ${
+                      className={`relative transition-all duration-700 transform *:py-2 *:mx-0 ${
                         isDead
                           ? "bg-red-700 text-red-300 line-through"
                           : "bg-gray-700"
                       } animate-fadein`}
                       style={{ animationDelay: `${i * 0.01}s` }}
                     >
-                      <td className="p-2 relative pl-8 text-sm font-medium font-sans">
+                      <td className="relative pl-8 text-sm font-medium font-sans">
                         {isDead && (
                           <img
                             src={`${import.meta.env.BASE_URL}4x.avif`}
@@ -274,25 +274,47 @@ function App() {
                         )}
                         {entry.rank}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans">
                         {isDead ? "-" : liveRank}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans">
                         {entry.character?.name}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans">
                         {entry.character?.class}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans">
                         {entry.character?.level}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
-                        {entry.account?.name}
+                      <td className="text-sm font-medium font-sans">
+                        {entry.account?.twitch?.stream ? (
+                          <a
+                            href={`https://twitch.tv/${entry.account?.twitch.stream.name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block px-2 py-1 rounded bg-[#9147ff] text-white font-bold hover:bg-[#772ce8] transition-colors duration-200 shadow-sm"
+                            title="Live on Twitch!"
+                          >
+                            <span className="mr-1 align-middle">🔴</span>
+                            {entry.account?.name}
+                          </a>
+                        ) : (
+                          entry.account?.name
+                        )}
+                        {typeof entry.account?.challenges?.completed ===
+                          "number" && (
+                          <span
+                            className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-gray-700 text-xs font-bold text-blue-300 border-2 border-blue-500"
+                            title="Challenges Completed"
+                          >
+                            {entry.account.challenges.completed}
+                          </span>
+                        )}
                       </td>
-                      <td className="p-2 text-sm font-mono font-semibold">
+                      <td className="text-sm font-mono font-semibold">
                         {entry.character?.experience}
                       </td>
-                      <td className="p-2 text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans">
                         <div className="flex flex-col gap-1">
                           <span className="text-xs font-semibold font-mono tracking-tight">
                             {percentToNext.toFixed(2)}%
@@ -305,7 +327,7 @@ function App() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-2 text-sm font-mono font-semibold">
+                      <td className="text-sm font-mono font-semibold">
                         {i === 0 || isDead
                           ? "0"
                           : expDiff < 0
