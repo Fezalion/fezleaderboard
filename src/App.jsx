@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 const LEAGUE_NAME = "xXxBaboonLeaguexXx (PL74225)";
@@ -10,13 +10,15 @@ function App() {
   const [ladder, setLadder] = useState([]);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
+  const [search, setSearch] = useState("");
 
   // Fetch ladder function
   const fetchLadder = async () => {
     setLoading(true);
     try {
       const res = await axios.get(API_URL);
-      setLadder(res.data.entries || []);
+      const newLadder = res.data.entries || [];
+      setLadder(newLadder);
     } catch (err) {
       console.error("Error fetching ladder:", err);
     } finally {
@@ -57,6 +59,15 @@ function App() {
       .slice(0, 5); // top 5
   })();
 
+  // Filtered ladder based on search
+  const filteredLadder = search.trim()
+    ? ladder.filter(
+        (entry) =>
+          entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
+          entry.account?.name?.toLowerCase().includes(search.toLowerCase())
+      )
+    : ladder;
+
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-900 text-gray-100">
       <h1 className="text-3xl font-bold mb-2 text-center">
@@ -65,6 +76,15 @@ function App() {
       <p className="text-center mb-4 text-gray-400">
         Auto-refresh in {countdown}s
       </p>
+      <div className="flex justify-start mb-4">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search character or account..."
+          className="px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md"
+        />
+      </div>
 
       {loading ? (
         <div className="flex flex-col lg:flex-row gap-8">
@@ -82,24 +102,45 @@ function App() {
             </thead>
             <tbody>
               {[...Array(LIMIT)].map((_, i) => (
-                <tr key={i} className="bg-gray-700 animate-pulse">
+                <tr
+                  key={i}
+                  className="bg-gray-700 animate-pulse transition-all duration-700"
+                >
                   <td className="p-2 relative pl-8">
-                    <div className="h-4 w-8 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-8 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                   <td className="p-2">
-                    <div className="h-4 w-8 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-8 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                   <td className="p-2">
-                    <div className="h-4 w-24 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-24 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                   <td className="p-2">
-                    <div className="h-4 w-16 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-16 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                   <td className="p-2">
-                    <div className="h-4 w-8 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-8 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                   <td className="p-2">
-                    <div className="h-4 w-20 bg-gray-600 rounded" />
+                    <div
+                      className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
                   </td>
                 </tr>
               ))}
@@ -146,17 +187,19 @@ function App() {
             <tbody>
               {(() => {
                 let liveRank = 0;
-                return ladder.map((entry) => {
+                return filteredLadder.map((entry, i) => {
                   const isDead = entry.dead;
                   if (!isDead) liveRank++;
+                  // Animate row: fade/slide in, highlight if new/changed
                   return (
                     <tr
                       key={entry.rank}
-                      className={`relative ${
+                      className={`relative transition-all duration-700 transform ${
                         isDead
                           ? "bg-red-700 text-red-300 line-through"
                           : "bg-gray-700"
-                      }`}
+                      } animate-fadein`}
+                      style={{ animationDelay: `${i * 0.01}s` }}
                     >
                       <td className="p-2 relative pl-8">
                         {isDead && (
