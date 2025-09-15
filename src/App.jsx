@@ -90,7 +90,7 @@ function App() {
       {loading ? (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table with skeleton rows */}
-          <table className="w-7/8 border-collapse text-gray-100">
+          <table className="w-6/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left text-base font-bold font-sans">
@@ -187,7 +187,7 @@ function App() {
             </tbody>
           </table>
           {/* Top deaths table skeleton */}
-          <div className="w-1/8 max-h-[400px] overflow-y-auto sticky top-0">
+          <div className="w-2/8 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
@@ -213,7 +213,7 @@ function App() {
       ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table */}
-          <table className="w-7/8 border-collapse text-gray-100">
+          <table className="w-6/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left">Rank</th>
@@ -320,7 +320,7 @@ function App() {
           </table>
 
           {/* Top deaths table */}
-          <div className="w-1/8 max-h-[400px] overflow-y-auto sticky top-0">
+          <div className="w-2/8 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
