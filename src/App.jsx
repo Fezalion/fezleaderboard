@@ -12,6 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [search, setSearch] = useState("");
+  const [showDelve, setShowDelve] = useState(false);
 
   // Fetch ladder function
   const fetchLadder = async () => {
@@ -77,7 +78,7 @@ function App() {
       <p className="text-center mb-6 text-lg text-gray-400 font-medium font-sans">
         Auto-refresh in {countdown}s
       </p>
-      <div className="flex justify-start mb-6">
+      <div className="flex items-center gap-4 justify-start mb-6">
         <input
           type="text"
           value={search}
@@ -85,6 +86,15 @@ function App() {
           placeholder="Search character or account..."
           className="px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md text-base font-sans"
         />
+        <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={showDelve}
+            onChange={(e) => setShowDelve(e.target.checked)}
+            className="form-checkbox h-4 w-4 text-blue-600"
+          />
+          Show Delve
+        </label>
       </div>
 
       {loading ? (
@@ -225,6 +235,7 @@ function App() {
                 <th className="p-2 text-left">Exp</th>
                 <th className="p-2 text-left">Exp%</th>
                 <th className="p-2 text-left">Diff</th>
+                {showDelve && <th className="p-2 text-left">Delve Depth</th>}
               </tr>
             </thead>
             <tbody>
@@ -334,6 +345,15 @@ function App() {
                           ? expDiff
                           : `+${expDiff}`}
                       </td>
+                      {showDelve && (
+                        <td className="text-sm font-mono font-semibold">
+                          {entry.character?.depth
+                            ? `Depth: ${
+                                entry.character.depth.default ?? 0
+                              } / Solo: ${entry.character.depth.solo ?? 0}`
+                            : "-"}
+                        </td>
+                      )}
                     </tr>
                   );
                 });
