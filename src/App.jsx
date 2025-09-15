@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { poeExperienceTable } from "./poeExperienceTable";
 import axios from "axios";
 
 const LEAGUE_NAME = "xXxBaboonLeaguexXx (PL74225)";
@@ -69,37 +70,56 @@ function App() {
     : ladder;
 
   return (
-    <div className="w-full mx-auto px-64 pt-8 pb-4 bg-gray-900 text-gray-100">
-      <h1 className="text-3xl font-bold mb-2 text-center">
+    <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
+      <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
         {LEAGUE_NAME} Leaderboard
       </h1>
-      <p className="text-center mb-4 text-gray-400">
+      <p className="text-center mb-6 text-lg text-gray-400 font-medium font-sans">
         Auto-refresh in {countdown}s
       </p>
-      <div className="flex justify-start mb-4">
+      <div className="flex justify-start mb-6">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search character or account..."
-          className="px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md"
+          className="px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md text-base font-sans"
         />
       </div>
 
       {loading ? (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table with skeleton rows */}
-          <table className="w-full lg:w-2/3 border-collapse text-gray-100">
+          <table className="w-7/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
-                <th className="p-2 text-left">Rank</th>
-                <th className="p-2 text-left">Real Rank</th>
-                <th className="p-2 text-left">Character</th>
-                <th className="p-2 text-left">Class</th>
-                <th className="p-2 text-left">Level</th>
-                <th className="p-2 text-left">Account</th>
-                <th className="p-2 text-left">Exp</th>
-                <th className="p-2 text-left">Diff</th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Rank
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Real Rank
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Character
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Class
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Level
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Account
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Exp
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Exp%
+                </th>
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  Diff
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -156,12 +176,18 @@ function App() {
                       style={{ animationDelay: `${i * 0.02}s` }}
                     />
                   </td>
+                  <td className="p-2">
+                    <div
+                      className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                      style={{ animationDelay: `${i * 0.02}s` }}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {/* Top deaths table skeleton */}
-          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto sticky top-0">
+          <div className="w-1/8 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
@@ -187,16 +213,17 @@ function App() {
       ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table */}
-          <table className="w-full lg:w-2/3 border-collapse text-gray-100">
+          <table className="w-7/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
                 <th className="p-2 text-left">Rank</th>
-                <th className="p-2 text-left">Real Rank</th>
+                <th className="p-2 text-left">RR</th>
                 <th className="p-2 text-left">Character</th>
                 <th className="p-2 text-left">Class</th>
                 <th className="p-2 text-left">Level</th>
                 <th className="p-2 text-left">Account</th>
                 <th className="p-2 text-left">Exp</th>
+                <th className="p-2 text-left">Exp%</th>
                 <th className="p-2 text-left">Diff</th>
               </tr>
             </thead>
@@ -210,6 +237,22 @@ function App() {
                   const isDead = entry.dead;
                   if (!isDead) liveRank++;
                   const exp = entry.character?.experience || 0;
+                  const lvl = entry.character?.level || 1;
+                  // Use cumulative experience table values directly
+                  const prevLevelExp = poeExperienceTable[lvl - 1] ?? 0;
+                  const nextLevelExp = poeExperienceTable[lvl] ?? undefined;
+                  let percentToNext = 100;
+                  if (
+                    typeof nextLevelExp === "number" &&
+                    nextLevelExp > prevLevelExp
+                  ) {
+                    percentToNext =
+                      ((exp - prevLevelExp) / (nextLevelExp - prevLevelExp)) *
+                      100;
+                    percentToNext = Math.max(0, Math.min(100, percentToNext));
+                  } else if (typeof nextLevelExp !== "number") {
+                    percentToNext = 100;
+                  }
                   const expDiff = i === 0 || isDead ? null : exp - top1Exp;
                   return (
                     <tr
@@ -221,7 +264,7 @@ function App() {
                       } animate-fadein`}
                       style={{ animationDelay: `${i * 0.01}s` }}
                     >
-                      <td className="p-2 relative pl-8">
+                      <td className="p-2 relative pl-8 text-sm font-medium font-sans">
                         {isDead && (
                           <img
                             src={`${import.meta.env.BASE_URL}4x.avif`}
@@ -231,13 +274,38 @@ function App() {
                         )}
                         {entry.rank}
                       </td>
-                      <td className="p-2">{isDead ? "-" : liveRank}</td>
-                      <td className="p-2">{entry.character?.name}</td>
-                      <td className="p-2">{entry.character?.class}</td>
-                      <td className="p-2">{entry.character?.level}</td>
-                      <td className="p-2">{entry.account?.name}</td>
-                      <td className="p-2">{entry.character?.experience}</td>
-                      <td className="p-2">
+                      <td className="p-2 text-sm font-medium font-sans">
+                        {isDead ? "-" : liveRank}
+                      </td>
+                      <td className="p-2 text-sm font-medium font-sans">
+                        {entry.character?.name}
+                      </td>
+                      <td className="p-2 text-sm font-medium font-sans">
+                        {entry.character?.class}
+                      </td>
+                      <td className="p-2 text-sm font-medium font-sans">
+                        {entry.character?.level}
+                      </td>
+                      <td className="p-2 text-sm font-medium font-sans">
+                        {entry.account?.name}
+                      </td>
+                      <td className="p-2 text-sm font-mono font-semibold">
+                        {entry.character?.experience}
+                      </td>
+                      <td className="p-2 text-sm font-medium font-sans">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold font-mono tracking-tight">
+                            {percentToNext.toFixed(2)}%
+                          </span>
+                          <div className="w-32 h-2 bg-gray-800 rounded overflow-hidden">
+                            <div
+                              className="h-full bg-blue-500 transition-all duration-500"
+                              style={{ width: `${percentToNext}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-2 text-sm font-mono font-semibold">
                         {i === 0 || isDead
                           ? "0"
                           : expDiff < 0
@@ -252,7 +320,7 @@ function App() {
           </table>
 
           {/* Top deaths table */}
-          <div className="w-full lg:w-1/3 max-h-[400px] overflow-y-auto sticky top-0">
+          <div className="w-1/8 max-h-[400px] overflow-y-auto sticky top-0">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
