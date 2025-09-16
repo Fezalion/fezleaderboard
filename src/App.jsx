@@ -423,18 +423,24 @@ function App() {
                 // Find top1 experience (first non-dead, highest exp)
                 const top1 = sortedLadder.find((e) => !e.dead);
                 const top1Exp = top1?.character?.experience || 0;
-                // Build a list of top 5 unique alive accounts
-                const top5Accounts = [];
-                for (const entry of sortedLadder) {
+                // Assign icons based on actual rank (1-5, alive, unique account)
+                // Build a map of account name to their first alive character's rank (from the original ladder, not filtered)
+                const accountFirstAliveRank = {};
+                ladder.forEach((entry) => {
                   if (
                     !entry.dead &&
                     entry.account?.name &&
-                    !top5Accounts.includes(entry.account.name)
+                    accountFirstAliveRank[entry.account.name] === undefined
                   ) {
-                    top5Accounts.push(entry.account.name);
+                    accountFirstAliveRank[entry.account.name] = entry.rank;
                   }
-                  if (top5Accounts.length >= 5) break;
-                }
+                });
+                // Build a sorted list of top 5 unique alive accounts by their first alive character's rank
+                const top5AccountsByRank = Object.entries(accountFirstAliveRank)
+                  .sort((a, b) => a[1] - b[1])
+                  .slice(0, 5)
+                  .map(([name]) => name);
+
                 return sortedLadder.map((entry, i) => {
                   const isDead = entry.dead;
                   const exp = entry.character?.experience || 0;
@@ -455,21 +461,17 @@ function App() {
                     percentToNext = 100;
                   }
                   const expDiff = i === 0 || isDead ? null : exp - top1Exp;
-                  // Only show top5 image if this account is in top5Accounts and this is their first alive character
+                  // Only show top5 image if this account is in top5AccountsByRank and this is their first alive character (by rank)
                   let top5Img = null;
                   if (!isDead && entry.account?.name) {
-                    const accIdx = top5Accounts.indexOf(entry.account.name);
-                    // Only show for the first alive character of this account
-                    if (accIdx > -1) {
-                      // Check if this is the first alive character for this account up to this row
-                      const isFirstAlive =
-                        sortedLadder.findIndex(
-                          (e) =>
-                            !e.dead && e.account?.name === entry.account.name
-                        ) === i;
-                      if (isFirstAlive && accIdx < 5) {
-                        top5Img = top5Images[accIdx];
-                      }
+                    const accIdx = top5AccountsByRank.indexOf(
+                      entry.account.name
+                    );
+                    if (
+                      accIdx > -1 &&
+                      entry.rank === accountFirstAliveRank[entry.account.name]
+                    ) {
+                      top5Img = top5Images[accIdx];
                     }
                   }
                   return (
