@@ -34,6 +34,10 @@ function App() {
     direction: "asc",
   });
 
+  // Easter egg state
+  const [deadImageClicks, setDeadImageClicks] = useState({});
+  const [isEasterEggActive, setIsEasterEggActive] = useState(false);
+
   // Fetch ladder function
   const fetchLadder = useCallback(async () => {
     setLoading(true);
@@ -107,6 +111,31 @@ function App() {
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [fetchLadder]);
+
+  // Easter egg handler
+  const handleDeadImageClick = (rank) => {
+    setDeadImageClicks((prev) => {
+      const newClicks = { ...prev };
+      newClicks[rank] = (newClicks[rank] || 0) + 1;
+
+      if (newClicks[rank] === 3) {
+        // Trigger easter egg
+        setIsEasterEggActive(true);
+
+        // Play cat.mp3
+        const audio = new Audio(`${import.meta.env.BASE_URL || ""}cat.mp3`);
+        audio.play().catch((err) => console.log("Audio play failed:", err));
+
+        // Reset after animation
+        setTimeout(() => {
+          setIsEasterEggActive(false);
+          newClicks[rank] = 0;
+        }, 3000);
+      }
+
+      return newClicks;
+    });
+  };
 
   // Sorting function
   const handleSort = (key) => {
@@ -234,7 +263,17 @@ function App() {
   ];
 
   return (
-    <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
+    <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans relative">
+      {/* Easter Egg Overlay */}
+      {isEasterEggActive && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <img
+            src={`${import.meta.env.BASE_URL}4x.avif`}
+            className="w-96 h-96 object-contain"
+          />
+        </div>
+      )}
+
       <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
         {leagueName} Leaderboard
       </h1>
@@ -529,6 +568,9 @@ function App() {
                       top5Img = top5Images[accIdx];
                     }
                   }
+
+                  const clickCount = deadImageClicks[entry.rank] || 0;
+
                   return (
                     <tr
                       key={entry.rank}
@@ -544,7 +586,12 @@ function App() {
                           <img
                             src={`${import.meta.env.BASE_URL}4x.avif`}
                             alt="Dead"
-                            className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-16 object-contain"
+                            className={`absolute left-0 top-1/2 -translate-y-1/2 w-16 h-16 object-contain dead-image-clickable ${
+                              clickCount > 0 && clickCount < 3
+                                ? "dead-image-clicked"
+                                : ""
+                            }`}
+                            onClick={() => handleDeadImageClick(entry.rank)}
                           />
                         )}
                         {entry.rank}
