@@ -423,6 +423,18 @@ function App() {
                 // Find top1 experience (first non-dead, highest exp)
                 const top1 = sortedLadder.find((e) => !e.dead);
                 const top1Exp = top1?.character?.experience || 0;
+                // Build a list of top 5 unique alive accounts
+                const top5Accounts = [];
+                for (const entry of sortedLadder) {
+                  if (
+                    !entry.dead &&
+                    entry.account?.name &&
+                    !top5Accounts.includes(entry.account.name)
+                  ) {
+                    top5Accounts.push(entry.account.name);
+                  }
+                  if (top5Accounts.length >= 5) break;
+                }
                 return sortedLadder.map((entry, i) => {
                   const isDead = entry.dead;
                   const exp = entry.character?.experience || 0;
@@ -443,16 +455,23 @@ function App() {
                     percentToNext = 100;
                   }
                   const expDiff = i === 0 || isDead ? null : exp - top1Exp;
-                  let aliveIndex = -1;
-                  if (!isDead) {
-                    aliveIndex =
-                      sortedLadder.filter((e, idx) => idx <= i && !e.dead)
-                        .length - 1;
+                  // Only show top5 image if this account is in top5Accounts and this is their first alive character
+                  let top5Img = null;
+                  if (!isDead && entry.account?.name) {
+                    const accIdx = top5Accounts.indexOf(entry.account.name);
+                    // Only show for the first alive character of this account
+                    if (accIdx > -1) {
+                      // Check if this is the first alive character for this account up to this row
+                      const isFirstAlive =
+                        sortedLadder.findIndex(
+                          (e) =>
+                            !e.dead && e.account?.name === entry.account.name
+                        ) === i;
+                      if (isFirstAlive && accIdx < 5) {
+                        top5Img = top5Images[accIdx];
+                      }
+                    }
                   }
-                  const top5Img =
-                    aliveIndex > -1 && aliveIndex < 5
-                      ? top5Images[aliveIndex]
-                      : null;
                   return (
                     <tr
                       key={entry.rank}
