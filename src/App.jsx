@@ -1,13 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 
-const LEAGUE_NAME = "xXxBaboonLeaguexXx (PL74225)";
+// Get league name from query param if present
+function getLeagueName() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("league") || "xXxBaboonLeaguexXx (PL74225)";
+}
+
 const LIMIT = 200;
-const API_URL = `https://poe-proxy-6mvi.vercel.app/api/ladder?league=${LEAGUE_NAME}&limit=${LIMIT}`;
-const API2_URL = `https://poe-proxy-6mvi.vercel.app/api/league?league=${LEAGUE_NAME}`;
 const REFRESH_INTERVAL = 300; // seconds
 
+const getApiUrls = (leagueName) => ({
+  API_URL: `https://poe-proxy-6mvi.vercel.app/api/ladder?league=${encodeURIComponent(
+    leagueName
+  )}&limit=${LIMIT}`,
+  API2_URL: `https://poe-proxy-6mvi.vercel.app/api/league?league=${encodeURIComponent(
+    leagueName
+  )}`,
+});
+
 function App() {
+  const leagueName = getLeagueName();
+  const { API_URL, API2_URL } = getApiUrls(leagueName);
   const [ladder, setLadder] = useState([]);
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +35,7 @@ function App() {
   });
 
   // Fetch ladder function
-  const fetchLadder = async () => {
+  const fetchLadder = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(API_URL);
@@ -34,9 +48,9 @@ function App() {
       setLoading(false);
       setCountdown(REFRESH_INTERVAL);
     }
-  };
+  }, [API_URL]);
 
-  const fetchLeague = async () => {
+  const fetchLeague = useCallback(async () => {
     try {
       const res = await fetch(API2_URL);
       const data = await res.json();
@@ -44,28 +58,55 @@ function App() {
     } catch (err) {
       console.error("Error fetching league data:", err);
     }
-  };
+  }, [API2_URL]);
 
   useEffect(() => {
     fetchLeague();
-  }, []);
+  }, [fetchLeague]);
 
   useEffect(() => {
     fetchLadder();
-  }, []);
+  }, [fetchLadder]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    let timer = null;
+    let pausedAt = null;
+
+    const tick = () => {
       setCountdown((prev) => {
+        if (document.hidden) {
+          // Pause timer
+          if (!pausedAt) pausedAt = Date.now();
+          return prev;
+        } else {
+          // Resume timer
+          if (pausedAt) {
+            pausedAt = null;
+          }
+        }
         if (prev <= 1) {
           fetchLadder();
           return REFRESH_INTERVAL;
         }
         return prev - 1;
       });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    };
+
+    timer = setInterval(tick, 1000);
+
+    // Listen for tab visibility changes
+    const handleVisibility = () => {
+      if (!document.hidden && pausedAt) {
+        pausedAt = null;
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [fetchLadder]);
 
   // Sorting function
   const handleSort = (key) => {
@@ -195,14 +236,28 @@ function App() {
   return (
     <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
       <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
-        {LEAGUE_NAME} Leaderboard
+        {leagueName} Leaderboard
       </h1>
       {details && details.name && (
-        // Then use it like:
-        <p className="text-center mb-4 text-gray-400 font-sans">
-          {details.rules[0].name} {details.category.id} -{" "}
-          {formatDate(details.startAt)} to {formatDate(details.endAt)}
-        </p>
+        <>
+          <p className="text-center mb-4 text-gray-400 font-sans">
+            {details.rules[0].name} {details.category.id} -{" "}
+            {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
+            <a
+              href={`https://www.pathofexile.com/private-leagues/league/${encodeURIComponent(
+                details.id.replace(/\s*\(PL\d+\)$/, "")
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-blue-400 hover:text-blue-200"
+            >
+              View League
+            </a>
+          </p>
+          <p className="text-center mb-4 text-gray-400 font-sans">
+            {details.description}
+          </p>
+        </>
       )}
       <p className="text-center mb-6 text-lg text-gray-400 font-medium font-sans">
         Auto-refresh in {countdown}s
