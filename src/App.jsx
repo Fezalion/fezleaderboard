@@ -183,6 +183,15 @@ function App() {
     });
   };
 
+  // Image sources for top 5
+  const top5Images = [
+    `${import.meta.env.BASE_URL}diamond-72.png`,
+    `${import.meta.env.BASE_URL}golden-72.png`,
+    `${import.meta.env.BASE_URL}silver-72.png`,
+    `${import.meta.env.BASE_URL}bronze-72.png`,
+    `${import.meta.env.BASE_URL}base-72.png`,
+  ];
+
   return (
     <div className="w-full mx-auto px-16 pt-8 pb-4 bg-gray-900 text-gray-100 font-sans">
       <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
@@ -434,6 +443,16 @@ function App() {
                     percentToNext = 100;
                   }
                   const expDiff = i === 0 || isDead ? null : exp - top1Exp;
+                  let aliveIndex = -1;
+                  if (!isDead) {
+                    aliveIndex =
+                      sortedLadder.filter((e, idx) => idx <= i && !e.dead)
+                        .length - 1;
+                  }
+                  const top5Img =
+                    aliveIndex > -1 && aliveIndex < 5
+                      ? top5Images[aliveIndex]
+                      : null;
                   return (
                     <tr
                       key={entry.rank}
@@ -454,7 +473,14 @@ function App() {
                         )}
                         {entry.rank}
                       </td>
-                      <td className="text-sm font-medium font-sans">
+                      <td className="text-sm font-medium font-sans flex items-center gap-2">
+                        {top5Img && (
+                          <img
+                            src={top5Img}
+                            alt={`Top${i + 1}`}
+                            className="inline-block w-7 h-7 object-contain mr-1"
+                          />
+                        )}
                         {entry.character?.name}
                       </td>
                       <td className="text-sm font-medium font-sans">
