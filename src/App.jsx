@@ -21,6 +21,7 @@ const getApiUrls = (leagueName) => ({
 
 function App() {
   const [ladder, setLadder] = useState([]);
+  const [refreshSpinAngle, setRefreshSpinAngle] = useState(0);
   // Compute alive-only rank for each character (by their unique id or rank)
   const aliveRankMap = (() => {
     let rank = 1;
@@ -57,6 +58,7 @@ function App() {
   const [isEasterEggActive, setIsEasterEggActive] = useState(false);
 
   // Fetch ladder function
+
   const fetchLadder = useCallback(async () => {
     setLoading(true);
     try {
@@ -71,6 +73,12 @@ function App() {
       setCountdown(REFRESH_INTERVAL);
     }
   }, [API_URL]);
+
+  // Manual refresh handler (must be after fetchLadder)
+  const handleManualRefresh = () => {
+    setRefreshSpinAngle((prev) => prev + 180);
+    fetchLadder();
+  };
 
   const fetchLeague = useCallback(async () => {
     try {
@@ -320,6 +328,38 @@ function App() {
         Auto-refresh in {countdown}s
       </p>
       <div className="flex items-center gap-4 justify-start mb-6">
+        <button
+          onClick={handleManualRefresh}
+          title="Refresh"
+          className="flex items-center justify-center p-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors border border-gray-600 focus:outline-none focus:ring"
+          style={{ minWidth: 40 }}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)",
+              transform: `rotate(${refreshSpinAngle}deg)`,
+            }}
+          >
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                d="M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"
+                stroke="#ffffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              ></path>
+            </g>
+          </svg>
+        </button>
         <input
           type="text"
           value={search}
