@@ -20,9 +20,27 @@ const getApiUrls = (leagueName) => ({
 });
 
 function App() {
+  const [ladder, setLadder] = useState([]);
+  // Compute alive-only rank for each character (by their unique id or rank)
+  const aliveRankMap = (() => {
+    let rank = 1;
+    const map = {};
+    const seenAccounts = new Set();
+    ladder.forEach((entry) => {
+      if (
+        !entry.dead &&
+        entry.account?.name &&
+        !seenAccounts.has(entry.account.name)
+      ) {
+        map[entry.rank] = rank;
+        seenAccounts.add(entry.account.name);
+        rank++;
+      }
+    });
+    return map;
+  })();
   const leagueName = getLeagueName();
   const { API_URL, API2_URL } = getApiUrls(leagueName);
-  const [ladder, setLadder] = useState([]);
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
@@ -457,6 +475,9 @@ function App() {
           <table className="w-6/8 border-collapse text-gray-100">
             <thead className="sticky top-0 z-10">
               <tr className="bg-gray-800 text-gray-100">
+                <th className="p-2 text-left text-base font-bold font-sans">
+                  #
+                </th>
                 <th
                   className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
                   onClick={() => handleSort("rank")}
@@ -581,6 +602,11 @@ function App() {
                       } animate-fadein`}
                       style={{ animationDelay: `${i * 0.01}s` }}
                     >
+                      <td className="text-sm font-mono font-semibold text-center">
+                        {aliveRankMap[entry.rank]
+                          ? aliveRankMap[entry.rank]
+                          : "-"}
+                      </td>
                       <td className="relative pl-8 text-sm font-medium font-sans">
                         {isDead && (
                           <img
