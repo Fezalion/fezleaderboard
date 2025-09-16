@@ -486,7 +486,7 @@ function App() {
             </tbody>
           </table>
           {/* Top deaths table skeleton */}
-          <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0">
+          <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0 flex flex-col gap-6">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
@@ -502,6 +502,23 @@ function App() {
                     </td>
                     <td className="p-2">
                       <div className="h-4 w-8 bg-gray-600 rounded" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Live on Twitch table skeleton */}
+            <table className="w-full border-collapse text-gray-100">
+              <thead>
+                <tr className="bg-gray-800 text-gray-100">
+                  <th className="p-2 text-left">Live on Twitch</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...Array(10)].map((_, i) => (
+                  <tr key={i} className="bg-gray-700 animate-pulse">
+                    <td className="p-2">
+                      <div className="h-4 w-24 bg-gray-600 rounded" />
                     </td>
                   </tr>
                 ))}
@@ -743,7 +760,7 @@ function App() {
           </table>
 
           {/* Top deaths table */}
-          <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0">
+          <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0 flex flex-col gap-6">
             <table className="w-full border-collapse text-gray-100">
               <thead>
                 <tr className="bg-gray-800 text-gray-100">
@@ -768,6 +785,58 @@ function App() {
                     </td>
                   </tr>
                 )}
+              </tbody>
+            </table>
+
+            {/* Live on Twitch table */}
+            <table className="w-full border-collapse text-gray-100">
+              <thead>
+                <tr className="bg-gray-800 text-gray-100">
+                  <th className="p-2 text-left">Live on Twitch</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  // Build a map to ensure unique accounts
+                  const uniqueAccounts = new Map();
+                  ladder.forEach((e) => {
+                    if (
+                      e.account?.twitch?.stream &&
+                      e.account?.name &&
+                      !uniqueAccounts.has(e.account.name)
+                    ) {
+                      uniqueAccounts.set(e.account.name, e);
+                    }
+                  });
+                  const uniqueLive = Array.from(uniqueAccounts.values());
+                  return uniqueLive.length > 0 ? (
+                    uniqueLive.map((entry, i) => (
+                      <tr
+                        key={entry.account.name + "-" + i}
+                        className={i % 2 === 0 ? "bg-gray-700" : "bg-gray-800"}
+                      >
+                        <td className="p-2">
+                          <a
+                            href={`https://twitch.tv/${entry.account.twitch.stream.name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#9147ff] text-white font-bold hover:bg-[#772ce8] transition-colors duration-200 shadow-sm"
+                            title="Live on Twitch!"
+                          >
+                            <span className="mr-1 align-middle">🔴</span>
+                            {entry.account.name}
+                          </a>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={2} className="p-2 text-center text-gray-400">
+                        No one is live on Twitch
+                      </td>
+                    </tr>
+                  );
+                })()}
               </tbody>
             </table>
           </div>
