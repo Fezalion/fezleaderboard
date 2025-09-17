@@ -214,43 +214,6 @@ function App() {
     setSortConfig({ key, direction });
   };
 
-  // Update suggestions when search or ladder changes
-  useEffect(() => {
-    if (!search.trim()) {
-      setSuggestions([]);
-      setHighlightedIdx(-1);
-      return;
-    }
-    const lower = search.toLowerCase();
-    const chars = new Set();
-    const accs = new Set();
-    const classes = new Set();
-    ladder.forEach((entry) => {
-      if (entry.character?.name) chars.add(entry.character.name);
-      if (entry.account?.name) accs.add(entry.account.name);
-      if (entry.character?.class) classes.add(entry.character.class);
-    });
-    // Remove already bubbled
-    const bubbled = new Set(searchBubbles.map((b) => b.value.toLowerCase()));
-    const charSugs = Array.from(chars)
-      .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
-      )
-      .map((n) => ({ type: "character", value: n }));
-    const accSugs = Array.from(accs)
-      .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
-      )
-      .map((n) => ({ type: "account", value: n }));
-    const classSugs = Array.from(classes)
-      .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
-      )
-      .map((n) => ({ type: "class", value: n }));
-    setSuggestions([...charSugs, ...accSugs, ...classSugs].slice(0, 20));
-    setHighlightedIdx(-1);
-  }, [search, ladder, searchBubbles]);
-
   // Sort indicator component
   const SortIndicator = ({ column }) => {
     if (sortConfig.key !== column) {
@@ -576,8 +539,6 @@ function App() {
           </button>
         )}
       </div>
-      // Update suggestions when search or ladder changes // (Moved to correct
-      place before return statement)
       {loading ? (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table with skeleton rows */}
