@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 
 // Get league name from query param if present
@@ -46,12 +46,54 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [search, setSearch] = useState("");
+  const [searchBubbles, setSearchBubbles] = useState([]); // { type, value }
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightedIdx, setHighlightedIdx] = useState(-1);
+  const searchInputRef = useRef(null);
   const [showDelve, setShowDelve] = useState(false);
   const [onlyAlive, setOnlyAlive] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: "rank",
     direction: "asc",
   });
+
+  // Update suggestions when search or ladder changes
+  useEffect(() => {
+    if (!search.trim()) {
+      setSuggestions([]);
+      setHighlightedIdx(-1);
+      return;
+    }
+    const lower = search.toLowerCase();
+    const chars = new Set();
+    const accs = new Set();
+    const classes = new Set();
+    ladder.forEach((entry) => {
+      if (entry.character?.name) chars.add(entry.character.name);
+      if (entry.account?.name) accs.add(entry.account.name);
+      if (entry.character?.class) classes.add(entry.character.class);
+    });
+    // Remove already bubbled
+    const bubbled = new Set(searchBubbles.map((b) => b.value.toLowerCase()));
+    const charSugs = Array.from(chars)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "character", value: n }));
+    const accSugs = Array.from(accs)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "account", value: n }));
+    const classSugs = Array.from(classes)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "class", value: n }));
+    setSuggestions([...charSugs, ...accSugs, ...classSugs].slice(0, 20));
+    setHighlightedIdx(-1);
+  }, [search, ladder, searchBubbles]);
 
   // Easter egg state
   const [deadImageClicks, setDeadImageClicks] = useState({});
@@ -172,6 +214,43 @@ function App() {
     setSortConfig({ key, direction });
   };
 
+  // Update suggestions when search or ladder changes
+  useEffect(() => {
+    if (!search.trim()) {
+      setSuggestions([]);
+      setHighlightedIdx(-1);
+      return;
+    }
+    const lower = search.toLowerCase();
+    const chars = new Set();
+    const accs = new Set();
+    const classes = new Set();
+    ladder.forEach((entry) => {
+      if (entry.character?.name) chars.add(entry.character.name);
+      if (entry.account?.name) accs.add(entry.account.name);
+      if (entry.character?.class) classes.add(entry.character.class);
+    });
+    // Remove already bubbled
+    const bubbled = new Set(searchBubbles.map((b) => b.value.toLowerCase()));
+    const charSugs = Array.from(chars)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "character", value: n }));
+    const accSugs = Array.from(accs)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "account", value: n }));
+    const classSugs = Array.from(classes)
+      .filter(
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
+      )
+      .map((n) => ({ type: "class", value: n }));
+    setSuggestions([...charSugs, ...accSugs, ...classSugs].slice(0, 20));
+    setHighlightedIdx(-1);
+  }, [search, ladder, searchBubbles]);
+
   // Sort indicator component
   const SortIndicator = ({ column }) => {
     if (sortConfig.key !== column) {
@@ -199,9 +278,28 @@ function App() {
       .slice(0, 10); // top 10
   })();
 
-  // Filtered ladder based on search and onlyAlive
+  // Filtered ladder based on search bubbles and onlyAlive
   let filteredLadder = ladder;
-  if (search.trim()) {
+  if (searchBubbles.length > 0) {
+    filteredLadder = filteredLadder.filter((entry) => {
+      return searchBubbles.some((bubble) => {
+        if (bubble.type === "character") {
+          return (
+            entry.character?.name?.toLowerCase() === bubble.value.toLowerCase()
+          );
+        } else if (bubble.type === "account") {
+          return (
+            entry.account?.name?.toLowerCase() === bubble.value.toLowerCase()
+          );
+        } else if (bubble.type === "class") {
+          return (
+            entry.character?.class?.toLowerCase() === bubble.value.toLowerCase()
+          );
+        }
+        return false;
+      });
+    });
+  } else if (search.trim()) {
     filteredLadder = filteredLadder.filter(
       (entry) =>
         entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -299,7 +397,6 @@ function App() {
           />
         </div>
       )}
-
       <h1 className="text-4xl font-extrabold mb-2 text-center tracking-tight font-sans">
         {leagueName} Leaderboard
       </h1>
@@ -327,7 +424,7 @@ function App() {
       <p className="text-center mb-6 text-lg text-gray-400 font-medium font-sans">
         Auto-refresh in {countdown}s
       </p>
-      <div className="flex items-center gap-4 justify-start mb-6">
+      <div className="flex items-center gap-4 justify-start mb-6 relative">
         <button
           onClick={handleManualRefresh}
           title="Refresh"
@@ -360,13 +457,98 @@ function App() {
             </g>
           </svg>
         </button>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search character, class or account..."
-          className="px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 w-full max-w-md text-base font-sans"
-        />
+        {/* Search bar with bubbles inside input */}
+        <div className="w-full max-w-md relative">
+          <div className="flex flex-wrap items-center gap-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus-within:ring focus-within:border-blue-400 min-h-[40px]">
+            {searchBubbles.map((bubble, idx) => (
+              <span
+                key={bubble.type + bubble.value}
+                className="flex items-center bg-blue-700 text-white px-2 py-1 rounded-full text-xs font-semibold mr-1"
+                style={{ marginBottom: 2, marginTop: 2 }}
+              >
+                {bubble.value}
+                <button
+                  className="ml-1 text-white hover:text-gray-200 focus:outline-none"
+                  onClick={() => {
+                    setSearchBubbles(searchBubbles.filter((b, i) => i !== idx));
+                  }}
+                  aria-label="Remove"
+                  tabIndex={-1}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}
+              onKeyDown={(e) => {
+                if (showSuggestions && suggestions.length > 0) {
+                  if (e.key === "ArrowDown") {
+                    setHighlightedIdx((idx) =>
+                      Math.min(idx + 1, suggestions.length - 1)
+                    );
+                    e.preventDefault();
+                  } else if (e.key === "ArrowUp") {
+                    setHighlightedIdx((idx) => Math.max(idx - 1, 0));
+                    e.preventDefault();
+                  } else if (e.key === "Enter" && highlightedIdx >= 0) {
+                    const s = suggestions[highlightedIdx];
+                    setSearchBubbles([...searchBubbles, s]);
+                    setSearch("");
+                    setSuggestions([]);
+                    setShowSuggestions(false);
+                    setHighlightedIdx(-1);
+                    e.preventDefault();
+                  }
+                } else if (
+                  e.key === "Backspace" &&
+                  search === "" &&
+                  searchBubbles.length > 0
+                ) {
+                  setSearchBubbles(searchBubbles.slice(0, -1));
+                }
+              }}
+              placeholder="Search character, class or account..."
+              className="bg-transparent outline-none border-none flex-1 min-w-[120px] text-base font-sans text-gray-100 py-1"
+              style={{ minWidth: 120 }}
+            />
+          </div>
+          {/* Suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <ul className="absolute left-0 top-full mt-1 w-full bg-gray-800 border border-gray-700 rounded shadow-lg z-20 max-h-56 overflow-y-auto">
+              {suggestions.map((s, idx) => (
+                <li
+                  key={s.type + s.value}
+                  className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${
+                    highlightedIdx === idx
+                      ? "bg-blue-700 text-white"
+                      : "hover:bg-gray-700"
+                  }`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setSearchBubbles([...searchBubbles, s]);
+                    setSearch("");
+                    setSuggestions([]);
+                    setShowSuggestions(false);
+                    setHighlightedIdx(-1);
+                  }}
+                  onMouseEnter={() => setHighlightedIdx(idx)}
+                >
+                  <span className="font-bold capitalize">{s.value}</span>
+                  <span className="text-xs text-gray-400">{s.type}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
           <input
             type="checkbox"
@@ -394,7 +576,8 @@ function App() {
           </button>
         )}
       </div>
-
+      // Update suggestions when search or ladder changes // (Moved to correct
+      place before return statement)
       {loading ? (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main ladder table with skeleton rows */}
