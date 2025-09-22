@@ -366,22 +366,30 @@ function App() {
   return (
     <>
       <div className="w-full mx-auto px-16 pt-8 pb-16 bg-gray-900 text-gray-100 font-sans relative">
-        <select
-          className="px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 text-base font-sans top-4 left-4 absolute z-30"
-          value={selectedLeague}
-          onChange={(e) => {
-            setSelectedLeague(e.target.value);
-            setSearch("");
-            setSearchBubbles([]);
-          }}
-          style={{ minWidth: 220 }}
-        >
-          {LEAGUE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        {/* League combobox skeleton */}
+        {loading ? (
+          <div
+            className="px-3 py-2 rounded bg-gray-700 animate-pulse absolute top-4 left-4 z-30"
+            style={{ minWidth: 220, height: 44 }}
+          />
+        ) : (
+          <select
+            className="px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 text-base font-sans top-4 left-4 absolute z-30"
+            value={selectedLeague}
+            onChange={(e) => {
+              setSelectedLeague(e.target.value);
+              setSearch("");
+              setSearchBubbles([]);
+            }}
+            style={{ minWidth: 220 }}
+          >
+            {LEAGUE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        )}
         {/* Easter Egg Overlay */}
         {isEasterEggActive && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -391,30 +399,43 @@ function App() {
             />
           </div>
         )}
-        {/* League selection combobox */}
-        <h1 className="text-4xl font-extrabold text-center tracking-tight font-sans">
-          {leagueName} Leaderboard
-        </h1>
-        {details && details.name && (
+        {/* League name skeleton */}
+        {loading ? (
+          <div className="h-8 w-72 bg-gray-700 rounded animate-pulse mx-auto mt-2 mb-4" />
+        ) : (
+          <h1 className="text-4xl font-extrabold text-center tracking-tight font-sans">
+            {leagueName} Leaderboard
+          </h1>
+        )}
+        {/* League details skeleton */}
+        {loading ? (
           <>
-            <p className="text-center mb-4 text-gray-400 font-sans">
-              {details.rules[0].name} {details.category.id} -{" "}
-              {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
-              <a
-                href={`https://www.pathofexile.com/private-leagues/league/${encodeURIComponent(
-                  details.id.replace(/\s*\(PL\d+\)$/, "")
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-blue-400 hover:text-blue-200"
-              >
-                View League
-              </a>
-            </p>
-            <p className="text-center mb-4 text-gray-400 font-sans">
-              {details.description}
-            </p>
+            <div className="mx-auto mb-4 h-4 w-2/3 bg-gray-700 rounded animate-pulse" />
+            <div className="mx-auto mb-4 h-3 w-1/2 bg-gray-700 rounded animate-pulse" />
           </>
+        ) : (
+          details &&
+          details.name && (
+            <>
+              <p className="text-center mb-4 text-gray-400 font-sans">
+                {details.rules[0].name} {details.category.id} -{" "}
+                {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
+                <a
+                  href={`https://www.pathofexile.com/private-leagues/league/${encodeURIComponent(
+                    details.id.replace(/\s*\(PL\d+\)$/, "")
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-blue-400 hover:text-blue-200"
+                >
+                  View League
+                </a>
+              </p>
+              <p className="text-center mb-4 text-gray-400 font-sans">
+                {details.description}
+              </p>
+            </>
+          )
         )}
         {/* Countdown is now inside the refresh button */}
         <div className="flex items-center gap-4 justify-start mb-6 relative">
