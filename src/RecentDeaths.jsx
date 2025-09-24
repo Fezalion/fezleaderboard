@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const RecentDeathsDisplay = () => {
   const [deaths, setDeaths] = useState([]);
@@ -12,7 +12,7 @@ const RecentDeathsDisplay = () => {
     fetchDeaths();
   };
 
-  const fetchDeaths = async () => {
+  const fetchDeaths = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -22,18 +22,23 @@ const RecentDeathsDisplay = () => {
 
       if (!response.ok) throw new Error(data.error || "Failed to fetch deaths");
 
-      setDeaths(data.deaths || []);
+      // Sort the newly fetched deaths by index (highest first)
+      const sortedDeaths = (data.deaths || []).sort(
+        (a, b) => b.index - a.index
+      );
+
+      setDeaths(sortedDeaths);
       setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchDeaths();
-  }, []);
+  }, [fetchDeaths]);
 
   const getClassColor = (className) => {
     const colors = {
@@ -139,7 +144,7 @@ const RecentDeathsDisplay = () => {
           <div className="divide-y divide-gray-600">
             {deaths.map((death, index) => (
               <div
-                key={death.id || index}
+                key={death.index || index}
                 className="flex items-center gap-3 p-3 bg-gray-700"
               >
                 <div className="flex-1 min-w-0">
