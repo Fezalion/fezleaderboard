@@ -5,7 +5,6 @@ const RecentDeathsDisplay = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshSpinAngle, setRefreshSpinAngle] = useState(0);
-  const [newDeathsCount, setNewDeathsCount] = useState(0);
 
   // Manual refresh handler (must be after fetchLadder)
   const handleManualRefresh = () => {
@@ -24,7 +23,6 @@ const RecentDeathsDisplay = () => {
       if (!response.ok) throw new Error(data.error || "Failed to fetch deaths");
 
       setDeaths(data.deaths || []);
-      setNewDeathsCount(data.newDeaths?.length || 0);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -73,11 +71,6 @@ const RecentDeathsDisplay = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold text-gray-100">Recent Deaths</h3>
-            {newDeathsCount > 0 && (
-              <span className="px-2 py-1 bg-red-600 text-white text-xs rounded-full animate-pulse">
-                +{newDeathsCount} new
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <button
