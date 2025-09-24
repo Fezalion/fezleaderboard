@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
+import RecentDeathsDisplay from "./RecentDeaths";
 
 // List of leagues to show in the combobox
 const LEAGUE_OPTIONS = [
@@ -252,7 +253,7 @@ function App() {
 
     return Object.entries(deathCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10); // top 10
+      .slice(0, 5); // top 10
   })();
 
   // Filtered ladder based on search bubbles and onlyAlive
@@ -966,7 +967,8 @@ function App() {
             </table>
 
             {/* Top deaths table */}
-            <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0 flex flex-col gap-6">
+            <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
+              <RecentDeathsDisplay />
               <table className="w-full border-collapse text-gray-100">
                 <thead>
                   <tr className="bg-gray-800 text-gray-100">
@@ -1061,8 +1063,15 @@ function App() {
         className="fixed bottom-0 left-0 w-full bg-gray-900 text-gray-400 text-center py-2 text-sm border-t border-gray-800 z-50 shadow-lg"
         style={{ pointerEvents: "auto" }}
       >
-        FezLeaderboard &copy; 2025 &mdash; Created by Fezalion | Append
-        ?league=LEAGUE_NAME to the URL to share a specific league view.
+        FezLeaderboard &copy; 2025 &mdash; Created by Fezalion |{" "}
+        <a
+          href="https://github.com/sponsors/Fezalion"
+          target="_blank"
+          className="bg-gradient-to-r items-center from-blue-500 via-teal-500 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
+        >
+          Sponsor me ❤️
+        </a>{" "}
+        | Append ?league=LEAGUE_NAME to the URL to share a specific league view.
       </footer>
     </>
   );
