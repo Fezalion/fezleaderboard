@@ -68,7 +68,7 @@ const RecentDeathsDisplay = () => {
   }
 
   return (
-    <div className="w-full min-h-[400px] bg-gray-800  overflow-hidden">
+    <div className="w-full max-h-1/2 bg-gray-800  overflow-hidden">
       <div className="bg-gray-800 px-4 border-gray-600">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

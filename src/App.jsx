@@ -968,7 +968,12 @@ function App() {
 
             {/* Top deaths table */}
             <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
-              <RecentDeathsDisplay />
+              {leagueName == "xXxBaboonLeaguexXx (PL74225)" ? (
+                <RecentDeathsDisplay />
+              ) : (
+                ""
+              )}
+
               <table className="w-full border-collapse text-gray-100">
                 <thead>
                   <tr className="bg-gray-800 text-gray-100">
