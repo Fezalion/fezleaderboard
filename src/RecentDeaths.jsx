@@ -16,7 +16,7 @@ const RecentDeathsDisplay = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://poe-proxy-6mvi.vercel.app/api/deaths"
+        "https://poe-proxy-nine.vercel.app/api/deaths"
       );
       const data = await response.json();
 

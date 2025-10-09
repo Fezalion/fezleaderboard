@@ -4,8 +4,11 @@ import RecentDeathsDisplay from "./RecentDeaths";
 
 // List of leagues to show in the combobox
 const LEAGUE_OPTIONS = [
-  { label: "xXxBaboonLeaguexXx", value: "xXxBaboonLeaguexXx (PL74225)" },
-  { label: "xXxSmackLeaguexXx", value: "xXxSmackLeaguexXx (PL56183)" },
+  { label: "Atlas Invasion", value: "Atlas Invasion (PL54150)" },
+  {
+    label: "Settlers Restart xdd Thanks GGG (PL53068)",
+    value: "Settlers Restart xdd Thanks GGG (PL53068)",
+  },
 ];
 
 // Get league name from query param if present
@@ -18,10 +21,10 @@ const LIMIT = 200;
 const REFRESH_INTERVAL = 300; // seconds
 
 const getApiUrls = (leagueName) => ({
-  API_URL: `https://poe-proxy-6mvi.vercel.app/api/ladder?league=${encodeURIComponent(
+  API_URL: `https://poe-proxy-nine.vercel.app/api/ladder?league=${encodeURIComponent(
     leagueName
   )}&limit=${LIMIT}`,
-  API2_URL: `https://poe-proxy-6mvi.vercel.app/api/league?league=${encodeURIComponent(
+  API2_URL: `https://poe-proxy-nine.vercel.app/api/league?league=${encodeURIComponent(
     leagueName
   )}`,
 });
@@ -356,7 +359,7 @@ function App() {
   };
 
   // Image sources for top 5
-  const top5Images = [
+  const _top5Images = [
     `${import.meta.env.BASE_URL}diamond-72.png`,
     `${import.meta.env.BASE_URL}golden-72.png`,
     `${import.meta.env.BASE_URL}silver-72.png`,
@@ -419,7 +422,7 @@ function App() {
           details.name && (
             <>
               <p className="text-center mb-4 text-gray-400 font-sans">
-                {details.rules[0].name} {details.category.id} -{" "}
+                {details.rules[0]?.name} {details.category.id} -{" "}
                 {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
                 <a
                   href={`https://www.pathofexile.com/private-leagues/league/${encodeURIComponent(
@@ -813,12 +816,13 @@ function App() {
                     }
                   });
                   // Build a sorted list of top 5 unique alive accounts by their first alive character's rank
-                  const top5AccountsByRank = Object.entries(
+                  /*const top5AccountsByRank = Object.entries(
                     accountFirstAliveRank
                   )
                     .sort((a, b) => a[1] - b[1])
                     .slice(0, 5)
                     .map(([name]) => name);
+                  */
 
                   return sortedLadder.map((entry, i) => {
                     const isDead = entry.dead;
@@ -843,7 +847,7 @@ function App() {
                     // Only show top5 image if this account is in top5AccountsByRank and this is their first alive character (by rank)
                     let top5Img = null;
                     if (!isDead && entry.account?.name) {
-                      const accIdx = top5AccountsByRank.indexOf(
+                      /*const accIdx = top5AccountsByRank.indexOf(
                         entry.account.name
                       );
                       if (
@@ -851,7 +855,7 @@ function App() {
                         entry.rank === accountFirstAliveRank[entry.account.name]
                       ) {
                         top5Img = top5Images[accIdx];
-                      }
+                      }*/
                     }
 
                     const clickCount = deadImageClicks[entry.rank] || 0;
