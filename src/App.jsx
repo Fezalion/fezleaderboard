@@ -1021,47 +1021,38 @@ function App() {
 
             {/* Top deaths table */}
             <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
-              {leagueName == "xXxBaboonLeaguexXx (PL74225)" ? (
-                <RecentDeathsDisplay />
+              {leagueName == "disabled" ? <RecentDeathsDisplay /> : ""}
+              {leagueName == "disabled" ? (
+                <table
+                  className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+                >
+                  <thead>
+                    <tr
+                      className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                    >
+                      <th className="p-2 text-left">Account</th>
+                      <th className="p-2 text-left">Deaths</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topDeaths.map(([account, deaths], i) => (
+                      <tr
+                        key={i}
+                        className={`${
+                          i % 2 === 0 ? THEME.rowEven : THEME.rowOdd
+                        } ${THEME.rowBorder}`}
+                      >
+                        <td className={`p-2 ${THEME.textPrimary}`}>
+                          {account}
+                        </td>
+                        <td className={`p-2 ${THEME.textPrimary}`}>{deaths}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               ) : (
                 ""
               )}
-
-              <table
-                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
-              >
-                <thead>
-                  <tr
-                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
-                  >
-                    <th className="p-2 text-left">Account</th>
-                    <th className="p-2 text-left">Deaths</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topDeaths.map(([account, deaths], i) => (
-                    <tr
-                      key={i}
-                      className={`${
-                        i % 2 === 0 ? THEME.rowEven : THEME.rowOdd
-                      } ${THEME.rowBorder}`}
-                    >
-                      <td className={`p-2 ${THEME.textPrimary}`}>{account}</td>
-                      <td className={`p-2 ${THEME.textPrimary}`}>{deaths}</td>
-                    </tr>
-                  ))}
-                  {topDeaths.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={2}
-                        className={`p-2 text-center ${THEME.textTertiary}`}
-                      >
-                        No deaths yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
 
               {/* Live on Twitch table */}
               <table
