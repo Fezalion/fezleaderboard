@@ -395,7 +395,7 @@ function App() {
   return (
     <>
       <div
-        className={`w-full mx-auto px-16 pt-8 pb-16 bg-gradient-to-b ${THEME.bgGradient} ${THEME.textPrimary} font-sans relative`}
+        className={`w-full min-h-screen mx-auto px-16 pt-8 pb-16 bg-gradient-to-b ${THEME.bgGradient} ${THEME.textPrimary} font-sans relative`}
       >
         {/* League combobox skeleton */}
         {loading ? (
