@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-  @apply bg-gradient-to-b from-black to-gray-950 text-slate-900;
+  @apply bg-black text-slate-900;
 }
 
 /* Fade in animation */
