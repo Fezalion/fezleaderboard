@@ -2,6 +2,61 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
 
+// ============================================================
+// THEME CONFIGURATION - Customize all colors and styles here
+// ============================================================
+const THEME = {
+  // Primary colors
+  bgGradient: "from-gray-800 to-gray-900",
+  textPrimary: "text-gray-200",
+  textSecondary: "text-gray-300",
+  textTertiary: "text-gray-400",
+  textDark: "text-gray-500",
+
+  // Accent colors
+  accentPrimary: "bg-gray-900",
+  accentSecondary: "bg-gray-800",
+  accentTertiary: "bg-gray-900",
+  accentLight: "bg-gray-800",
+
+  // Border colors
+  borderPrimary: "border-gray-700",
+  borderSecondary: "border-gray-800",
+  borderDead: "border-red-300",
+
+  // Glow/Shadow effects
+  glowPrimary: "shadow-sm",
+  glowSecondary: "shadow-sm",
+  glowLarge: "shadow-md",
+
+  // Interactive states
+  hoverDark: "hover:bg-gray-900",
+  hoverMedium: "hover:bg-gray-50",
+  focusBorder: "focus:border-blue-400",
+
+  // Special colors
+  linkColor: "text-blue-600",
+  linkColorHover: "hover:text-blue-700",
+  deadColor: "bg-red-50",
+  deadText: "text-red-600",
+  twitch: "bg-purple-600",
+  twitchHover: "hover:bg-purple-700",
+
+  // Row colors for tables
+  rowEven: "bg-gray-900",
+  rowOdd: "bg-gray-900",
+  rowHover: "hover:bg-blue-50",
+  rowBorder: "border-b border-gray-800",
+  rowDead: "bg-red-50 text-red-600 line-through border-b border-red-200",
+  rowAlive: "bg-gray-900 border-b border-gray-800 hover:bg-gray-800",
+
+  // Skeleton colors
+  skeletonBg: "bg-gray-800",
+  skeletonPulse: "bg-gray-900",
+  skeletonBorder: "border border-gray-700",
+  skeletonGlow: "shadow-sm",
+};
+
 // List of leagues to show in the combobox
 const LEAGUE_OPTIONS = [
   { label: "Atlas Invasion", value: "Atlas Invasion (PL54150)" },
@@ -113,10 +168,6 @@ function App() {
     setHighlightedIdx(-1);
   }, [search, ladder, searchBubbles]);
 
-  // Easter egg state
-  const [deadImageClicks, setDeadImageClicks] = useState({});
-  const [isEasterEggActive, setIsEasterEggActive] = useState(false);
-
   // Fetch ladder function
 
   const fetchLadder = useCallback(async () => {
@@ -198,31 +249,6 @@ function App() {
     };
   }, [fetchLadder]);
 
-  // Easter egg handler
-  const handleDeadImageClick = (rank) => {
-    setDeadImageClicks((prev) => {
-      const newClicks = { ...prev };
-      newClicks[rank] = (newClicks[rank] || 0) + 1;
-
-      if (newClicks[rank] === 3) {
-        // Trigger easter egg
-        setIsEasterEggActive(true);
-
-        // Play cat.mp3
-        const audio = new Audio(`${import.meta.env.BASE_URL || ""}cat.mp3`);
-        audio.play().catch((err) => console.log("Audio play failed:", err));
-
-        // Reset after animation
-        setTimeout(() => {
-          setIsEasterEggActive(false);
-          newClicks[rank] = 0;
-        }, 3000);
-      }
-
-      return newClicks;
-    });
-  };
-
   // Sorting function
   const handleSort = (key) => {
     let direction = "asc";
@@ -235,10 +261,10 @@ function App() {
   // Sort indicator component
   const SortIndicator = ({ column }) => {
     if (sortConfig.key !== column) {
-      return <span className="text-gray-500 ml-1">↕️</span>;
+      return <span className="text-purple-400 ml-1">↕️</span>;
     }
     return (
-      <span className="text-blue-400 ml-1">
+      <span className="text-cyan-300 ml-1">
         {sortConfig.direction === "asc" ? "↑" : "↓"}
       </span>
     );
@@ -369,16 +395,18 @@ function App() {
 
   return (
     <>
-      <div className="w-full mx-auto px-16 pt-8 pb-16 bg-gray-900 text-gray-100 font-sans relative">
+      <div
+        className={`w-full mx-auto px-16 pt-8 pb-16 bg-gradient-to-b ${THEME.bgGradient} ${THEME.textPrimary} font-sans relative`}
+      >
         {/* League combobox skeleton */}
         {loading ? (
           <div
-            className="px-3 py-2 rounded bg-gray-700 animate-pulse absolute top-4 left-4 z-30"
+            className={`px-3 py-2 rounded ${THEME.accentPrimary} animate-pulse absolute top-4 left-4 z-30 ${THEME.borderPrimary} ${THEME.glowPrimary}`}
             style={{ minWidth: 220, height: 44 }}
           />
         ) : (
           <select
-            className="px-3 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring focus:border-blue-400 text-base font-sans top-4 left-4 absolute z-30"
+            className={`px-3 py-2 rounded ${THEME.accentPrimary} ${THEME.textPrimary} border-2 ${THEME.borderPrimary} focus:outline-none focus:ring ${THEME.focusBorder} text-base font-sans top-4 left-4 absolute z-30 ${THEME.glowPrimary}`}
             value={selectedLeague}
             onChange={(e) => {
               setSelectedLeague(e.target.value);
@@ -394,34 +422,36 @@ function App() {
             ))}
           </select>
         )}
-        {/* Easter Egg Overlay */}
-        {isEasterEggActive && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <img
-              src={`${import.meta.env.BASE_URL}4x.avif`}
-              className="w-96 h-96 object-contain"
-            />
-          </div>
-        )}
+
         {/* League name skeleton */}
         {loading ? (
-          <div className="h-8 w-72 bg-gray-700 rounded animate-pulse mx-auto mt-2 mb-4" />
+          <div
+            className={`h-8 w-72 ${THEME.skeletonBg} rounded animate-pulse mx-auto mt-2 mb-4 ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
+          />
         ) : (
-          <h1 className="text-4xl font-extrabold text-center tracking-tight font-sans">
+          <h1
+            className={`text-4xl font-extrabold text-center tracking-tight font-sans`}
+          >
             {leagueName} Leaderboard
           </h1>
         )}
         {/* League details skeleton */}
         {loading ? (
           <>
-            <div className="mx-auto mb-4 h-4 w-2/3 bg-gray-700 rounded animate-pulse" />
-            <div className="mx-auto mb-4 h-3 w-1/2 bg-gray-700 rounded animate-pulse" />
+            <div
+              className={`mx-auto mb-4 h-4 w-2/3 ${THEME.skeletonBg} rounded animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
+            />
+            <div
+              className={`mx-auto mb-4 h-3 w-1/2 ${THEME.skeletonBg} rounded animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
+            />
           </>
         ) : (
           details &&
           details.name && (
             <>
-              <p className="text-center mb-4 text-gray-400 font-sans">
+              <p
+                className={`text-center mb-4 ${THEME.textSecondary} font-sans`}
+              >
                 {details.rules[0]?.name} {details.category.id} -{" "}
                 {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
                 <a
@@ -430,12 +460,14 @@ function App() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline text-blue-400 hover:text-blue-200"
+                  className={`underline ${THEME.linkColor} ${THEME.linkColorHover}`}
                 >
                   View League
                 </a>
               </p>
-              <p className="text-center mb-4 text-gray-400 font-sans">
+              <p
+                className={`text-center mb-4 ${THEME.textSecondary} font-sans`}
+              >
                 {details.description}
               </p>
             </>
@@ -446,7 +478,7 @@ function App() {
           <button
             onClick={handleManualRefresh}
             title="Refresh"
-            className="flex items-center justify-center p-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors border border-gray-600 focus:outline-none focus:ring relative"
+            className={`flex items-center justify-center p-2 rounded ${THEME.accentSecondary} ${THEME.hoverDark} transition-colors ${THEME.borderPrimary} focus:outline-none focus:ring relative ${THEME.glowPrimary}`}
             style={{ minWidth: 40 }}
           >
             <svg
@@ -476,7 +508,7 @@ function App() {
             </svg>
             {/* Countdown in bottom right */}
             <span
-              className="absolute text-[8px] text-gray-300 font-mono"
+              className={`absolute text-[8px] ${THEME.textSecondary} font-mono`}
               style={{ right: 0, bottom: -3, pointerEvents: "none" }}
             >
               {countdown}s
@@ -484,7 +516,9 @@ function App() {
           </button>
           {/* Search bar with bubbles inside input */}
           <div className="w-full max-w-md relative">
-            <div className="flex flex-wrap items-center gap-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus-within:ring focus-within:border-blue-400 min-h-[40px]">
+            <div
+              className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
+            >
               {searchBubbles.map((bubble, idx) => (
                 <span
                   key={bubble.type + bubble.value}
@@ -493,7 +527,7 @@ function App() {
                 >
                   {bubble.value}
                   <button
-                    className="ml-1 text-white hover:text-gray-200 focus:outline-none"
+                    className={`ml-1 ${THEME.textPrimary} hover:text-purple-200 focus:outline-none`}
                     onClick={() => {
                       setSearchBubbles(
                         searchBubbles.filter((b, i) => i !== idx)
@@ -544,13 +578,15 @@ function App() {
                   }
                 }}
                 placeholder="Search character, class or account..."
-                className="bg-transparent outline-none border-none flex-1 min-w-[120px] text-base font-sans text-gray-100 py-1"
+                className={`bg-transparent outline-none border-none flex-1 min-w-[120px] text-base font-sans ${THEME.textPrimary} py-1`}
                 style={{ minWidth: 120 }}
               />
             </div>
             {/* Suggestions dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute left-0 top-full mt-1 w-full bg-gray-800 border border-gray-700 rounded shadow-lg z-20 max-h-56 overflow-y-auto">
+              <ul
+                className={`absolute left-0 top-full mt-1 w-full ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} rounded shadow-lg ${THEME.glowPrimary} z-20 max-h-56 overflow-y-auto`}
+              >
                 {suggestions.map((s, idx) => (
                   <li
                     key={s.type + s.value}
@@ -570,7 +606,9 @@ function App() {
                     onMouseEnter={() => setHighlightedIdx(idx)}
                   >
                     <span className="font-bold capitalize">{s.value}</span>
-                    <span className="text-xs text-gray-400">{s.type}</span>
+                    <span className={`text-xs ${THEME.textTertiary}`}>
+                      {s.type}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -597,7 +635,7 @@ function App() {
           {(sortConfig.key !== "rank" || sortConfig.direction !== "asc") && (
             <button
               onClick={() => setSortConfig({ key: "rank", direction: "asc" })}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
+              className={`px-3 py-1 ${THEME.accentSecondary} ${THEME.hoverDark} rounded text-sm transition-colors ${THEME.borderPrimary} ${THEME.glowSecondary}`}
             >
               Clear Sort
             </button>
@@ -606,9 +644,13 @@ function App() {
         {loading ? (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main ladder table with skeleton rows */}
-            <table className="w-6/8 border-collapse text-gray-100">
+            <table
+              className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+            >
               <thead className="sticky top-0 z-10">
-                <tr className="bg-gray-800 text-gray-100">
+                <tr
+                  className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                >
                   <th className="p-2 text-left text-base font-bold font-sans">
                     Rank
                   </th>
@@ -639,53 +681,53 @@ function App() {
                 {[...Array(LIMIT)].map((_, i) => (
                   <tr
                     key={i}
-                    className="bg-gray-700 animate-pulse transition-all duration-700"
+                    className={`${THEME.rowEven} animate-pulse transition-all duration-700 ${THEME.rowBorder}`}
                   >
                     <td className="p-2 relative pl-8">
                       <div
-                        className="h-4 w-8 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-8 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-24 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-24 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-16 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-16 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-8 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-8 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-20 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-20 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-20 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
                     <td className="p-2">
                       <div
-                        className="h-4 w-20 bg-gray-600 rounded animate-pulse"
+                        className={`h-4 w-20 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
@@ -695,38 +737,58 @@ function App() {
             </table>
             {/* Top deaths table skeleton */}
             <div className="w-2/8 max-h-[800px] overflow-y-auto sticky top-0 flex flex-col gap-6">
-              <table className="w-full border-collapse text-gray-100">
+              <table
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
+              >
                 <thead>
-                  <tr className="bg-gray-800 text-gray-100">
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                  >
                     <th className="p-2 text-left">Account</th>
                     <th className="p-2 text-left">Deaths</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...Array(10)].map((_, i) => (
-                    <tr key={i} className="bg-gray-700 animate-pulse">
+                    <tr
+                      key={i}
+                      className={`${THEME.rowEven} animate-pulse ${THEME.rowBorder}`}
+                    >
                       <td className="p-2">
-                        <div className="h-4 w-24 bg-gray-600 rounded" />
+                        <div
+                          className={`h-4 w-24 ${THEME.skeletonPulse} rounded`}
+                        />
                       </td>
                       <td className="p-2">
-                        <div className="h-4 w-8 bg-gray-600 rounded" />
+                        <div
+                          className={`h-4 w-8 ${THEME.skeletonPulse} rounded`}
+                        />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {/* Live on Twitch table skeleton */}
-              <table className="w-full border-collapse text-gray-100">
+              <table
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
+              >
                 <thead>
-                  <tr className="bg-gray-800 text-gray-100">
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                  >
                     <th className="p-2 text-left">Live on Twitch</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...Array(10)].map((_, i) => (
-                    <tr key={i} className="bg-gray-700 animate-pulse">
+                    <tr
+                      key={i}
+                      className={`${THEME.rowEven} animate-pulse ${THEME.rowBorder}`}
+                    >
                       <td className="p-2">
-                        <div className="h-4 w-24 bg-gray-600 rounded" />
+                        <div
+                          className={`h-4 w-24 ${THEME.skeletonPulse} rounded`}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -737,9 +799,13 @@ function App() {
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main ladder table */}
-            <table className="w-6/8 border-collapse text-gray-100">
+            <table
+              className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+            >
               <thead className="sticky top-0 z-10">
-                <tr className="bg-gray-800 text-gray-100">
+                <tr
+                  className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                >
                   <th className="p-2 text-left text-base font-bold font-sans">
                     #
                   </th>
@@ -772,14 +838,14 @@ function App() {
                     <SortIndicator column="level" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                    className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                     onClick={() => handleSort("account")}
                   >
                     Account
                     <SortIndicator column="account" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                    className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                     onClick={() => handleSort("experience")}
                   >
                     Exp
@@ -789,7 +855,7 @@ function App() {
                   <th className="p-2 text-left">Diff</th>
                   {showDelve && (
                     <th
-                      className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
+                      className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                       onClick={() => handleSort("delve")}
                     >
                       Delve Depth
@@ -858,15 +924,11 @@ function App() {
                       }*/
                     }
 
-                    const clickCount = deadImageClicks[entry.rank] || 0;
-
                     return (
                       <tr
                         key={entry.rank}
                         className={`relative transition-all duration-700 transform *:py-2 *:mx-0 ${
-                          isDead
-                            ? "bg-red-700 text-red-300 line-through"
-                            : "bg-gray-700"
+                          isDead ? `${THEME.rowDead}` : `${THEME.rowAlive}`
                         } animate-fadein`}
                         style={{ animationDelay: `${i * 0.01}s` }}
                       >
@@ -876,18 +938,6 @@ function App() {
                             : "-"}
                         </td>
                         <td className="relative pl-8 text-sm font-medium font-sans">
-                          {isDead && (
-                            <img
-                              src={`${import.meta.env.BASE_URL}4x.avif`}
-                              alt="Dead"
-                              className={`absolute left-0 top-1/2 -translate-y-1/2 w-16 h-16 object-contain dead-image-clickable ${
-                                clickCount > 0 && clickCount < 3
-                                  ? "dead-image-clicked"
-                                  : ""
-                              }`}
-                              onClick={() => handleDeadImageClick(entry.rank)}
-                            />
-                          )}
                           {entry.rank}
                         </td>
                         <td className="text-sm font-medium font-sans flex items-center gap-2">
@@ -978,9 +1028,13 @@ function App() {
                 ""
               )}
 
-              <table className="w-full border-collapse text-gray-100">
+              <table
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+              >
                 <thead>
-                  <tr className="bg-gray-800 text-gray-100">
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                  >
                     <th className="p-2 text-left">Account</th>
                     <th className="p-2 text-left">Deaths</th>
                   </tr>
@@ -990,16 +1044,19 @@ function App() {
                     <tr
                       key={i}
                       className={`${
-                        i % 2 === 0 ? "bg-gray-700" : "bg-gray-800"
-                      }`}
+                        i % 2 === 0 ? THEME.rowEven : THEME.rowOdd
+                      } ${THEME.rowBorder}`}
                     >
-                      <td className="p-2">{account}</td>
-                      <td className="p-2">{deaths}</td>
+                      <td className={`p-2 ${THEME.textPrimary}`}>{account}</td>
+                      <td className={`p-2 ${THEME.textPrimary}`}>{deaths}</td>
                     </tr>
                   ))}
                   {topDeaths.length === 0 && (
                     <tr>
-                      <td colSpan={2} className="p-2 text-center text-gray-400">
+                      <td
+                        colSpan={2}
+                        className={`p-2 text-center ${THEME.textTertiary}`}
+                      >
                         No deaths yet
                       </td>
                     </tr>
@@ -1008,9 +1065,13 @@ function App() {
               </table>
 
               {/* Live on Twitch table */}
-              <table className="w-full border-collapse text-gray-100">
+              <table
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+              >
                 <thead>
-                  <tr className="bg-gray-800 text-gray-100">
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                  >
                     <th className="p-2 text-left">Live on Twitch</th>
                   </tr>
                 </thead>
@@ -1033,15 +1094,17 @@ function App() {
                         <tr
                           key={entry.account.name + "-" + i}
                           className={
-                            i % 2 === 0 ? "bg-gray-700" : "bg-gray-800"
+                            i % 2 === 0
+                              ? `${THEME.rowEven} ${THEME.rowBorder}`
+                              : `${THEME.rowOdd} ${THEME.rowBorder}`
                           }
                         >
-                          <td className="p-2">
+                          <td className={`p-2 ${THEME.textPrimary}`}>
                             <a
                               href={`https://twitch.tv/${entry.account.twitch.stream.name}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#9147ff] text-white font-bold hover:bg-[#772ce8] transition-colors duration-200 shadow-sm"
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded ${THEME.twitch} text-white font-bold ${THEME.twitchHover} transition-colors duration-200 shadow-sm`}
                               title="Live on Twitch!"
                             >
                               <span className="mr-1 align-middle">🔴</span>
@@ -1054,7 +1117,7 @@ function App() {
                       <tr>
                         <td
                           colSpan={2}
-                          className="p-2 text-center text-gray-400"
+                          className={`p-2 text-center ${THEME.textTertiary}`}
                         >
                           No one is live on Twitch
                         </td>
@@ -1069,14 +1132,14 @@ function App() {
       </div>
       {/* Fixed footer */}
       <footer
-        className="fixed bottom-0 left-0 w-full bg-gray-900 text-gray-400 text-center py-2 text-sm border-t border-gray-800 z-50 shadow-lg"
+        className={`fixed bottom-0 left-0 w-full bg-gradient-to-r ${THEME.bgGradient} ${THEME.textSecondary} text-center py-3 text-sm border-t-2 ${THEME.borderPrimary} z-50 ${THEME.glowLarge}`}
         style={{ pointerEvents: "auto" }}
       >
         FezLeaderboard &copy; 2025 &mdash; Created by Fezalion |{" "}
         <a
           href="https://github.com/sponsors/Fezalion"
           target="_blank"
-          className="bg-gradient-to-r items-center from-blue-500 via-teal-500 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
+          className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           Sponsor me ❤️
         </a>{" "}
