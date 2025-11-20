@@ -7,54 +7,54 @@ import RecentDeathsDisplay from "./RecentDeaths";
 // ============================================================
 const THEME = {
   // Primary colors
-  bgGradient: "from-gray-800 to-gray-900",
-  textPrimary: "text-gray-200",
+  bgGradient: "from-black to-gray-950",
+  textPrimary: "text-gray-100",
   textSecondary: "text-gray-300",
-  textTertiary: "text-gray-400",
-  textDark: "text-gray-500",
+  textTertiary: "text-gray-500",
+  textDark: "text-gray-600",
 
   // Accent colors
-  accentPrimary: "bg-gray-900",
-  accentSecondary: "bg-gray-800",
-  accentTertiary: "bg-gray-900",
-  accentLight: "bg-gray-800",
+  accentPrimary: "bg-gray-950",
+  accentSecondary: "bg-gray-900",
+  accentTertiary: "bg-black",
+  accentLight: "bg-gray-900",
 
   // Border colors
-  borderPrimary: "border-gray-700",
-  borderSecondary: "border-gray-800",
-  borderDead: "border-red-300",
+  borderPrimary: "border-gray-800",
+  borderSecondary: "border-gray-900",
+  borderDead: "border-red-900",
 
   // Glow/Shadow effects
-  glowPrimary: "shadow-sm",
-  glowSecondary: "shadow-sm",
-  glowLarge: "shadow-md",
+  glowPrimary: "shadow-lg shadow-black/50",
+  glowSecondary: "shadow-md shadow-black/40",
+  glowLarge: "shadow-xl shadow-black/60",
 
   // Interactive states
-  hoverDark: "hover:bg-gray-900",
-  hoverMedium: "hover:bg-gray-50",
-  focusBorder: "focus:border-blue-400",
+  hoverDark: "hover:bg-black-500",
+  hoverMedium: "hover:bg-gray-900",
+  focusBorder: "focus:border-blue-500",
 
   // Special colors
-  linkColor: "text-blue-600",
-  linkColorHover: "hover:text-blue-700",
-  deadColor: "bg-red-50",
-  deadText: "text-red-600",
+  linkColor: "text-blue-400",
+  linkColorHover: "hover:text-blue-300",
+  deadColor: "bg-red-950",
+  deadText: "text-red-400",
   twitch: "bg-purple-600",
   twitchHover: "hover:bg-purple-700",
 
   // Row colors for tables
-  rowEven: "bg-gray-900",
-  rowOdd: "bg-gray-900",
-  rowHover: "hover:bg-blue-50",
-  rowBorder: "border-b border-gray-800",
-  rowDead: "bg-red-50 text-red-600 line-through border-b border-red-200",
-  rowAlive: "bg-gray-900 border-b border-gray-800 hover:bg-gray-800",
+  rowEven: "bg-gray-950",
+  rowOdd: "bg-gray-950",
+  rowHover: "hover:bg-gray-900",
+  rowBorder: "border-b border-gray-900",
+  rowDead: "bg-red-950 text-red-400 line-through border-b border-red-900",
+  rowAlive: "bg-gray-950 border-b border-gray-900 hover:bg-gray-900",
 
   // Skeleton colors
-  skeletonBg: "bg-gray-800",
+  skeletonBg: "bg-gray-950",
   skeletonPulse: "bg-gray-900",
-  skeletonBorder: "border border-gray-700",
-  skeletonGlow: "shadow-sm",
+  skeletonBorder: "border border-gray-900",
+  skeletonGlow: "shadow-md shadow-black/40",
 };
 
 // List of leagues to show in the combobox
