@@ -59,10 +59,9 @@ const THEME = {
 
 // List of leagues to show in the combobox
 const LEAGUE_OPTIONS = [
-  { label: "Atlas Invasion", value: "Atlas Invasion (PL54150)" },
   {
-    label: "Settlers Restart xdd Thanks GGG (PL53068)",
-    value: "Settlers Restart xdd Thanks GGG (PL53068)",
+    label: "VibeRaters Praise the Tree Tree",
+    value: "VibeRaters Praise the Tree Tree (PL76433)",
   },
 ];
 
