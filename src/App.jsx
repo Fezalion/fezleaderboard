@@ -392,15 +392,37 @@ function App() {
     `${import.meta.env.BASE_URL}base-72.png`,
   ];
 
-  const [timeUntilStart, setTimeUntilStart] = useState(null);
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [countdownType, setCountdownType] = useState(null); // 'start' or 'end'
   const [changedUnits, setChangedUnits] = useState({});
   const prevTimeRef = useRef(null);
 
   useEffect(() => {
-    if (!details?.startAt) return;
+    if (!details?.startAt || !details?.endAt) return;
 
     const updateCountdown = () => {
-      const diff = new Date(details.startAt) - Date.now();
+      const now = Date.now();
+      const startTime = new Date(details.startAt).getTime();
+      const endTime = new Date(details.endAt).getTime();
+
+      let diff;
+      let type;
+
+      if (now < startTime) {
+        // League hasn't started yet
+        diff = startTime - now;
+        type = "start";
+      } else if (now < endTime) {
+        // League is running
+        diff = endTime - now;
+        type = "end";
+      } else {
+        // League has ended
+        setTimeRemaining(null);
+        setCountdownType(null);
+        return;
+      }
+
       if (diff > 0) {
         const days = Math.floor(diff / 1000 / 60 / 60 / 24);
         const hours = Math.floor((diff / 1000 / 60 / 60) % 24);
@@ -423,9 +445,8 @@ function App() {
         }
 
         prevTimeRef.current = currentTime;
-        setTimeUntilStart(diff);
-      } else {
-        setTimeUntilStart(null);
+        setTimeRemaining(diff);
+        setCountdownType(type);
       }
     };
 
@@ -433,7 +454,7 @@ function App() {
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [details?.startAt]);
+  }, [details?.startAt, details?.endAt]);
 
   return (
     <>
@@ -512,21 +533,23 @@ function App() {
               >
                 {details.description}
               </p>
-              {timeUntilStart &&
-                timeUntilStart > 0 &&
+              {timeRemaining &&
+                timeRemaining > 0 &&
                 (() => {
-                  const days = Math.floor(timeUntilStart / 1000 / 60 / 60 / 24);
+                  const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24);
                   const hours = Math.floor(
-                    (timeUntilStart / 1000 / 60 / 60) % 24
+                    (timeRemaining / 1000 / 60 / 60) % 24
                   );
-                  const minutes = Math.floor((timeUntilStart / 1000 / 60) % 60);
-                  const seconds = Math.floor((timeUntilStart / 1000) % 60);
+                  const minutes = Math.floor((timeRemaining / 1000 / 60) % 60);
+                  const seconds = Math.floor((timeRemaining / 1000) % 60);
 
                   return (
                     <p
                       className={`text-center mb-4 ${THEME.textSecondary} font-sans`}
                     >
-                      League starts in{" "}
+                      {countdownType === "start"
+                        ? "League starts in"
+                        : "League ends in"}{" "}
                       {days > 0 && (
                         <>
                           <span
