@@ -393,6 +393,8 @@ function App() {
   ];
 
   const [timeUntilStart, setTimeUntilStart] = useState(null);
+  const [changedUnits, setChangedUnits] = useState({});
+  const prevTimeRef = useRef(null);
 
   useEffect(() => {
     if (!details?.startAt) return;
@@ -400,6 +402,27 @@ function App() {
     const updateCountdown = () => {
       const diff = new Date(details.startAt) - Date.now();
       if (diff > 0) {
+        const days = Math.floor(diff / 1000 / 60 / 60 / 24);
+        const hours = Math.floor((diff / 1000 / 60 / 60) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        const currentTime = { days, hours, minutes, seconds };
+
+        if (prevTimeRef.current) {
+          const changed = {};
+          if (prevTimeRef.current.days !== days) changed.days = true;
+          if (prevTimeRef.current.hours !== hours) changed.hours = true;
+          if (prevTimeRef.current.minutes !== minutes) changed.minutes = true;
+          if (prevTimeRef.current.seconds !== seconds) changed.seconds = true;
+
+          if (Object.keys(changed).length > 0) {
+            setChangedUnits(changed);
+            setTimeout(() => setChangedUnits({}), 300);
+          }
+        }
+
+        prevTimeRef.current = currentTime;
         setTimeUntilStart(diff);
       } else {
         setTimeUntilStart(null);
@@ -407,7 +430,7 @@ function App() {
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000); // Update every second
+    const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
   }, [details?.startAt]);
@@ -503,8 +526,47 @@ function App() {
                     <p
                       className={`text-center mb-4 ${THEME.textSecondary} font-sans`}
                     >
-                      League starts in {days > 0 && `${days}d `}
-                      {hours}h {minutes}m {seconds}s
+                      League starts in{" "}
+                      {days > 0 && (
+                        <>
+                          <span
+                            className={`inline-block transition-all duration-300 ${
+                              changedUnits.days
+                                ? "text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,1)]"
+                                : ""
+                            }`}
+                          >
+                            {days}d
+                          </span>{" "}
+                        </>
+                      )}
+                      <span
+                        className={`inline-block transition-all duration-300 ${
+                          changedUnits.hours
+                            ? "text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,1)]"
+                            : ""
+                        }`}
+                      >
+                        {hours}h
+                      </span>{" "}
+                      <span
+                        className={`inline-block transition-all duration-300 ${
+                          changedUnits.minutes
+                            ? "text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,1)]"
+                            : ""
+                        }`}
+                      >
+                        {minutes}m
+                      </span>{" "}
+                      <span
+                        className={`inline-block transition-all duration-300 ${
+                          changedUnits.seconds
+                            ? "text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,1)]"
+                            : ""
+                        }`}
+                      >
+                        {seconds}s
+                      </span>
                     </p>
                   );
                 })()}
