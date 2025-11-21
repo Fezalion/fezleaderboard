@@ -392,6 +392,26 @@ function App() {
     `${import.meta.env.BASE_URL}base-72.png`,
   ];
 
+  const [timeUntilStart, setTimeUntilStart] = useState(null);
+
+  useEffect(() => {
+    if (!details?.startAt) return;
+
+    const updateCountdown = () => {
+      const diff = new Date(details.startAt) - Date.now();
+      if (diff > 0) {
+        setTimeUntilStart(diff);
+      } else {
+        setTimeUntilStart(null);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000); // Update every second
+
+    return () => clearInterval(interval);
+  }, [details?.startAt]);
+
   return (
     <>
       <div
@@ -469,6 +489,25 @@ function App() {
               >
                 {details.description}
               </p>
+              {timeUntilStart &&
+                timeUntilStart > 0 &&
+                (() => {
+                  const days = Math.floor(timeUntilStart / 1000 / 60 / 60 / 24);
+                  const hours = Math.floor(
+                    (timeUntilStart / 1000 / 60 / 60) % 24
+                  );
+                  const minutes = Math.floor((timeUntilStart / 1000 / 60) % 60);
+                  const seconds = Math.floor((timeUntilStart / 1000) % 60);
+
+                  return (
+                    <p
+                      className={`text-center mb-4 ${THEME.textSecondary} font-sans`}
+                    >
+                      League starts in {days > 0 && `${days}d `}
+                      {hours}h {minutes}m {seconds}s
+                    </p>
+                  );
+                })()}
             </>
           )
         )}
