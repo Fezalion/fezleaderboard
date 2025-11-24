@@ -1051,7 +1051,7 @@ function App() {
                         <td className="relative pl-8 text-sm font-medium font-sans">
                           {entry.rank}
                         </td>
-                        <td className="text-sm font-medium font-sans flex items-center gap-2">
+                        <td className="text-sm font-medium font-sans">
                           <a
                             href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
                               entry.account?.name
