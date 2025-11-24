@@ -1034,18 +1034,6 @@ function App() {
                     }
                     const expDiff = i === 0 || isDead ? null : exp - top1Exp;
                     // Only show top5 image if this account is in top5AccountsByRank and this is their first alive character (by rank)
-                    let top5Img = null;
-                    if (!isDead && entry.account?.name) {
-                      /*const accIdx = top5AccountsByRank.indexOf(
-                        entry.account.name
-                      );
-                      if (
-                        accIdx > -1 &&
-                        entry.rank === accountFirstAliveRank[entry.account.name]
-                      ) {
-                        top5Img = top5Images[accIdx];
-                      }*/
-                    }
 
                     return (
                       <tr
@@ -1064,14 +1052,21 @@ function App() {
                           {entry.rank}
                         </td>
                         <td className="text-sm font-medium font-sans flex items-center gap-2">
-                          {top5Img && (
-                            <img
-                              src={top5Img}
-                              alt={`Top${i + 1}`}
-                              className="inline-block w-7 h-7 object-contain mr-1"
-                            />
-                          )}
-                          {entry.character?.name}
+                          <a
+                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
+                              entry.account?.name
+                            ).replace(
+                              "#",
+                              "-"
+                            )}/characters?characterName=${encodeURI(
+                              entry.character?.name
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            {entry.character?.name}
+                          </a>
                         </td>
                         <td className="text-sm font-medium font-sans">
                           {entry.character?.class}
@@ -1092,7 +1087,16 @@ function App() {
                               {entry.account?.name}
                             </a>
                           ) : (
-                            entry.account?.name
+                            <a
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
+                                entry.account?.name
+                              ).replace("#", "-")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                            >
+                              {entry.account?.name}
+                            </a>
                           )}
                           {typeof entry.account?.challenges?.completed ===
                             "number" && (
