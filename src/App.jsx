@@ -893,7 +893,7 @@ function App() {
               </table>
               {/* Live on Twitch table skeleton */}
               <table
-                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden sticky`}
               >
                 <thead>
                   <tr
@@ -1040,7 +1040,11 @@ function App() {
                         key={entry.rank}
                         className={`relative transition-all duration-700 transform *:py-2 *:mx-0 ${
                           isDead ? `${THEME.rowDead}` : `${THEME.rowAlive}`
-                        } animate-fadein`}
+                        } animate-fadein ${
+                          entry.retired
+                            ? `bg-[repeating-linear-gradient(45deg,#ef444420,#ef444420_10px,#ffffff20_10px,#ffffff20_20px)]`
+                            : ``
+                        }`}
                         style={{ animationDelay: `${i * 0.01}s` }}
                       >
                         <td className="text-sm font-mono font-semibold text-center">
