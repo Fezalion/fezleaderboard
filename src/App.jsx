@@ -125,6 +125,7 @@ function App() {
   const searchInputRef = useRef(null);
   const [showDelve, setShowDelve] = useState(false);
   const [onlyAlive, setOnlyAlive] = useState(false);
+  const [onlyTopRanked, setOnlyTopRanked] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: "rank",
     direction: "asc",
@@ -315,6 +316,9 @@ function App() {
   }
   if (onlyAlive) {
     filteredLadder = filteredLadder.filter((entry) => !entry.dead);
+  }
+  if (onlyTopRanked) {
+    filteredLadder = filteredLadder.filter((entry) => aliveRankMap[entry.rank]);
   }
 
   // Sort filtered ladder
@@ -754,6 +758,15 @@ function App() {
               className="form-checkbox h-4 w-4 text-green-600"
             />
             Only Alive
+          </label>
+          <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={onlyTopRanked}
+              onChange={(e) => setOnlyTopRanked(e.target.checked)}
+              className="form-checkbox h-4 w-4 text-amber-600"
+            />
+            Filter Top per Acc.
           </label>
           {(sortConfig.key !== "rank" || sortConfig.direction !== "asc") && (
             <button
