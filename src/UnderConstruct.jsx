@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function UnderConstruct() {
   return (
@@ -21,10 +22,13 @@ export default function UnderConstruct() {
       {/* Main content */}
       <div className="z-10 flex flex-col items-center">
         <h1 className="text-6xl font-extrabold mb-4 animate-fadeIn drop-shadow-lg">
-          Coming Soon
+          See you next private league!
         </h1>
         <p className="text-xl mb-8 animate-fadeIn delay-200">
-          This page is under construction. Stay tuned for something awesome!
+          you can access last private league by{" "}
+          <Link to="/letmein" className="hover:underline">
+            /letmein
+          </Link>
         </p>
         <div className="flex gap-4 mt-4 animate-fadeIn delay-400">
           <div className="w-4 h-4 bg-purple-400 rounded-full animate-bounce delay-0" />

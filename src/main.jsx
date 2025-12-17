@@ -9,8 +9,8 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter basename="/fezleaderboard">
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/dev" element={<UnderConstruct />} />
+        <Route path="/letmein" element={<App />} />
+        <Route path="/" element={<UnderConstruct />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
