@@ -366,9 +366,8 @@ function CDRTable({
 
           <div className="field">
             <div className="hint">
-              The Greater selection is WIP and not tested, based on POB
-              DoomBlastCalc code.{" "}
-              <span className="text-red-500">DO NOT RELY</span>
+              The Greater selection is WIP and not tested{" "}
+              <span className="text-red-500">DO NOT RELY</span> on it.
             </div>
           </div>
 
