@@ -4,14 +4,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import UnderConstruct from "./UnderConstruct.jsx";
+import ImpendingDoomCalc from "./impending-doom-calc.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter basename="/fezleaderboard">
       <Routes>
         <Route path="/letmein" element={<App />} />
+        <Route path="/idc" element={<ImpendingDoomCalc />} />
         <Route path="/" element={<UnderConstruct />} />
       </Routes>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
