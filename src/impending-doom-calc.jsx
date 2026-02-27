@@ -293,13 +293,22 @@ function CDRTable({
               className={`toggle-btn${awakened ? " active" : ""}`}
               onClick={() => setAwakened(true)}
             >
-              Awakened
+              Greater
               <br />
               <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>
                 5 hits/cast
               </span>
             </button>
           </div>
+
+          <div className="field">
+            <div className="hint">
+              The Normal/Greater selection is WIP and not tested, based on POB
+              DoomBlastCalc code.{" "}
+              <span className="text-red-500">DO NOT RELY</span>
+            </div>
+          </div>
+
           <div className="field">
             <label>Vixen Cooldown (s)</label>
             <input
@@ -319,7 +328,7 @@ function CDRTable({
             />
           </div>
           <div className="field">
-            <label>Temp Chains Slow</label>
+            <label>Temp Chains Cast Time</label>
             <input
               type="number"
               step="0.05"
@@ -327,8 +336,8 @@ function CDRTable({
               onChange={(e) => setTempChains(parseFloat(e.target.value) || 0)}
             />
             <div className="hint">
-              Slow fraction (0.5 = 50% slow). Also used as the base cast time in
-              Tab 2.
+              the base cast time of Temporal Chains (should be 0.5 at all times
+              ?)
             </div>
           </div>
           <div className="field">
@@ -421,21 +430,13 @@ function CDRTable({
 }
 
 // ─── Tab 2: Checking Specific Values ─────────────────────────────────────────
-function SpecificValues({
-  vixenCD,
-  doomCD,
-  tempChains,
-  setTempChains,
-  awakened,
-  setAwakened,
-}) {
+function SpecificValues({ vixenCD, doomCD, tempChains, setTempChains }) {
   const [cdr, setCdr] = useState(53);
   const [actionSpeed, setAS] = useState(0);
   const [myCastSpeed, setMyCS] = useState(133);
   const [offset, setOffset] = useState(10);
 
   const tempChainsBase = tempChains;
-  const cascadeHits = awakened ? 5 : 4;
 
   const summary = useMemo(
     () =>
@@ -505,33 +506,8 @@ function SpecificValues({
       <div>
         <div className="panel">
           <div className="panel-title">🔍 Your Stats</div>
-
-          <span className="toggle-label">Spell Cascade</span>
-          <div className="toggle-group">
-            <button
-              className={`toggle-btn${!awakened ? " active" : ""}`}
-              onClick={() => setAwakened(false)}
-            >
-              Regular
-              <br />
-              <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-                4 hits/cast
-              </span>
-            </button>
-            <button
-              className={`toggle-btn${awakened ? " active" : ""}`}
-              onClick={() => setAwakened(true)}
-            >
-              Awakened
-              <br />
-              <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-                5 hits/cast
-              </span>
-            </button>
-          </div>
-
           <div className="field">
-            <label>Temp Chains Slow</label>
+            <label>Temp Chains Cast Time</label>
             <input
               type="number"
               step="0.05"
@@ -539,7 +515,8 @@ function SpecificValues({
               onChange={(e) => setTempChains(parseFloat(e.target.value) || 0)}
             />
             <div className="hint">
-              Slow fraction (0.5 = 50% slow) — sets the base cast time
+              the base cast time of Temporal Chains (should be 0.5 at all times
+              ?)
             </div>
           </div>
 
@@ -624,7 +601,6 @@ function SpecificValues({
         <div className="spec-summary">
           <div className="spec-summary-title">
             Results at {myCastSpeed}% Cast Speed
-            <span className="cascade-badge">{cascadeHits} hits</span>
           </div>
           <div className="spec-summary-grid">
             <div className="ssb neutral">
