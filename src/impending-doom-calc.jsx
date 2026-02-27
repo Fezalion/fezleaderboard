@@ -355,20 +355,12 @@ function CDRTable({
               onClick={() => setAwakened(false)}
             >
               Regular
-              <br />
-              <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-                4 hits/cast
-              </span>
             </button>
             <button
               className={`toggle-btn${awakened ? " active" : ""}`}
               onClick={() => setAwakened(true)}
             >
               Greater
-              <br />
-              <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-                5 hits/cast
-              </span>
             </button>
           </div>
 
@@ -460,10 +452,7 @@ function CDRTable({
             <thead>
               <tr>
                 <th>CDR %</th>
-                <th>
-                  Max DPS CS{" "}
-                  <span className="cascade-badge">{cascadeHits} hits</span>
-                </th>
+                <th>Max DPS CS</th>
                 <th>Hardcap CS</th>
                 <th>Vixen Ticks</th>
                 <th>Vixen CD</th>
