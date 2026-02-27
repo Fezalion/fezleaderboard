@@ -967,10 +967,13 @@ export default function ImpendingDoomCalc() {
           <div className="divider" />
           <div className="credit">
             Originally Made by @Silenth ·{" "}
-            <a href="https://docs.google.com/spreadsheets/d/1J-yVLmDhKqKNE8QecsPnZgNR2TDGDm41f-1tdC_BxQA/edit?gid=1230763965#gid=1230763965">
+            <a
+              href="https://docs.google.com/spreadsheets/d/1J-yVLmDhKqKNE8QecsPnZgNR2TDGDm41f-1tdC_BxQA/edit?gid=1230763965#gid=1230763965"
+              className="text-amber-500 underline cursor-pointer"
+            >
               og document
             </a>{" "}
-            · Path of Exile
+            · Website made by Fezalion
           </div>
         </div>
 
