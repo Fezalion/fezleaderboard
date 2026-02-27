@@ -233,6 +233,77 @@ const STYLES = `
   .hint-banner span { color: #c8853a; }
 
   .range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+  /* FAQ Tab */
+  .faq-wrap {
+    max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .faq-intro {
+    text-align: center; margin-bottom: 1.5rem;
+  }
+  .faq-intro p {
+    font-size: 0.75rem; color: #6a5a4a; line-height: 1.7; max-width: 520px; margin: 0 auto;
+  }
+  .accordion {
+    border: 1px solid rgba(200,133,58,0.25); border-radius: 8px;
+    background: rgba(255,255,255,0.02); overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .accordion.open { border-color: rgba(200,133,58,0.5); }
+  .accordion-trigger {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem; background: transparent; border: none; cursor: pointer;
+    text-align: left; transition: background 0.18s; gap: 1rem;
+  }
+  .accordion-trigger:hover { background: rgba(200,133,58,0.06); }
+  .accordion.open .accordion-trigger { background: rgba(200,133,58,0.08); }
+  .accordion-question {
+    font-family: 'Cinzel', serif; font-size: 0.8rem; color: #c8b99a;
+    letter-spacing: 0.06em; line-height: 1.4; flex: 1;
+  }
+  .accordion.open .accordion-question { color: #e8c97a; }
+  .accordion-chevron {
+    flex-shrink: 0; width: 16px; height: 16px; color: #6a5a4a;
+    transition: transform 0.25s, color 0.18s;
+  }
+  .accordion.open .accordion-chevron { transform: rotate(180deg); color: #c8853a; }
+  .accordion-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 1.25rem;
+  }
+  .accordion.open .accordion-body {
+    max-height: 600px;
+    padding: 0 1.25rem 1.25rem;
+  }
+  .accordion-divider {
+    height: 1px; background: rgba(200,133,58,0.15); margin-bottom: 1rem;
+  }
+  .accordion-body p {
+    font-size: 0.75rem; color: #8a7a6a; line-height: 1.75; margin-bottom: 0.75rem;
+  }
+  .accordion-body p:last-child { margin-bottom: 0; }
+  .accordion-body strong { color: #c8b99a; font-weight: 500; }
+  .accordion-body .highlight { color: #e8c97a; }
+  .accordion-body .danger-text { color: #e87050; }
+  .accordion-body .code-inline {
+    font-family: 'Fira Code', monospace; font-size: 0.7rem;
+    background: rgba(200,133,58,0.1); border: 1px solid rgba(200,133,58,0.2);
+    border-radius: 3px; padding: 0.1rem 0.4rem; color: #c8b99a;
+  }
+  .accordion-body ul {
+    list-style: none; margin: 0.5rem 0 0.75rem; padding: 0;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .accordion-body ul li {
+    font-size: 0.75rem; color: #8a7a6a; line-height: 1.6;
+    padding-left: 1.1rem; position: relative;
+  }
+  .accordion-body ul li::before {
+    content: '◆'; position: absolute; left: 0;
+    font-size: 0.45rem; color: #c8853a; top: 0.3rem;
+  }
 `;
 
 // ─── Tab 1: CDR Table ─────────────────────────────────────────────────────────
@@ -675,9 +746,217 @@ function SpecificValues({ vixenCD, doomCD, tempChains, setTempChains }) {
   );
 }
 
+// ─── FAQ Tab ──────────────────────────────────────────────────────────────────
+const FAQ_ITEMS = [
+  {
+    q: "Why does Doom Blast have a Cast Speed Hardcap — and what happens if I exceed it?",
+    a: (
+      <>
+        <p>
+          Doom Blast is triggered by <strong>Vixen's Entrapment</strong>{" "}
+          whenever a hex is overwritten past your curse limit. Vixen's has its
+          own cooldown (default <span className="code-inline">0.25s</span>,
+          reduced by CDR), which is snapped to the nearest server tick at{" "}
+          <strong>30 ticks/sec</strong>. That snapping creates a precise window:
+          you must cast Temporal Chains <em>at most</em> once per Vixen tick.
+        </p>
+        <p>
+          If your cast speed is so high that you cast <em>twice</em> before
+          Vixen's cooldown expires, the second cast fires a second Vixen proc —
+          but Doom Blast's own <span className="code-inline">0.15s</span>{" "}
+          cooldown isn't ready yet, so that trigger is{" "}
+          <span className="danger-text">wasted</span>. You end up with the same
+          number of Doom Blasts per second as before, but spending twice the
+          casts — effectively{" "}
+          <span className="danger-text">halving your DPS</span>.
+        </p>
+        <p>
+          The <span className="highlight">Hardcap CS</span> column in the CDR
+          table shows the maximum cast speed (in % increased) you should ever
+          have, including temporary buffs like Onslaught or Frenzy charges. Stay
+          below it at all times.
+        </p>
+      </>
+    ),
+  },
+  {
+    q: "What is the difference between Max DPS Cast Speed and the Hardcap?",
+    a: (
+      <>
+        <p>
+          These are two separate ceilings and it's important not to confuse
+          them:
+        </p>
+        <ul>
+          <li>
+            <strong>Max DPS Cast Speed</strong> — the point at which your cast
+            rate matches Doom Blast's effective cooldown multiplied by cascade
+            hits. Going faster than this does not add any additional Doom Blasts
+            per second; you're already firing one per available cooldown window.
+            This is your <span className="highlight">bossing target</span>.
+          </li>
+          <li>
+            <strong>Cast Speed Hardcap</strong> — the absolute ceiling beyond
+            which you actively break the interaction and lose DPS. This is
+            determined by Vixen's server-tick window and is always higher than
+            Max DPS CS.{" "}
+            <span className="danger-text">
+              Never exceed this, even with temporary buffs.
+            </span>
+          </li>
+        </ul>
+        <p>
+          In practice you want your cast speed to sit near or just under Max DPS
+          CS during bossing, with enough headroom that mapping buffs (Onslaught,
+          Adrenaline, etc.) don't push you past the Hardcap.
+        </p>
+      </>
+    ),
+  },
+  {
+    q: "Do CDR breakpoints matter for Doom Blast like they do for other trigger skills?",
+    a: (
+      <>
+        <p>
+          <strong>For Doom Blast itself — no.</strong> Most trigger skills (Cast
+          on Crit, CWDT) must wait for their cooldown to snap to the next server
+          tick, creating meaningful CDR thresholds. Doom Blast stores up to{" "}
+          <span className="code-inline">3 charges</span> that recover on a
+          rolling basis, so its cooldown scales continuously with CDR. Any CDR%
+          you add directly reduces the effective cooldown — there are no wasted
+          breakpoints on Doom Blast.
+        </p>
+        <p>
+          <strong>For Vixen's Entrapment — yes, one matters.</strong> Vixen's
+          cooldown <em>does</em> snap to server ticks. The only practically
+          significant breakpoint is around{" "}
+          <span className="highlight">80–88% CDR</span>, where Vixen's ticks
+          drop from 5 to 4 (visible as a <span className="code-inline">bp</span>{" "}
+          marker in the CDR table). This slightly shifts both the Max DPS and
+          Hardcap cast speed thresholds, so it's worth noting if you're near
+          that range.
+        </p>
+        <p>
+          Below ~80% CDR, Vixen's sits at 5 ticks and all other CDR is
+          effectively smooth scaling. Focus your CDR investment on lowering Doom
+          Blast's raw cooldown — every percent counts.
+        </p>
+      </>
+    ),
+  },
+  {
+    q: "My first cast does not damage enemies?",
+    a: (
+      <>
+        <p>
+          <strong>You’re slightly short on cast speed.</strong> What’s happening
+          is that your first Vixen’s curse is applying <em>before</em> your
+          Impending Doom curse. Because of that ordering, your main curse
+          doesn’t get overridden on the first cast, which disrupts the expected
+          Doom trigger sequence.
+        </p>
+        <p>
+          The simplest fix is to increase your cast speed so the timing lines up
+          correctly. Socketing a{" "}
+          <span className="code-inline">Faster Casting Support</span> is usually
+          enough to solve the issue and stabilize the curse order.
+        </p>
+      </>
+    ),
+  },
+  {
+    q: "My first cast How should I socket my curses, what should my main curse be? not damage enemies?",
+    a: (
+      <>
+        <p>
+          <strong>There’s an active curse cycle at play.</strong> For clarity,
+          let’s define terms: your self-cast curse is the{" "}
+          <span className="highlight">main curse</span>, and the Vixen’s curses
+          are <span className="code-inline">Curse 1</span>,{" "}
+          <span className="code-inline">Curse 2</span>, and{" "}
+          <span className="code-inline">Curse 3</span>, ordered clockwise in the
+          gem links.
+        </p>
+        <p>
+          The main curse and Curse 1 effectively “ping-pong” between each other.
+          First, your main curse applies. Then Curse 1, 2, and 3 trigger. Curse
+          3 ends up removing your main curse. When you cast again, your main
+          curse replaces the <em>oldest</em> curse in the chain — which is Curse
+          1.
+        </p>
+        <p>
+          <strong>Practical takeaway:</strong> curses placed in slots 2 and 3
+          maintain 100% uptime in the rotation. If you want a curse to linger
+          after you stop casting, it should be your main curse or placed in
+          slots 2 and 3.
+        </p>
+        <p>
+          For maximum damage, placing{" "}
+          <span className="code-inline">Despair</span> and{" "}
+          <span className="code-inline">Temporal Chains</span> in slots 2 and 3
+          is ideal. Then use <span className="code-inline">Enfeeble</span> as
+          your main curse so its defensive effect lingers when you stop
+          attacking.
+        </p>
+      </>
+    ),
+  },
+];
+
+function Accordion({ item, isOpen, onToggle }) {
+  return (
+    <div className={`accordion${isOpen ? " open" : ""}`}>
+      <button className="accordion-trigger" onClick={onToggle}>
+        <span className="accordion-question">{item.q}</span>
+        <svg
+          className="accordion-chevron"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="4 6 8 10 12 6" />
+        </svg>
+      </button>
+      <div className="accordion-body">
+        <div className="accordion-divider" />
+        {item.a}
+      </div>
+    </div>
+  );
+}
+
+function FAQTab() {
+  const [openIndex, setOpenIndex] = useState(null);
+  function toggle(i) {
+    setOpenIndex(openIndex === i ? null : i);
+  }
+  return (
+    <div className="faq-wrap">
+      <div className="faq-intro">
+        <p>
+          Common questions about the Impending Doom interaction, cast speed
+          limits, and how CDR affects your trigger rate. Click any question to
+          expand it.
+        </p>
+      </div>
+      {FAQ_ITEMS.map((item, i) => (
+        <Accordion
+          key={i}
+          item={item}
+          isOpen={openIndex === i}
+          onToggle={() => toggle(i)}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function ImpendingDoomCalc() {
-  const [activeTab, setActiveTab] = useState("cdr");
+  const [activeTab, setActiveTab] = useState("faq");
 
   // Tab 1 params
   const [vixenCD, setVixenCD] = useState(0.25);
@@ -708,6 +987,12 @@ export default function ImpendingDoomCalc() {
 
         <div className="sheet-tabs">
           <button
+            className={`sheet-tab${activeTab === "faq" ? " active" : ""}`}
+            onClick={() => setActiveTab("faq")}
+          >
+            FAQ
+          </button>
+          <button
             className={`sheet-tab${activeTab === "cdr" ? " active" : ""}`}
             onClick={() => setActiveTab("cdr")}
           >
@@ -719,6 +1004,10 @@ export default function ImpendingDoomCalc() {
           >
             Checking Specific Values
           </button>
+        </div>
+
+        <div style={{ display: activeTab === "faq" ? "block" : "none" }}>
+          <FAQTab />
         </div>
 
         <div style={{ display: activeTab === "cdr" ? "block" : "none" }}>
