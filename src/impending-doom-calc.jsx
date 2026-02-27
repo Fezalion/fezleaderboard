@@ -722,7 +722,11 @@ export default function ImpendingDoomCalc() {
           <div className="subtitle">Cast Speed & CDR Calculator</div>
           <div className="divider" />
           <div className="credit">
-            Made by @Silenth · Spell Cascade · Path of Exile
+            Originally Made by @Silenth ·{" "}
+            <a href="https://docs.google.com/spreadsheets/d/1J-yVLmDhKqKNE8QecsPnZgNR2TDGDm41f-1tdC_BxQA/edit?gid=1230763965#gid=1230763965">
+              og document
+            </a>{" "}
+            · Path of Exile
           </div>
         </div>
 
