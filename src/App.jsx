@@ -125,6 +125,7 @@ function App() {
   const searchInputRef = useRef(null);
   const [showDelve, setShowDelve] = useState(false);
   const [onlyAlive, setOnlyAlive] = useState(false);
+  const [hideQuitters, setHideQuitters] = useState(false);
   const [onlyTopRanked, setOnlyTopRanked] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: "rank",
@@ -320,7 +321,9 @@ function App() {
   if (onlyTopRanked) {
     filteredLadder = filteredLadder.filter((entry) => aliveRankMap[entry.rank]);
   }
-
+  if (hideQuitters) {
+    filteredLadder = filteredLadder.filter((entry) => !entry.retired);
+  }
   // Sort filtered ladder
   const sortedLadder = [...filteredLadder].sort((a, b) => {
     if (!sortConfig.key) return 0;
@@ -788,7 +791,16 @@ function App() {
               onChange={(e) => setOnlyAlive(e.target.checked)}
               className="form-checkbox h-4 w-4 text-green-600"
             />
-            Only Alive
+            Hide Dead
+          </label>
+          <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={hideQuitters}
+              onChange={(e) => setHideQuitters(e.target.checked)}
+              className="form-checkbox h-4 w-4 text-green-600"
+            />
+            Hide Retired
           </label>
           <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
             <input
