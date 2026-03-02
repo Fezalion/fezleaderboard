@@ -7,54 +7,54 @@ import RecentDeathsDisplay from "./RecentDeaths";
 // ============================================================
 const THEME = {
   // Primary colors
-  bgGradient: "from-[#0a0a0f] to-[#0a0a0f]",
-  textPrimary: "text-[#c8b99a]",
-  textSecondary: "text-[#a09080]",
-  textTertiary: "text-[#6a5a4a]",
-  textDark: "text-[#5a4a3a]",
+  bgGradient: "from-black to-gray-950",
+  textPrimary: "text-gray-100",
+  textSecondary: "text-gray-300",
+  textTertiary: "text-gray-500",
+  textDark: "text-gray-600",
 
   // Accent colors
-  accentPrimary: "bg-[#0d0d14]",
-  accentSecondary: "bg-[#111118]",
-  accentTertiary: "bg-[#0a0a0f]",
-  accentLight: "bg-[#14141e]",
+  accentPrimary: "bg-gray-950",
+  accentSecondary: "bg-gray-900",
+  accentTertiary: "bg-black",
+  accentLight: "bg-gray-900",
 
   // Border colors
-  borderPrimary: "border-[#c8853a]/30",
-  borderSecondary: "border-[#c8853a]/15",
-  borderDead: "border-red-900/50",
+  borderPrimary: "border-gray-800",
+  borderSecondary: "border-gray-900",
+  borderDead: "border-red-900",
 
   // Glow/Shadow effects
-  glowPrimary: "shadow-lg shadow-black/70",
-  glowSecondary: "shadow-md shadow-black/60",
-  glowLarge: "shadow-xl shadow-black/80",
+  glowPrimary: "shadow-lg shadow-black/50",
+  glowSecondary: "shadow-md shadow-black/40",
+  glowLarge: "shadow-xl shadow-black/60",
 
   // Interactive states
-  hoverDark: "hover:bg-[#c8853a]/10",
-  hoverMedium: "hover:bg-[#c8853a]/07",
-  focusBorder: "focus:border-[#c8853a]/70",
+  hoverDark: "hover:bg-black-500",
+  hoverMedium: "hover:bg-gray-900",
+  focusBorder: "focus:border-blue-500",
 
   // Special colors
-  linkColor: "text-[#e8c97a]",
-  linkColorHover: "hover:text-[#c8853a]",
-  deadColor: "bg-red-950/60",
+  linkColor: "text-blue-400",
+  linkColorHover: "hover:text-blue-300",
+  deadColor: "bg-red-950",
   deadText: "text-red-400",
-  twitch: "bg-purple-700",
-  twitchHover: "hover:bg-purple-600",
+  twitch: "bg-purple-600",
+  twitchHover: "hover:bg-purple-700",
 
   // Row colors for tables
-  rowEven: "bg-[#0d0d14]",
-  rowOdd: "bg-[#0d0d14]",
-  rowHover: "hover:bg-[#c8853a]/07",
-  rowBorder: "border-b border-[#c8853a]/30",
-  rowDead: "bg-red-950/40 text-red-400 line-through border-b border-red-900/40",
-  rowAlive: "bg-[#0d0d14] border-b border-[#c8853a]/30 hover:bg-[#c8853a]/07",
+  rowEven: "bg-gray-950",
+  rowOdd: "bg-gray-950",
+  rowHover: "hover:bg-gray-900",
+  rowBorder: "border-b border-gray-900",
+  rowDead: "bg-red-950 text-red-400 line-through border-b border-red-900",
+  rowAlive: "bg-gray-950 border-b border-gray-900 hover:bg-gray-900",
 
   // Skeleton colors
-  skeletonBg: "bg-[#14141e]",
-  skeletonPulse: "bg-[#1e1e2a]",
-  skeletonBorder: "border border-[#c8853a]/15",
-  skeletonGlow: "shadow-md shadow-black/60",
+  skeletonBg: "bg-gray-950",
+  skeletonPulse: "bg-gray-900",
+  skeletonBorder: "border border-gray-900",
+  skeletonGlow: "shadow-md shadow-black/40",
 };
 
 // List of leagues to show in the combobox
@@ -76,10 +76,10 @@ const REFRESH_INTERVAL = 300; // seconds
 
 const getApiUrls = (leagueName) => ({
   API_URL: `https://poe-proxy-nine.vercel.app/api/ladder?league=${encodeURIComponent(
-    leagueName,
+    leagueName
   )}&limit=${LIMIT}`,
   API2_URL: `https://poe-proxy-nine.vercel.app/api/league?league=${encodeURIComponent(
-    leagueName,
+    leagueName
   )}`,
 });
 
@@ -151,17 +151,17 @@ function App() {
     const bubbled = new Set(searchBubbles.map((b) => b.value.toLowerCase()));
     const charSugs = Array.from(chars)
       .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase()),
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
       )
       .map((n) => ({ type: "character", value: n }));
     const accSugs = Array.from(accs)
       .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase()),
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
       )
       .map((n) => ({ type: "account", value: n }));
     const classSugs = Array.from(classes)
       .filter(
-        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase()),
+        (n) => n.toLowerCase().includes(lower) && !bubbled.has(n.toLowerCase())
       )
       .map((n) => ({ type: "class", value: n }));
     setSuggestions([...charSugs, ...accSugs, ...classSugs].slice(0, 20));
@@ -261,10 +261,10 @@ function App() {
   // Sort indicator component
   const SortIndicator = ({ column }) => {
     if (sortConfig.key !== column) {
-      return <span className="text-[#c8853a]/40 ml-1">↕</span>;
+      return <span className="text-purple-400 ml-1">↕️</span>;
     }
     return (
-      <span className="text-[#e8c97a] ml-1">
+      <span className="text-cyan-300 ml-1">
         {sortConfig.direction === "asc" ? "↑" : "↓"}
       </span>
     );
@@ -311,7 +311,7 @@ function App() {
       (entry) =>
         entry.character?.name?.toLowerCase().includes(search.toLowerCase()) ||
         entry.account?.name?.toLowerCase().includes(search.toLowerCase()) ||
-        entry.character?.class?.toLowerCase().includes(search.toLowerCase()),
+        entry.character?.class?.toLowerCase().includes(search.toLowerCase())
     );
   }
   if (onlyAlive) {
@@ -462,38 +462,8 @@ function App() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fira+Code:wght@300;400;500&display=swap');
-        .doom-title {
-          font-family: 'Cinzel', serif;
-          font-weight: 700;
-          background: linear-gradient(135deg, #e8c97a 0%, #c8853a 50%, #e8c97a 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: 0.08em;
-        }
-        .doom-divider {
-          width: 200px;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, #c8853a, transparent);
-          margin: 0.5rem auto 1rem;
-        }
-        .doom-th {
-          font-family: 'Cinzel', serif;
-          letter-spacing: 0.08em;
-          color: #c8853a !important;
-          text-transform: uppercase;
-          font-size: 0.7rem !important;
-        }
-        body { background: #0a0a0f; }
-      `}</style>
       <div
-        className={`w-full min-h-screen mx-auto px-16 pt-8 pb-16 ${THEME.textPrimary} font-sans relative`}
-        style={{
-          background:
-            "radial-gradient(ellipse at top, #1a0a2e 0%, #0a0a0f 60%)",
-        }}
+        className={`w-full min-h-screen mx-auto px-16 pt-8 pb-16 bg-gradient-to-b ${THEME.bgGradient} ${THEME.textPrimary} font-sans relative`}
       >
         {/* League combobox skeleton */}
         {loading ? (
@@ -526,12 +496,11 @@ function App() {
             className={`h-8 w-72 ${THEME.skeletonBg} rounded animate-pulse mx-auto mt-2 mb-4 ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
           />
         ) : (
-          <>
-            <h1 className="doom-title text-4xl text-center">
-              {leagueName} Leaderboard
-            </h1>
-            <div className="doom-divider" />
-          </>
+          <h1
+            className={`text-4xl font-extrabold text-center tracking-tight font-sans`}
+          >
+            {leagueName} Leaderboard
+          </h1>
         )}
         {/* League details skeleton */}
         {loading ? (
@@ -554,7 +523,7 @@ function App() {
                 {formatDate(details.startAt)} to {formatDate(details.endAt)} -{" "}
                 <a
                   href={`https://www.pathofexile.com/private-leagues/league/${encodeURIComponent(
-                    details.id.replace(/\s*\(PL\d+\)$/, ""),
+                    details.id.replace(/\s*\(PL\d+\)$/, "")
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -573,7 +542,7 @@ function App() {
                 (() => {
                   const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24);
                   const hours = Math.floor(
-                    (timeRemaining / 1000 / 60 / 60) % 24,
+                    (timeRemaining / 1000 / 60 / 60) % 24
                   );
                   const minutes = Math.floor((timeRemaining / 1000 / 60) % 60);
                   const seconds = Math.floor((timeRemaining / 1000) % 60);
@@ -680,7 +649,7 @@ function App() {
               {searchBubbles.map((bubble, idx) => (
                 <span
                   key={bubble.type + bubble.value}
-                  className="flex items-center bg-[#c8853a]/80 text-[#0a0a0f] px-2 py-1 rounded-full text-xs font-semibold mr-1"
+                  className="flex items-center bg-blue-700 text-white px-2 py-1 rounded-full text-xs font-semibold mr-1"
                   style={{ marginBottom: 2, marginTop: 2 }}
                 >
                   {bubble.value}
@@ -688,7 +657,7 @@ function App() {
                     className={`ml-1 ${THEME.textPrimary} hover:text-purple-200 focus:outline-none`}
                     onClick={() => {
                       setSearchBubbles(
-                        searchBubbles.filter((b, i) => i !== idx),
+                        searchBubbles.filter((b, i) => i !== idx)
                       );
                     }}
                     aria-label="Remove"
@@ -712,7 +681,7 @@ function App() {
                   if (showSuggestions && suggestions.length > 0) {
                     if (e.key === "ArrowDown") {
                       setHighlightedIdx((idx) =>
-                        Math.min(idx + 1, suggestions.length - 1),
+                        Math.min(idx + 1, suggestions.length - 1)
                       );
                       e.preventDefault();
                     } else if (e.key === "ArrowUp") {
@@ -750,8 +719,8 @@ function App() {
                     key={s.type + s.value}
                     className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${
                       highlightedIdx === idx
-                        ? "bg-[#c8853a]/30 text-[#e8c97a]"
-                        : "hover:bg-[#c8853a]/10"
+                        ? "bg-blue-700 text-white"
+                        : "hover:bg-gray-700"
                     }`}
                     onMouseDown={(e) => {
                       e.preventDefault();
@@ -973,54 +942,56 @@ function App() {
                 <tr
                   className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
                 >
-                  <th className="p-2 text-left doom-th">#</th>
+                  <th className="p-2 text-left text-base font-bold font-sans">
+                    #
+                  </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
                     onClick={() => handleSort("rank")}
                   >
                     Rank
                     <SortIndicator column="rank" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
                     onClick={() => handleSort("character")}
                   >
                     Character
                     <SortIndicator column="character" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
                     onClick={() => handleSort("class")}
                   >
                     Class
                     <SortIndicator column="class" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-gray-700 transition-colors select-none"
                     onClick={() => handleSort("level")}
                   >
                     Level
                     <SortIndicator column="level" />
                   </th>
                   <th
-                    className={`p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th`}
+                    className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                     onClick={() => handleSort("account")}
                   >
                     Account
                     <SortIndicator column="account" />
                   </th>
                   <th
-                    className={`p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th`}
+                    className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                     onClick={() => handleSort("experience")}
                   >
                     Exp
                     <SortIndicator column="experience" />
                   </th>
-                  <th className="p-2 text-left doom-th">Exp%</th>
-                  <th className="p-2 text-left doom-th">Diff</th>
+                  <th className="p-2 text-left">Exp%</th>
+                  <th className="p-2 text-left">Diff</th>
                   {showDelve && (
                     <th
-                      className={`p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th`}
+                      className={`p-2 text-left cursor-pointer ${THEME.hoverMedium} transition-colors select-none`}
                       onClick={() => handleSort("delve")}
                     >
                       Delve Depth
@@ -1100,12 +1071,12 @@ function App() {
                         <td className="text-sm font-medium font-sans">
                           <a
                             href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
-                              entry.account?.name,
+                              entry.account?.name
                             ).replace(
                               "#",
-                              "-",
+                              "-"
                             )}/characters?characterName=${encodeURI(
-                              entry.character?.name,
+                              entry.character?.name
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -1135,7 +1106,7 @@ function App() {
                           ) : (
                             <a
                               href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
-                                entry.account?.name,
+                                entry.account?.name
                               ).replace("#", "-")}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -1147,7 +1118,7 @@ function App() {
                           {typeof entry.account?.challenges?.completed ===
                             "number" && (
                             <span
-                              className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-[#1a1408] text-xs font-bold text-[#e8c97a] border-2 border-[#c8853a]/60"
+                              className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-gray-700 text-xs font-bold text-blue-300 border-2 border-blue-500"
                               title="Challenges Completed"
                             >
                               {entry.account.challenges.completed}
@@ -1162,9 +1133,9 @@ function App() {
                             <span className="text-xs font-semibold font-mono tracking-tight">
                               {percentToNext.toFixed(2)}%
                             </span>
-                            <div className="w-32 h-2 bg-[#1e1e2a] rounded overflow-hidden">
+                            <div className="w-32 h-2 bg-gray-800 rounded overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-[#c8853a] to-[#e8c97a] transition-all duration-500"
+                                className="h-full bg-blue-500 transition-all duration-500"
                                 style={{ width: `${percentToNext}%` }}
                               />
                             </div>
@@ -1174,8 +1145,8 @@ function App() {
                           {i === 0 || isDead
                             ? "0"
                             : expDiff < 0
-                              ? expDiff
-                              : `+${expDiff}`}
+                            ? expDiff
+                            : `+${expDiff}`}
                         </td>
                         {showDelve && (
                           <td className="text-sm font-mono font-semibold">
@@ -1296,8 +1267,8 @@ function App() {
       </div>
       {/* Fixed footer */}
       <footer
-        className={`fixed bottom-0 left-0 w-full ${THEME.textTertiary} text-center py-3 text-sm border-t border-[#c8853a]/20 z-50`}
-        style={{ background: "rgba(10,10,15,0.95)", pointerEvents: "auto" }}
+        className={`fixed bottom-0 left-0 w-full bg-gradient-to-r ${THEME.bgGradient} ${THEME.textSecondary} text-center py-3 text-sm border-t-2 ${THEME.borderPrimary} z-50 ${THEME.glowLarge}`}
+        style={{ pointerEvents: "auto" }}
       >
         FezLeaderboard &copy; 2025 &mdash; Created by Fezalion |{" "}
         <a
