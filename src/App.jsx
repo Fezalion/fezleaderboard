@@ -180,7 +180,13 @@ function App() {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      const newLadder = data.entries || [];
+      var newLadder = data.entries || [];
+      newLadder = newLadder.map((x) => {
+        if (x.account.name.includes("slinky")) {
+          x.account.name = x.account.name.replace("slinky", "stinky");
+        }
+        return x;
+      });
       setLadder(newLadder);
     } catch (err) {
       console.error("Error fetching ladder:", err);
@@ -1153,7 +1159,7 @@ function App() {
                           ) : (
                             <a
                               href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
-                                entry.account?.name,
+                                entry.account?.name.replace("stinky", "slinky"),
                               ).replace("#", "-")}`}
                               target="_blank"
                               rel="noopener noreferrer"
