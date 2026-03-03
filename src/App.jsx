@@ -1327,7 +1327,7 @@ function App() {
         |
         <a
           rel="stylesheet"
-          href="/idc"
+          href="/fezleaderboard/idc"
           className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           {" "}
