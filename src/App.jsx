@@ -1124,7 +1124,7 @@ function App() {
                         <td className="text-sm font-medium font-sans">
                           <a
                             href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
-                              entry.account?.name,
+                              entry.account?.name.replace("stinky", "slinky"),
                             ).replace(
                               "#",
                               "-",
