@@ -1317,7 +1317,7 @@ function App() {
         className={`fixed bottom-0 left-0 w-full ${THEME.textTertiary} text-center py-3 text-sm border-t border-[#c8853a]/20 z-50`}
         style={{ background: "rgba(10,10,15,0.95)", pointerEvents: "auto" }}
       >
-        FezLeaderboard &copy; 2025 &mdash; Created by Fezalion |{" "}
+        FezLeaderboard &copy; 2025 - 2026 &mdash; Created by Fezalion |{" "}
         <a
           href="https://github.com/sponsors/Fezalion"
           target="_blank"
