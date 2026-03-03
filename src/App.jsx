@@ -465,7 +465,7 @@ function App() {
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [details?.startAt, details?.endAt]);
+  }, [details?.startAt, details?.endAt, leagueName]);
 
   return (
     <>
@@ -516,6 +516,8 @@ function App() {
               setSelectedLeague(e.target.value);
               setSearch("");
               setSearchBubbles([]);
+              setDetails();
+              setLadder([]);
             }}
             style={{ minWidth: 220 }}
           >
