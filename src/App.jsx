@@ -60,6 +60,10 @@ const THEME = {
 // List of leagues to show in the combobox
 const LEAGUE_OPTIONS = [
   {
+    label: "Shimatta",
+    value: "Shimatta (PL78633)",
+  },
+  {
     label: "VibeRaters Praise the Tree Tree",
     value: "VibeRaters Praise the Tree Tree (PL76433)",
   },
@@ -1319,7 +1323,17 @@ function App() {
         >
           Sponsor me ❤️
         </a>{" "}
-        | Append ?league=LEAGUE_NAME to the URL to share a specific league view.
+        | Append ?league=LEAGUE_NAME to the URL to share a specific league view.{" "}
+        |
+        <a
+          rel="stylesheet"
+          href="/idc"
+          className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
+        >
+          {" "}
+          Impending Doom Calc{" "}
+        </a>{" "}
+        |
       </footer>
     </>
   );
