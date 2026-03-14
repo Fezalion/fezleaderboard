@@ -135,6 +135,7 @@ function App() {
     key: "rank",
     direction: "asc",
   });
+  const [lastLogins, setLastLogins] = useState({});
 
   // Update suggestions when search or ladder changes
   useEffect(() => {
@@ -172,6 +173,22 @@ function App() {
     setSuggestions([...charSugs, ...accSugs, ...classSugs].slice(0, 20));
     setHighlightedIdx(-1);
   }, [search, ladder, searchBubbles]);
+
+  const fetchLastLogins = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `https://poe-proxy-nine.vercel.app/api/lastLogins?league=${encodeURIComponent(leagueName)}`,
+      );
+      const data = await res.json();
+      setLastLogins(data.lastLogins || {});
+    } catch (err) {
+      console.error("Error fetching last logins:", err);
+    }
+  }, [leagueName]);
+
+  useEffect(() => {
+    fetchLastLogins();
+  }, [fetchLastLogins]);
 
   // Fetch ladder function
 
@@ -376,6 +393,10 @@ function App() {
       case "challenges":
         aValue = a.account?.challenges?.completed || 0;
         bValue = b.account?.challenges?.completed || 0;
+        break;
+      case "lastSeen":
+        aValue = lastLogins[a.character?.name] ?? -Infinity;
+        bValue = lastLogins[b.character?.name] ?? -Infinity;
         break;
       default:
         return 0;
@@ -866,6 +887,9 @@ function App() {
                   <th className="p-2 text-left text-base font-bold font-sans">
                     Diff
                   </th>
+                  <th className="p-2 text-left text-base font-bold font-sans">
+                    Last Seen
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -895,6 +919,12 @@ function App() {
                     <td className="p-2">
                       <div
                         className={`h-4 w-8 ${THEME.skeletonPulse} rounded animate-pulse`}
+                        style={{ animationDelay: `${i * 0.02}s` }}
+                      />
+                    </td>
+                    <td className="p-2">
+                      <div
+                        className={`h-4 w-20 ${THEME.skeletonPulse} rounded animate-pulse`}
                         style={{ animationDelay: `${i * 0.02}s` }}
                       />
                     </td>
@@ -1042,6 +1072,13 @@ function App() {
                   </th>
                   <th className="p-2 text-left doom-th">Exp%</th>
                   <th className="p-2 text-left doom-th">Diff</th>
+                  <th
+                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    onClick={() => handleSort("lastSeen")}
+                  >
+                    Last Seen
+                    <SortIndicator column="lastSeen" />
+                  </th>
                   {showDelve && (
                     <th
                       className={`p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th`}
@@ -1200,6 +1237,40 @@ function App() {
                             : expDiff < 0
                               ? expDiff
                               : `+${expDiff}`}
+                        </td>
+
+                        <td className="text-sm font-mono">
+                          {(() => {
+                            const ts = lastLogins[entry.character?.name];
+                            if (!ts)
+                              return <span className="text-[#5a4a3a]">—</span>;
+                            const diff =
+                              Date.now() - new Date(ts * 1000).getTime();
+                            const minutes = Math.floor(diff / 1000 / 60);
+                            const hours = Math.floor(minutes / 60);
+                            const days = Math.floor(hours / 24);
+                            if (days > 0)
+                              return (
+                                <span className="text-[#6a5a4a]">
+                                  {days}d ago
+                                </span>
+                              );
+                            if (hours > 0)
+                              return (
+                                <span className="text-[#a09080]">
+                                  {hours}h ago
+                                </span>
+                              );
+                            if (minutes > 0)
+                              return (
+                                <span className="text-[#e8c97a]">
+                                  {minutes}m ago
+                                </span>
+                              );
+                            return (
+                              <span className="text-green-400">Just now</span>
+                            );
+                          })()}
                         </td>
                         {showDelve && (
                           <td className="text-sm font-mono font-semibold">
