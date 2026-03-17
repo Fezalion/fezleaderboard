@@ -334,6 +334,19 @@ function App() {
   if (hideQuitters)
     filteredLadder = filteredLadder.filter((entry) => !entry.retired);
 
+  // Most-recent lastLogin timestamp across all characters belonging to the same account
+  const lastSeenByAccount = (() => {
+    const map = {};
+    ladder.forEach((entry) => {
+      const acc = entry.account?.name;
+      const ts = lastLogins[entry.character?.name];
+      if (acc && ts !== undefined) {
+        if (map[acc] === undefined || ts > map[acc]) map[acc] = ts;
+      }
+    });
+    return map;
+  })();
+
   const sortedLadder = [...filteredLadder].sort((a, b) => {
     if (!sortConfig.key) return 0;
     let aValue, bValue;
@@ -375,8 +388,8 @@ function App() {
         bValue = b.account?.challenges?.completed || 0;
         break;
       case "lastSeen":
-        aValue = lastLogins[a.character?.name] ?? -Infinity;
-        bValue = lastLogins[b.character?.name] ?? -Infinity;
+        aValue = lastSeenByAccount[a.account?.name] ?? -Infinity;
+        bValue = lastSeenByAccount[b.account?.name] ?? -Infinity;
         break;
       default:
         return 0;
@@ -1131,7 +1144,7 @@ function App() {
                         </td>
                         <td className="text-sm font-mono">
                           {(() => {
-                            const ts = lastLogins[entry.character?.name];
+                            const ts = lastSeenByAccount[entry.account?.name];
                             if (!ts)
                               return <span className="text-[#5a4a3a]">—</span>;
                             const diff =
