@@ -1105,7 +1105,7 @@ function App() {
                             </a>
                           ) : (
                             <a
-                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Fishy", "Ghoti")).replace("#", "-")}`}
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Ghoti", "Fishy")).replace("#", "-")}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
