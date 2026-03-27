@@ -1077,7 +1077,7 @@ function App() {
                         </td>
                         <td className="text-sm font-medium font-sans">
                           <a
-                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Fishy", "Ghoti")).replace("#", "-")}/characters?characterName=${encodeURI(entry.character?.name)}`}
+                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Ghoti", "Fishy")).replace("#", "-")}/characters?characterName=${encodeURI(entry.character?.name)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hover:underline"
