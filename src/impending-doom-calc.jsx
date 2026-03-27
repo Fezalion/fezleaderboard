@@ -916,29 +916,362 @@ function Accordion({ item, isOpen, onToggle }) {
   );
 }
 
+// ─── Loadout data ─────────────────────────────────────────────────────────────
+const LOADOUTS = {
+  poison: {
+    helm: {
+      name: "Foulborn Doedre's Scorn",
+      gems: [
+        { name: "Temporal Chains", role: "Main Curse", color: "green" },
+        { name: "Despair", role: "Curse 2", color: "green" },
+        { name: "Enfeeble", role: "Curse 3", color: "green" },
+        { name: "Cruelty", role: "Support", color: "blue" },
+      ],
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    },
+    gloves: {
+      name: "Vixen's Entrapment",
+      gems: [
+        { name: "Spell Cascade", role: "Support", color: "blue" },
+        { name: "Deadly Ailments", role: "Support", color: "blue" },
+        { name: "Vile Toxins", role: "Support", color: "green" },
+        { name: "Vile Toxins", role: "Support", color: "green" },
+      ],
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    },
+  },
+  ignite: {
+    helm: {
+      name: "Foulborn Doedre's Scorn",
+      gems: [
+        { name: "Temporal Chains", role: "Main Curse", color: "green" },
+        { name: "Flammability", role: "Curse 2", color: "green" },
+        { name: "Enfeeble", role: "Curse 3", color: "green" },
+        { name: "Combustion", role: "Support", color: "blue" },
+      ],
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    },
+    gloves: {
+      name: "Vixen's Entrapment",
+      gems: [
+        { name: "Spell Cascade", role: "Support", color: "blue" },
+        { name: "Deadly Ailments", role: "Support", color: "blue" },
+        { name: "Ignite Prolif.", role: "Support", color: "red" },
+        { name: "Ignite Prolif.", role: "Support", color: "red" },
+      ],
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    },
+  },
+};
+
+const GEM_COLORS = {
+  red: { border: "#cc4040", bg: "rgba(139,26,26,0.7)", text: "#ffaaaa" },
+  green: { border: "#40a040", bg: "rgba(26,90,26,0.7)", text: "#aaffaa" },
+  blue: { border: "#4060cc", bg: "rgba(26,42,139,0.7)", text: "#aabbff" },
+  white: { border: "#c8b8a0", bg: "rgba(160,144,128,0.7)", text: "#e8d8c0" },
+};
+function GemSocket({ gem }) {
+  const c = GEM_COLORS[gem.color];
+  return (
+    <div style={{ textAlign: "center", flex: 1 }}>
+      <div
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: "50%",
+          border: `2px solid ${c.border}`,
+          background: c.bg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0 auto", // ← removed bottom margin, labels handled separately
+        }}
+      >
+        <span style={{ fontSize: 20, fontWeight: 600, color: c.text }}>
+          {gem.color === "green"
+            ? "G"
+            : gem.color === "blue"
+              ? "B"
+              : gem.color === "red"
+                ? "R"
+                : "W"}
+        </span>
+      </div>
+      <div
+        style={{
+          fontSize: "0.62rem",
+          color: c.text,
+          fontWeight: 500,
+          lineHeight: 1.3,
+          marginTop: 6,
+        }}
+      >
+        {gem.name}
+      </div>
+      <div style={{ fontSize: "0.58rem", color: "#5a5040", marginTop: 2 }}>
+        {gem.role}
+      </div>
+    </div>
+  );
+}
+function ItemCard({ slot, data }) {
+  const icon = slot === "helm" ? "⛑" : "🧤";
+  const subtitle = slot === "helm" ? "Helmet · 4-linked" : "Gloves · 4-linked";
+  return (
+    <div
+      style={{
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid rgba(200,133,58,0.25)",
+        borderRadius: 8,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          padding: "0.75rem 1rem",
+          background: "rgba(200,133,58,0.08)",
+          borderBottom: "1px solid rgba(200,133,58,0.2)",
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 4,
+            background: "rgba(200,133,58,0.15)",
+            border: "1px solid rgba(200,133,58,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 14,
+          }}
+        >
+          {icon}
+        </div>
+        <div>
+          <div
+            style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: "0.82rem",
+              color: "#e8c97a",
+              letterSpacing: "0.07em",
+            }}
+          >
+            {data.name}
+          </div>
+          <div
+            style={{
+              fontSize: "0.62rem",
+              color: "#8a7060",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {subtitle}
+          </div>
+        </div>
+      </div>
+
+      {/* Gems: each slot is a flex column, links are absolutely positioned between circles */}
+      <div
+        style={{
+          display: "flex",
+          padding: "1rem 1rem 0.75rem",
+          position: "relative",
+        }}
+      >
+        {data.gems.map((gem, i) => {
+          const c = GEM_COLORS[gem.color];
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                position: "relative",
+              }}
+            >
+              {/* Link bar to the right, vertically centered on the circle */}
+              {i < data.gems.length - 1 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 26 - 1.5, // half of 52px circle minus half of 3px bar
+                    width: "50%",
+                    height: 3,
+                    background: "rgba(200,133,58,0.45)",
+                    borderRadius: 1,
+                    transform: "translateX(50%)",
+                    zIndex: 1,
+                  }}
+                />
+              )}
+              {/* Circle */}
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: "50%",
+                  border: `2px solid ${c.border}`,
+                  background: c.bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  zIndex: 2,
+                }}
+              >
+                <span style={{ fontSize: 20, fontWeight: 600, color: c.text }}>
+                  {gem.color === "green"
+                    ? "G"
+                    : gem.color === "blue"
+                      ? "B"
+                      : gem.color === "red"
+                        ? "R"
+                        : "W"}
+                </span>
+              </div>
+              {/* Labels */}
+              <div
+                style={{
+                  fontSize: "0.62rem",
+                  color: c.text,
+                  fontWeight: 500,
+                  lineHeight: 1.3,
+                  marginTop: 6,
+                  textAlign: "center",
+                  padding: "0 4px",
+                }}
+              >
+                {gem.name}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.58rem",
+                  color: "#5a5040",
+                  marginTop: 2,
+                  textAlign: "center",
+                }}
+              >
+                {gem.role}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {data.note && (
+        <div
+          style={{
+            fontSize: "0.62rem",
+            color: "#6a5a4a",
+            padding: "0 1rem 0.8rem",
+            lineHeight: 1.6,
+          }}
+        >
+          {data.note}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LoadoutsSection() {
+  const [tab, setTab] = useState("poison");
+  const loadout = LOADOUTS[tab];
+  return (
+    <div style={{ maxWidth: 720, margin: "2rem auto 0" }}>
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: "0.3rem",
+          fontFamily: "'Cinzel', serif",
+          fontSize: "0.9rem",
+          color: "#e8c97a",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+        }}
+      >
+        - WIP DO NOT USE - Recommended Loadouts - WIP DO NOT USE -
+      </div>
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "0.68rem",
+          color: "#6a5a4a",
+          letterSpacing: "0.1em",
+          marginBottom: "1.2rem",
+        }}
+      >
+        Gem links for Helm &amp; Gloves by damage type
+      </div>
+      <div
+        style={{
+          width: 200,
+          height: 1,
+          background:
+            "linear-gradient(90deg, transparent, #c8853a, transparent)",
+          margin: "0 auto 1.5rem",
+        }}
+      />
+
+      <div
+        style={{
+          display: "flex",
+          borderBottom: "1px solid rgba(200,133,58,0.3)",
+          marginBottom: "1.5rem",
+        }}
+      >
+        {["poison", "ignite"].map((t) => (
+          <button
+            key={t}
+            className={`sheet-tab${tab === t ? " active" : ""}`}
+            onClick={() => setTab(t)}
+          >
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+        <ItemCard slot="helm" data={loadout.helm} />
+        <ItemCard slot="gloves" data={loadout.gloves} />
+      </div>
+    </div>
+  );
+}
+
 function FAQTab() {
   const [openIndex, setOpenIndex] = useState(null);
   function toggle(i) {
     setOpenIndex(openIndex === i ? null : i);
   }
   return (
-    <div className="faq-wrap">
-      <div className="faq-intro">
-        <p>
-          Common questions about the Impending Doom interaction, cast speed
-          limits, and how CDR affects your trigger rate. Click any question to
-          expand it.
-        </p>
+    <>
+      <div className="faq-wrap">
+        <div className="faq-intro">
+          <p>
+            Common questions about the Impending Doom interaction, cast speed
+            limits, and how CDR affects your trigger rate. Click any question to
+            expand it.
+          </p>
+        </div>
+        {FAQ_ITEMS.map((item, i) => (
+          <Accordion
+            key={i}
+            item={item}
+            isOpen={openIndex === i}
+            onToggle={() => toggle(i)}
+          />
+        ))}
       </div>
-      {FAQ_ITEMS.map((item, i) => (
-        <Accordion
-          key={i}
-          item={item}
-          isOpen={openIndex === i}
-          onToggle={() => toggle(i)}
-        />
-      ))}
-    </div>
+      <LoadoutsSection />
+    </>
   );
 }
 
