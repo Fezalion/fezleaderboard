@@ -204,7 +204,11 @@ function App() {
       var newLadder = data.entries || [];
       newLadder = newLadder.map((x) => {
         if (x.account.name.includes("slinky")) {
-          x.account.name = x.account.name.replace("slinky", "stinky");
+          x.account.name = x.account.name.replaceAll("slinky", "stinky");
+        }
+        if (x.account.name.includes("Fishy")) {
+          console.log("ayo");
+          x.account.name = x.account.name.replaceAll("Fishy", "Ghoti");
         }
         return x;
       });
@@ -1073,7 +1077,7 @@ function App() {
                         </td>
                         <td className="text-sm font-medium font-sans">
                           <a
-                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("stinky", "slinky")).replace("#", "-")}/characters?characterName=${encodeURI(entry.character?.name)}`}
+                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Fishy", "Ghoti")).replace("#", "-")}/characters?characterName=${encodeURI(entry.character?.name)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hover:underline"
@@ -1101,7 +1105,7 @@ function App() {
                             </a>
                           ) : (
                             <a
-                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("stinky", "slinky")).replace("#", "-")}`}
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Fishy", "Ghoti")).replace("#", "-")}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
