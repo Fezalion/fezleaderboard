@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import UnderConstruct from "./UnderConstruct.jsx";
-import ImpendingDoomCalc from "./impending-doom-calc.jsx";
 import MusicPlayer from "./player.jsx";
 
 createRoot(document.getElementById("root")).render(
