@@ -12,7 +12,6 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter basename="/fezleaderboard">
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/idc" element={<ImpendingDoomCalc />} />
         <Route path="/secret" element={<UnderConstruct />} />
         <Route path="/music" element={<MusicPlayer />} />
       </Routes>

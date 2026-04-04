@@ -594,6 +594,32 @@ function App() {
           ))}
         </tbody>
       </table>
+      {/* Delve top 5 — mirrors the real Twitch table */}
+      <table
+        className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
+      >
+        <thead>
+          <tr
+            className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+          >
+            <th className="p-2 text-left">Delve top 5</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(5)].map((_, i) => (
+            <tr
+              key={i}
+              className={`${THEME.rowEven} animate-pulse ${THEME.rowBorder}`}
+            >
+              <td className="p-2">
+                <div
+                  className={`h-7 w-32 ${THEME.skeletonBg} rounded animate-pulse`}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 
@@ -1287,6 +1313,96 @@ function App() {
                   })()}
                 </tbody>
               </table>
+
+              {/* Delve Top 5 table */}
+              <table
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+              >
+                <thead>
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                  >
+                    <th className="p-2 text-left doom-th">Delve Top 5</th>
+                    <th className="p-2 text-left doom-th">Depth</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const delveEntries = [...ladder]
+                      .filter((e) => e.character?.depth?.default > 0)
+                      .sort(
+                        (a, b) =>
+                          (b.character.depth.default ?? 0) -
+                          (a.character.depth.default ?? 0),
+                      )
+                      .slice(0, 5);
+
+                    return delveEntries.length > 0 ? (
+                      delveEntries.map((entry, i) => (
+                        <tr
+                          key={entry.rank}
+                          className={
+                            i % 2 === 0
+                              ? `${THEME.rowEven} ${THEME.rowBorder}`
+                              : `${THEME.rowOdd} ${THEME.rowBorder}`
+                          }
+                        >
+                          <td className={`p-2 ${THEME.textPrimary} text-sm`}>
+                            <span
+                              className={`${THEME.textTertiary} font-mono mr-2`}
+                            >
+                              {i + 1}.
+                            </span>
+                            <a
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
+                                entry.account?.name
+                                  .replaceAll("stinky", "slinky")
+                                  .replaceAll("Ghoti", "Fishy"),
+                              ).replace(
+                                "#",
+                                "-",
+                              )}/characters?characterName=${encodeURI(entry.character?.name)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                            >
+                              {entry.character?.name}
+                            </a>
+                            {entry.dead && (
+                              <span
+                                className={`ml-1 text-xs ${THEME.deadText}`}
+                              >
+                                ✝
+                              </span>
+                            )}
+                          </td>
+                          <td className={`p-2 font-mono font-semibold text-sm`}>
+                            <span className="text-[#e8c97a]">
+                              {entry.character.depth.default}
+                            </span>
+                            {entry.character.depth.solo > 0 && (
+                              <span
+                                className={`ml-1 text-xs ${THEME.textTertiary}`}
+                              >
+                                ({entry.character.depth.solo} solo)
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={2}
+                          className={`p-2 text-center ${THEME.textTertiary}`}
+                        >
+                          No delve data yet
+                        </td>
+                      </tr>
+                    );
+                  })()}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -1309,7 +1425,7 @@ function App() {
         |
         <a
           rel="stylesheet"
-          href="/fezleaderboard/idc"
+          href="https://fezalion.github.io/impending-doom-calc/"
           className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           {" "}
