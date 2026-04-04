@@ -1328,19 +1328,34 @@ function App() {
                 </thead>
                 <tbody>
                   {(() => {
-                    const delveEntries = [...ladder]
-                      .filter((e) => e.character?.depth?.default > 0)
+                    const bestPerAccount = {};
+
+                    ladder.forEach((entry) => {
+                      const depth = entry.character?.depth?.default || 0;
+                      if (depth > 0) {
+                        const accName = entry.account?.name;
+                        // If we haven't seen this account, or this character is deeper than the one we stored
+                        if (
+                          !bestPerAccount[accName] ||
+                          depth >
+                            bestPerAccount[accName].character.depth.default
+                        ) {
+                          bestPerAccount[accName] = entry;
+                        }
+                      }
+                    });
+
+                    const delveEntries = Object.values(bestPerAccount)
                       .sort(
                         (a, b) =>
-                          (b.character.depth.default ?? 0) -
-                          (a.character.depth.default ?? 0),
+                          b.character.depth.default - a.character.depth.default,
                       )
                       .slice(0, 5);
 
                     return delveEntries.length > 0 ? (
                       delveEntries.map((entry, i) => (
                         <tr
-                          key={entry.rank}
+                          key={entry.character.name}
                           className={
                             i % 2 === 0
                               ? `${THEME.rowEven} ${THEME.rowBorder}`
