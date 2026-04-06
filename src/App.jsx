@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
+import DelveBattleCarousel from "./DelveBattleCarousel";
 
 // ============================================================
 // THEME CONFIGURATION - Customize all colors and styles here
@@ -66,6 +67,19 @@ const LEAGUE_OPTIONS = [
   {
     label: "VibeRaters Praise the Tree Tree",
     value: "VibeRaters Praise the Tree Tree (PL76433)",
+  },
+];
+
+const BATTLE_PAIRS = [
+  {
+    playerA: { acc: "musachan#0308", display: "musachan" },
+    playerB: { acc: "twitch_thestinkyshadow#9443", display: "thestinkyshadow" },
+    label: "⚔️ Grudge Match ⚔️",
+  },
+  {
+    playerA: { acc: "shadwroca#3489", display: "ShadwRoca" },
+    playerB: { acc: "catfishwins#0914", display: "Catfish" },
+    label: "⚡ Rivalry Battle ⚡",
   },
 ];
 
@@ -1566,181 +1580,12 @@ function App() {
                 </tbody>
               </table>
 
-              {/* Delve 1v1 Battle: musachan vs theslinkyshadow */}
-              {(() => {
-                const PLAYER_A_ACC = "musachan#0308";
-                const PLAYER_A_DISPLAY = "musachan";
-                const PLAYER_B_ACC = "twitch_thestinkyshadow#9443";
-                const PLAYER_B_DISPLAY = "thestinkyshadow";
-
-                const getBestEntry = (accName) => {
-                  let best = null;
-                  ladder.forEach((entry) => {
-                    const depth = entry.character?.depth?.default || 0;
-                    if (
-                      depth > 0 &&
-                      entry.account?.name?.toLowerCase() ===
-                        accName.toLowerCase()
-                    ) {
-                      if (!best || depth > best.character.depth.default) {
-                        best = entry;
-                      }
-                    }
-                  });
-                  return best;
-                };
-
-                const entryA = getBestEntry(PLAYER_A_ACC);
-                const entryB = getBestEntry(PLAYER_B_ACC);
-                const depthA = entryA?.character?.depth?.default || 0;
-                const depthB = entryB?.character?.depth?.default || 0;
-                const totalDepth = depthA + depthB || 1;
-                const pctA = Math.round((depthA / totalDepth) * 100);
-                const pctB = 100 - pctA;
-                const winning =
-                  depthA > depthB ? "A" : depthB > depthA ? "B" : "tie";
-
-                return (
-                  <div
-                    className={`${THEME.accentSecondary} rounded-lg border-2 ${THEME.borderPrimary} overflow-hidden ${THEME.glowSecondary}`}
-                  >
-                    <style>{`                      
-        @keyframes pulse-gold {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
-        }
-        .winner-label {
-          position: absolute;
-          width: 100%;
-          left: 0;
-          top: -20px; /* Positions it above the name without pushing it */
-          font-size: 0.7rem;
-          font-weight: 800;
-          color: #e8c97a;
-          letter-spacing: 0.1em;
-        }
-      `}</style>
-
-                    <div
-                      className={`${THEME.accentPrimary} border-b-2 ${THEME.borderPrimary} p-3 relative z-10`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-[#4488ff] font-bold text-[0.85rem] uppercase tracking-widest">
-                          ⚡ Rivalry
-                        </span>
-                        <span className="text-2xl">⚔️</span>
-                        <span className="text-[#ff4444] font-bold text-[0.85rem] uppercase tracking-widest">
-                          Battle ⚡
-                        </span>
-                      </div>
-                    </div>
-
-                    <div
-                      className="p-5 relative"
-                      style={{ paddingTop: "2.5rem" }}
-                    >
-                      {" "}
-                      <div className="flex items-center justify-between mb-6 relative">
-                        {/* Player A */}
-                        <div className="flex-1 text-center relative">
-                          {winning === "A" && (
-                            <div className="winner-label animate-pulse">
-                              👑 WINNING 👑
-                            </div>
-                          )}
-                          <div className="text-[#88bbff] font-black text-xl mb-1 tracking-tight">
-                            {PLAYER_A_DISPLAY}
-                          </div>
-                          <div className="text-[0.7rem] text-[#88bbff]/60 h-4 overflow-hidden mb-2">
-                            {entryA
-                              ? entryA.character?.name
-                              : "no active delve data"}
-                            {entryA?.dead && (
-                              <span className="text-red-500 ml-1">✝</span>
-                            )}
-                          </div>
-                          <div className="text-4xl font-black text-[#4488ff] leading-none">
-                            {depthA}
-                          </div>
-                          <div className="text-[0.65rem] text-[#4488ff]/40 uppercase mt-1">
-                            depth
-                          </div>
-                        </div>
-
-                        {/* VS Divider */}
-                        <div className="px-4 text-center relative">
-                          {winning === "tie" && depthA > 0 && (
-                            <div
-                              className="winner-label"
-                              style={{ top: "-25px" }}
-                            >
-                              TIED
-                            </div>
-                          )}
-                          <div className="text-2xl font-black bg-gradient-to-br from-[#4488ff] via-[#e8c97a] to-[#ff4444] bg-clip-text text-transparent italic">
-                            VS
-                          </div>
-                          <div className="text-xl mt-1 opacity-80">⚔️</div>
-                        </div>
-
-                        {/* Player B */}
-                        <div className="flex-1 text-center relative">
-                          {winning === "B" && (
-                            <div className="winner-label animate-pulse">
-                              👑 WINNING 👑
-                            </div>
-                          )}
-                          <div className="text-[#ff8888] font-black text-xl mb-1 tracking-tight">
-                            {PLAYER_B_DISPLAY}
-                          </div>
-                          <div className="text-[0.7rem] text-[#ff8888]/60 h-4 overflow-hidden mb-2">
-                            {entryB
-                              ? entryB.character?.name
-                              : "no active delve data"}
-                            {entryB?.dead && (
-                              <span className="text-red-500 ml-1">✝</span>
-                            )}
-                          </div>
-                          <div className="text-4xl font-black text-[#ff4444] leading-none">
-                            {depthB}
-                          </div>
-                          <div className="text-[0.65rem] text-[#ff4444]/40 uppercase mt-1">
-                            depth
-                          </div>
-                        </div>
-                      </div>
-                      <div className="relative pt-2">
-                        <div className="h-4 w-full bg-black/40 rounded-full flex overflow-hidden border border-[#c8853a]/20">
-                          <div
-                            style={{ width: `${pctA}%` }}
-                            className="h-full bg-gradient-to-r from-[#1a3a88] to-[#4488ff] transition-all duration-1000 shadow-[0_0_10px_rgba(68,136,255,0.4)]"
-                          />
-                          <div
-                            style={{ width: `${pctB}%` }}
-                            className="h-full bg-gradient-to-r from-[#ff4444] to-[#881a1a] transition-all duration-1000 shadow-[0_0_10px_rgba(255,68,68,0.4)]"
-                          />
-                        </div>
-
-                        <div className="flex justify-between items-center mt-3 px-1">
-                          <div className="text-[0.75rem] font-bold text-[#88bbff]">
-                            {pctA}%
-                          </div>
-
-                          <div className="text-[0.7rem] font-bold text-[#e8c97a] uppercase tracking-tighter bg-[#e8c97a]/10 px-3 py-1 rounded-full border border-[#e8c97a]/20">
-                            {depthA === depthB
-                              ? "DEAD HEAT"
-                              : `${winning === "A" ? PLAYER_A_DISPLAY : PLAYER_B_DISPLAY} LEADS BY ${Math.abs(depthA - depthB)} DEPTH`}
-                          </div>
-
-                          <div className="text-[0.75rem] font-bold text-[#ff8888]">
-                            {pctB}%
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
+              {/* Delve 1v1 Battles */}
+              <DelveBattleCarousel
+                ladder={ladder}
+                battlePairs={BATTLE_PAIRS}
+                THEME={THEME}
+              />
             </div>
           </div>
         )}
