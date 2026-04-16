@@ -6,10 +6,10 @@ import { useState, useRef, useEffect } from "react";
 const TRACKS = [
   {
     id: 1,
-    title: "Rub it on my lips",
-    artist: "Assatanica",
-    url: "https://kappa.lol/9oHHU4",
-    color: "#ff6b6b",
+    title: "Creampie in Anus",
+    artist: "Shroomelle",
+    url: "https://kappa.lol/TsaT1E",
+    color: "#ff9ff3",
   },
   {
     id: 2,
@@ -27,10 +27,10 @@ const TRACKS = [
   },
   {
     id: 4,
-    title: "Creampie in Anus",
-    artist: "Shroomelle",
-    url: "https://kappa.lol/TsaT1E",
-    color: "#ff9ff3",
+    title: "Rub it on my lips",
+    artist: "Assatanica",
+    url: "https://kappa.lol/9oHHU4",
+    color: "#ff6b6b",
   },
 ];
 // ============================================================
@@ -42,6 +42,171 @@ function formatTime(secs) {
     .toString()
     .padStart(2, "0");
   return `${m}:${s}`;
+}
+
+// ============================================================
+// 🌊 BEAT-REACTIVE WAVE VISUALIZER
+// - Static colored border (no spinning)
+// - Canvas waveform bars that auto-adjust per frequency band
+// - Beat detection via bass energy amplifies bar heights
+// ============================================================
+function VisualizerWave({ audioRef, isPlaying, color }) {
+  const canvasRef = useRef(null);
+  const analyserRef = useRef(null);
+  const sourceRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const requestRef = useRef(null);
+  const maxEnergyRef = useRef(1);
+  const dataArrayRef = useRef(null);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
+    }
+    const audioContext = audioCtxRef.current;
+
+    if (isPlaying && audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+
+    if (!sourceRef.current) {
+      try {
+        sourceRef.current = audioContext.createMediaElementSource(
+          audioRef.current,
+        );
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.4;
+        sourceRef.current.connect(analyser);
+        analyser.connect(audioContext.destination);
+        analyserRef.current = analyser;
+        dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+      } catch (e) {}
+    }
+
+    const analyser = analyserRef.current;
+    const dataArray = dataArrayRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas || !analyser || !dataArray) return;
+    const ctx = canvas.getContext("2d");
+
+    const animate = () => {
+      if (isPlaying) {
+        analyser.getByteFrequencyData(dataArray);
+      } else {
+        for (let i = 0; i < dataArray.length; i++) {
+          dataArray[i] *= 0.8;
+        }
+      }
+
+      const W = canvas.offsetWidth;
+      const H = canvas.offsetHeight;
+      if (canvas.width !== W || canvas.height !== H) {
+        canvas.width = W;
+        canvas.height = H;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      const currentMax = Math.max(...dataArray);
+      maxEnergyRef.current = Math.max(
+        currentMax,
+        maxEnergyRef.current * 0.99,
+        1,
+      );
+
+      // --- BASS DETECTION FOR GLOW ---
+      // We look at the first few bins (low frequencies)
+      const bassSum = dataArray.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
+      const bassFactor = bassSum / maxEnergyRef.current; // 0.0 to 1.0
+
+      const BAR_COUNT = 128;
+      const barW = W / BAR_COUNT;
+      const centerY = H / 2;
+
+      // Set global glow properties based on bass
+      ctx.shadowBlur = 30 * bassFactor; // Glow gets bigger on bass hits
+      ctx.shadowColor = color;
+
+      for (let i = 0; i < BAR_COUNT; i++) {
+        let relIndex =
+          i < BAR_COUNT / 2
+            ? i / (BAR_COUNT / 2)
+            : (BAR_COUNT - i) / (BAR_COUNT / 2);
+
+        const freqIndex = Math.floor(
+          Math.pow(relIndex, 1.5) * dataArray.length * 0.5,
+        );
+        const rawValue = dataArray[freqIndex] / maxEnergyRef.current;
+        const edgeTaper = Math.sin(relIndex * Math.PI);
+
+        const barHeight = rawValue * (H * 0.45) * edgeTaper;
+        const x = i * barW;
+
+        ctx.globalAlpha = isPlaying ? Math.max(0.1, rawValue * edgeTaper) : 0.1;
+        ctx.fillStyle = color;
+
+        const width = barW * 0.5;
+        const xOffset = (barW - width) / 2;
+        const finalH = Math.max(barHeight, 1);
+
+        // Draw the main bars
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(x + xOffset, centerY - finalH, width, finalH, 2);
+          ctx.roundRect(x + xOffset, centerY, width, finalH, 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(x + xOffset, centerY - finalH, width, finalH);
+          ctx.fillRect(x + xOffset, centerY, width, finalH);
+        }
+      }
+
+      // Reset shadow for next frame performance
+      ctx.shadowBlur = 0;
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, [isPlaying, color, audioRef]);
+
+  return (
+    <>
+      {/* Beat-reactive background glow */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -1,
+          background: `radial-gradient(circle, ${color}11 0%, transparent 70%)`,
+          opacity: isPlaying ? 0.5 : 0,
+          transition: "opacity 1s ease",
+          pointerEvents: "none",
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "fixed",
+          top: "50%",
+          left: 0,
+          transform: "translateY(-50%)",
+          width: "100%",
+          height: "450px",
+          zIndex: 0,
+          pointerEvents: "none",
+          filter: "contrast(1.2) brightness(1.2)", // Sharpen the glow
+        }}
+      />
+    </>
+  );
 }
 
 function WaveformBars({ playing, color }) {
@@ -85,7 +250,7 @@ export default function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useState(0.2);
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const audioRef = useRef(null);
@@ -122,7 +287,7 @@ export default function MusicPlayer() {
     }
     const next = (currentIndex + 1) % TRACKS.length;
     setCurrentIndex(next);
-    setIsPlaying(true);
+    setIsPlaying(false);
   };
 
   const seek = (e) => {
@@ -139,6 +304,7 @@ export default function MusicPlayer() {
     setCurrentIndex((currentIndex - 1 + TRACKS.length) % TRACKS.length);
     setIsPlaying(true);
   };
+
   const next = () => {
     setCurrentIndex(
       isShuffling
@@ -170,6 +336,7 @@ export default function MusicPlayer() {
         justifyContent: "center",
         fontFamily: "'DM Mono', 'Courier New', monospace",
         padding: "20px",
+        overflow: "hidden",
       }}
     >
       <style>{`
@@ -182,8 +349,16 @@ export default function MusicPlayer() {
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; }
       `}</style>
 
+      {/* VISUALIZER — rendered behind everything */}
+      <VisualizerWave
+        audioRef={audioRef}
+        isPlaying={isPlaying}
+        color={accent}
+      />
+
       <audio
         ref={audioRef}
+        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
@@ -191,12 +366,16 @@ export default function MusicPlayer() {
 
       <div
         style={{
+          position: "relative",
+          zIndex: 1,
           width: "100%",
           maxWidth: "420px",
           background: "#111118",
           borderRadius: "24px",
           overflow: "hidden",
           boxShadow: `0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)`,
+          opacity: 0.8,
+          outline: `2px solid ${accent}`,
         }}
       >
         {/* Header / Now Playing */}
@@ -219,7 +398,6 @@ export default function MusicPlayer() {
             Now Playing
           </div>
 
-          {/* Album art placeholder */}
           <div
             style={{
               width: "72px",
@@ -311,7 +489,6 @@ export default function MusicPlayer() {
               marginBottom: "20px",
             }}
           >
-            {/* Shuffle */}
             <button
               className="ctrl-btn"
               onClick={() => setIsShuffling(!isShuffling)}
@@ -325,7 +502,6 @@ export default function MusicPlayer() {
               ⇄
             </button>
 
-            {/* Prev */}
             <button
               className="ctrl-btn"
               onClick={prev}
@@ -339,7 +515,6 @@ export default function MusicPlayer() {
               ⏮
             </button>
 
-            {/* Play/Pause */}
             <button
               className="ctrl-btn"
               onClick={() => setIsPlaying(!isPlaying)}
@@ -360,7 +535,6 @@ export default function MusicPlayer() {
               {isPlaying ? "⏸" : "▶"}
             </button>
 
-            {/* Next */}
             <button
               className="ctrl-btn"
               onClick={next}
@@ -374,7 +548,6 @@ export default function MusicPlayer() {
               ⏭
             </button>
 
-            {/* Loop */}
             <button
               className="ctrl-btn"
               onClick={() => setIsLooping(!isLooping)}
