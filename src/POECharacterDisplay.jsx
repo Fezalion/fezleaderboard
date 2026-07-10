@@ -36,7 +36,7 @@ export default function POECharacterDisplay() {
           Character Equipment
         </h1>
 
-        <div className="bg-slate-800/30 backdrop-blur rounded-lg shadow-2xl p-8 border border-slate-700 w-full h-full">
+        <div className="bg-slate-800/30 rounded-lg shadow-2xl p-8 border border-slate-700 w-full h-full">
           <div className="grid grid-cols-10 gap-1">
             {/* Left Column - Weapon 1 */}
             <div className="col-span-2 space-y-4">

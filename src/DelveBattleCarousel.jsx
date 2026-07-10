@@ -1,222 +1,141 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 
-const DelveBattleCarousel = ({ ladder, battlePairs, THEME }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+const LABEL_WIDTH = 108; // px, left column: rank + names
+const GAP_PX = 8; // px, tailwind gap-2 between label / bar / depth
+const DEPTH_WIDTH = 52; // px, right column: depth number
+const ROW_HEIGHT = 44; // px per player row
+const MIN_BAR_PX = 10; // every bar is at least this long, even at 0 depth
 
-  const ROTATE_DURATION = 12000;
-  const TICK_RATE = 100;
+const rankColor = (idx) => {
+  return idx % 2 === 0 ? "#4ecdc4" : "#8b5cf6";
+};
 
-  useEffect(() => {
-    if (!battlePairs || battlePairs.length <= 1 || isHovered) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        const step = (TICK_RATE / ROTATE_DURATION) * 100;
-        const nextValue = prev + step;
-
-        if (nextValue >= 100) {
-          // Logic to move to next slide
-          setCurrentIndex((idx) => (idx + 1) % battlePairs.length);
-          return 0;
-        }
-        return nextValue;
-      });
-    }, TICK_RATE);
-
-    return () => clearInterval(timer);
-  }, [isHovered, battlePairs.length]);
-
-  const handleDotClick = (idx) => {
-    setCurrentIndex(idx);
-    setProgress(0);
-  };
-
-  if (!battlePairs || battlePairs.length === 0) return null;
-
-  const currentBattle = battlePairs[currentIndex];
-
-  // Helper to find the deepest character for an account
-  const getBestEntry = (accName) => {
-    let best = null;
-    if (!ladder) return null;
-    ladder.forEach((entry) => {
+const DelveBattleCarousel = ({ ladder, THEME }) => {
+  // One row per account: their single deepest character.
+  const players = useMemo(() => {
+    const bestPerAccount = {};
+    (ladder || []).forEach((entry) => {
+      const accName = entry.account?.name;
+      if (!accName) return;
       const depth = entry.character?.depth?.default || 0;
-      if (
-        depth > 0 &&
-        entry.account?.name?.toLowerCase() === accName.toLowerCase()
-      ) {
-        if (!best || depth > (best.character?.depth?.default || 0)) {
-          best = entry;
-        }
+      const existing = bestPerAccount[accName];
+      if (!existing || depth > (existing.character?.depth?.default || 0)) {
+        bestPerAccount[accName] = entry;
       }
     });
-    return best;
-  };
+    return Object.values(bestPerAccount).sort(
+      (a, b) =>
+        (b.character?.depth?.default || 0) - (a.character?.depth?.default || 0),
+    );
+  }, [ladder]);
 
-  const entryA = getBestEntry(currentBattle.playerA.acc);
-  const entryB = getBestEntry(currentBattle.playerB.acc);
-  const depthA = entryA?.character?.depth?.default || 0;
-  const depthB = entryB?.character?.depth?.default || 0;
-  const totalDepth = depthA + depthB || 1;
-  const pctA = Math.round((depthA / totalDepth) * 100);
-  const pctB = 100 - pctA;
-  const winning = depthA > depthB ? "A" : depthB > depthA ? "B" : "tie";
+  if (!players.length) return null;
+
+  const maxDepth = players[0]?.character?.depth?.default || 0;
 
   return (
     <div
-      className={`${THEME.accentSecondary} rounded-lg border-2 ${THEME.borderPrimary} overflow-hidden ${THEME.glowSecondary} transition-all duration-300 relative flex flex-col`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`${THEME.accentSecondary} rounded-lg border-2 ${THEME.borderPrimary} overflow-hidden ${THEME.glowSecondary} glass-panel transition-all duration-300 flex flex-col`}
     >
-      <style>{`                      
-        @keyframes pulse-gold {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
+      <style>{`        
+        .ladder-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: #8b5cf680 transparent;
         }
-        .winner-label {
-          position: absolute;
-          width: 100%;
-          left: 0;
-          top: -20px; 
-          font-size: 0.7rem;
-          font-weight: 800;
-          color: #e8c97a;
-          letter-spacing: 0.1em;
-          text-align: center;
+        .ladder-scroll::-webkit-scrollbar {
+          width: 8px;
+        }
+        .ladder-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .ladder-scroll::-webkit-scrollbar-thumb {
+          background-color: #8b5cf680;
+          border-radius: 999px;
         }
       `}</style>
 
-      {/* Header */}
+      {}
       <div
-        className={`${THEME.accentPrimary} border-b-2 ${THEME.borderPrimary} p-3 relative z-10 flex items-center justify-center`}
+        className={`${THEME.accentPrimary} border-b-2 ${THEME.borderPrimary} p-3 flex items-center justify-center`}
       >
-        <span className="text-[#e8c97a] font-bold text-[0.85rem] uppercase tracking-widest text-center">
-          {currentBattle.label}
+        <span className="text-[#c4b5fd] font-bold text-[0.85rem] uppercase tracking-widest text-center">
+          ⛏️ Delve Depth Ladder ⛏️
         </span>
       </div>
 
-      {/* Arena Body */}
+      {}
       <div
-        className="p-5 pb-4 relative flex-1"
-        style={{ paddingTop: "2.5rem" }}
+        className="ladder-scroll p-4 overflow-y-auto"
+        style={{ maxHeight: "min(60vh, 720px)" }}
       >
-        <div className="flex items-center justify-between mb-6 relative">
-          {/* Player A */}
-          <div className="flex-1 text-center relative">
-            {winning === "A" && (
-              <div className="winner-label animate-pulse">👑 WINNING 👑</div>
-            )}
-            <div className="text-[#88bbff] font-black text-xl mb-1 tracking-tight">
-              {currentBattle.playerA.display}
-            </div>
-            <div className="text-[0.7rem] text-[#88bbff]/60 h-4 overflow-hidden mb-2">
-              {entryA ? entryA.character?.name : "no active data"}
-              {entryA?.dead && <span className="text-red-500 ml-1">✝</span>}
-            </div>
-            <div className="text-4xl font-black text-[#4488ff] leading-none">
-              {depthA}
-            </div>
-            <div className="text-[0.65rem] text-[#4488ff]/40 uppercase mt-1">
-              depth
-            </div>
-          </div>
-
-          <div className="px-4 text-center relative">
-            {winning === "tie" && depthA > 0 && (
-              <div className="winner-label" style={{ top: "-25px" }}>
-                TIED
-              </div>
-            )}
-            <div className="text-2xl font-black bg-gradient-to-br from-[#4488ff] via-[#e8c97a] to-[#640F87] bg-clip-text text-transparent italic">
-              VS
-            </div>
-            <div className="text-xl mt-1 opacity-80">⚔️</div>
-          </div>
-
-          {/* Player B */}
-          <div className="flex-1 text-center relative">
-            {winning === "B" && (
-              <div className="winner-label animate-pulse">👑 WINNING 👑</div>
-            )}
-            <div className="text-[#a855f7] font-black text-xl mb-1 tracking-tight">
-              {currentBattle.playerB.display}
-            </div>
-            <div className="text-[0.7rem] text-[#a855f7]/60 h-4 overflow-hidden mb-2">
-              {entryB ? entryB.character?.name : "no active data"}
-              {entryB?.dead && <span className="text-red-500 ml-1">✝</span>}
-            </div>
-            <div className="text-4xl font-black text-[#640F87] leading-none">
-              {depthB}
-            </div>
-            <div className="text-[0.65rem] text-[#640F87]/40 uppercase mt-1">
-              depth
-            </div>
-          </div>
-        </div>
-
-        {/* Depth Comparison Bar */}
-        <div className="relative pt-2">
-          <div className="h-4 w-full bg-black/40 rounded-full flex overflow-hidden border border-[#c8853a]/20">
-            <div
-              style={{ width: `${pctA}%` }}
-              className="h-full bg-gradient-to-r from-[#1a3a88] to-[#4488ff] transition-all duration-1000 shadow-[0_0_10px_rgba(68,136,255,0.4)]"
-            />
-            <div
-              style={{ width: `${pctB}%` }}
-              className="h-full bg-gradient-to-r from-[#640F87] to-[#2c073d] transition-all duration-1000 shadow-[0_0_10px_rgba(100,15,135,0.4)]"
-            />
-          </div>
-
-          <div className="flex justify-between items-center mt-3 px-1">
-            <div className="text-[0.75rem] font-bold text-[#88bbff]">
-              {pctA}%
-            </div>
-            <div className="text-[0.7rem] font-bold text-[#e8c97a] uppercase tracking-tighter bg-[#e8c97a]/10 px-3 py-1 rounded-full border border-[#e8c97a]/20">
-              {depthA === depthB
-                ? "DEAD HEAT"
-                : `${winning === "A" ? currentBattle.playerA.display : currentBattle.playerB.display} LEADS BY ${Math.abs(depthA - depthB)}`}
-            </div>
-            <div className="text-[0.75rem] font-bold text-[#a855f7]">
-              {pctB}%
-            </div>
-          </div>
-        </div>
-
-        {/* Carousel Dots */}
-        {battlePairs.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
-            {battlePairs.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleDotClick(idx)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentIndex === idx
-                    ? "bg-[#e8c97a] scale-110 shadow-[0_0_5px_rgba(232,201,122,0.8)]"
-                    : "bg-[#c8853a]/30 hover:bg-[#c8853a]/60"
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Timer Progress Bar (The bottom-most line) */}
-      {battlePairs.length > 1 && (
-        <div className="h-[3px] w-full bg-black/40 overflow-hidden">
+        <div className="relative">
+          {}
           <div
-            className="h-full bg-[#e8c97a]/50"
-            style={{
-              width: `${progress}%`,
-              transition:
-                progress === 0 ? "none" : `width ${TICK_RATE}ms linear`,
-            }}
+            className="absolute top-0 bottom-0 w-[3px] bg-[#8b5cf6] rounded-full shadow-[0_0_8px_rgba(139,92,246,0.6)] z-10"
+            style={{ left: `${LABEL_WIDTH + GAP_PX}px` }}
           />
+
+          <div className="flex flex-col">
+            {players.map((entry, i) => {
+              const depth = entry.character?.depth?.default || 0;
+              if (depth == 0) return;
+              const pct = maxDepth > 0 ? (depth / maxDepth) * 100 : 0;
+              const color = rankColor(i);
+              const accName = entry.account?.name || "Unknown";
+              const displayName = accName.split("#")[0];
+
+              return (
+                <div
+                  key={accName + "-" + i}
+                  className="flex items-center"
+                  style={{ height: `${ROW_HEIGHT}px`, gap: `${GAP_PX}px` }}
+                >
+                  {}
+                  <div
+                    className="shrink-0 text-right overflow-hidden"
+                    style={{ width: `${LABEL_WIDTH}px` }}
+                  >
+                    <div
+                      className="text-[0.75rem] font-bold truncate"
+                      style={{ color }}
+                    >
+                      {i + 1}. {displayName}
+                    </div>
+                    <div className="text-[0.6rem] text-white/40 truncate">
+                      {entry.character?.name}
+                      {entry.dead && (
+                        <span className="text-red-500 ml-1">✝</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {}
+                  <div className="relative flex-1 h-3">
+                    <div className="absolute inset-0 rounded-r-full bg-black/40 border border-[#8b5cf6]/20 overflow-hidden" />
+                    <div
+                      className="absolute left-0 top-0 h-full rounded-r-full transition-all duration-700"
+                      style={{
+                        width: `${pct}%`,
+                        minWidth: `${MIN_BAR_PX}px`,
+                        background: `linear-gradient(to right, ${color}55, ${color})`,
+                        boxShadow: `0 0 8px ${color}66`,
+                      }}
+                    ></div>
+                  </div>
+
+                  {}
+                  <div
+                    className="shrink-0 text-right font-mono font-bold text-sm"
+                    style={{ width: `${DEPTH_WIDTH}px`, color }}
+                  >
+                    {depth}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

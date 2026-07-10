@@ -8,54 +8,56 @@ import DelveBattleCarousel from "./DelveBattleCarousel";
 // ============================================================
 const THEME = {
   // Primary colors
-  bgGradient: "from-[#0a0a0f] to-[#0a0a0f]",
-  textPrimary: "text-[#c8b99a]",
-  textSecondary: "text-[#a09080]",
-  textTertiary: "text-[#6a5a4a]",
-  textDark: "text-[#5a4a3a]",
+  bgGradient: "from-[#08090c] to-[#08090c]",
+  textPrimary: "text-[#e8e6f0]",
+  textSecondary: "text-[#a8a5b8]",
+  textTertiary: "text-[#6b6878]",
+  textDark: "text-[#4a4756]",
 
-  // Accent colors
-  accentPrimary: "bg-[#0d0d14]",
-  accentSecondary: "bg-[#111118]",
-  accentTertiary: "bg-[#0a0a0f]",
-  accentLight: "bg-[#14141e]",
+  // Accent colors (glass panels — translucent over the obsidian backdrop)
+  accentPrimary: "bg-white/[0.04]",
+  accentSecondary: "bg-white/[0.03]",
+  accentTertiary: "bg-[#0d0e16]",
+  accentLight: "bg-white/[0.07]",
 
   // Border colors
-  borderPrimary: "border-[#c8853a]/30",
-  borderSecondary: "border-[#c8853a]/15",
-  borderDead: "border-red-900/50",
+  borderPrimary: "border-[#8b5cf6]/25",
+  borderSecondary: "border-[#8b5cf6]/12",
+  borderDead: "border-red-900/40",
 
   // Glow/Shadow effects
-  glowPrimary: "shadow-lg shadow-black/70",
-  glowSecondary: "shadow-md shadow-black/60",
-  glowLarge: "shadow-xl shadow-black/80",
+  glowPrimary: "shadow-lg shadow-[#8b5cf6]/10",
+  glowSecondary: "shadow-md shadow-[#8b5cf6]/5",
+  glowLarge: "shadow-xl shadow-[#8b5cf6]/15",
 
   // Interactive states
-  hoverDark: "hover:bg-[#c8853a]/10",
-  hoverMedium: "hover:bg-[#c8853a]/07",
-  focusBorder: "focus:border-[#c8853a]/70",
+  hoverDark: "hover:bg-[#8b5cf6]/10",
+  hoverMedium: "hover:bg-[#8b5cf6]/07",
+  focusBorder: "focus:border-[#8b5cf6]/70",
 
   // Special colors
-  linkColor: "text-[#e8c97a]",
-  linkColorHover: "hover:text-[#c8853a]",
-  deadColor: "bg-red-950/60",
-  deadText: "text-red-400",
-  twitch: "bg-purple-700",
-  twitchHover: "hover:bg-purple-600",
+  linkColor: "text-[#ff8c42]",
+  linkColorHover: "hover:text-[#ffab6b]",
+  deadColor: "bg-red-950/40",
+  deadText: "text-red-400/80",
+  twitch: "bg-[#9147ff]",
+  twitchHover: "hover:bg-[#7c3aed]",
 
   // Row colors for tables
-  rowEven: "bg-[#0d0d14]",
-  rowOdd: "bg-[#0d0d14]",
-  rowHover: "hover:bg-[#c8853a]/07",
-  rowBorder: "border-b border-[#c8853a]/30",
-  rowDead: "bg-red-950/40 text-red-400 line-through border-b border-red-900/40",
-  rowAlive: "bg-[#0d0d14] border-b border-[#c8853a]/30 hover:bg-[#c8853a]/07",
+  rowEven: "bg-white/[0.015]",
+  rowOdd: "bg-transparent",
+  rowHover: "hover:bg-[#8b5cf6]/[0.07]",
+  rowBorder: "border-b border-white/[0.06]",
+  rowDead:
+    "bg-red-950/15 text-red-400/70 line-through border-b border-red-900/15",
+  rowAlive:
+    "bg-transparent border-b border-white/[0.06] hover:bg-[#8b5cf6]/[0.07]",
 
   // Skeleton colors
-  skeletonBg: "bg-[#14141e]",
-  skeletonPulse: "bg-[#1e1e2a]",
-  skeletonBorder: "border border-[#c8853a]/15",
-  skeletonGlow: "shadow-md shadow-black/60",
+  skeletonBg: "bg-white/[0.05]",
+  skeletonPulse: "bg-white/[0.09]",
+  skeletonBorder: "border border-white/10",
+  skeletonGlow: "shadow-md shadow-black/40",
 };
 
 // List of leagues to show in the combobox
@@ -67,19 +69,6 @@ const LEAGUE_OPTIONS = [
   {
     label: "VibeRaters Praise the Tree Tree",
     value: "VibeRaters Praise the Tree Tree (PL76433)",
-  },
-];
-
-const BATTLE_PAIRS = [
-  {
-    playerA: { acc: "musachan#0308", display: "musachan" },
-    playerB: { acc: "twitch_thestinkyshadow#9443", display: "thestinkyshadow" },
-    label: "⚔️ Grudge Match ⚔️",
-  },
-  {
-    playerA: { acc: "shadwroca#3489", display: "ShadwRoca" },
-    playerB: { acc: "catfishwins#0914", display: "Catfish" },
-    label: "⚡ Rivalry Battle ⚡",
   },
 ];
 
@@ -105,7 +94,7 @@ const getApiUrls = (leagueName) => ({
 const SkeletonCell = ({ w = "w-20", delay = 0 }) => (
   <td className="p-2">
     <div
-      className={`h-4 ${w} bg-[#1e1e2a] rounded animate-pulse`}
+      className={`h-4 ${w} bg-white/[0.08] rounded animate-pulse`}
       style={{ animationDelay: `${delay}s` }}
     />
   </td>
@@ -216,16 +205,6 @@ function App() {
       const res = await fetch(API_URL);
       const data = await res.json();
       var newLadder = data.entries || [];
-      newLadder = newLadder.map((x) => {
-        if (x.account.name.includes("slinky")) {
-          x.account.name = x.account.name.replaceAll("slinky", "stinky");
-        }
-        if (x.account.name.includes("Fishy")) {
-          console.log("ayo");
-          x.account.name = x.account.name.replaceAll("Fishy", "Ghoti");
-        }
-        return x;
-      });
       setLadder(newLadder);
     } catch (err) {
       console.error("Error fetching ladder:", err);
@@ -298,9 +277,9 @@ function App() {
 
   const SortIndicator = ({ column }) => {
     if (sortConfig.key !== column)
-      return <span className="text-[#c8853a]/40 ml-1">↕</span>;
+      return <span className="text-[#8b5cf6]/40 ml-1">↕</span>;
     return (
-      <span className="text-[#e8c97a] ml-1">
+      <span className="text-[#c4b5fd] ml-1">
         {sortConfig.direction === "asc" ? "↑" : "↓"}
       </span>
     );
@@ -490,27 +469,27 @@ function App() {
   // Mirrors the real toolbar row exactly: refresh btn + search bar + 4 checkboxes
   const SkeletonToolbar = () => (
     <div className="flex items-center gap-4 justify-start mb-6 relative">
-      {/* Refresh button */}
+      {}
       <div
         className={`h-10 w-10 rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow} flex-shrink-0`}
       />
-      {/* Search bar */}
+      {}
       <div
         className={`h-10 w-full max-w-md rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
       />
-      {/* Show Delve checkbox label */}
+      {}
       <div
         className={`h-4 w-24 rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} flex-shrink-0`}
       />
-      {/* Hide Dead checkbox label */}
+      {}
       <div
         className={`h-4 w-20 rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} flex-shrink-0`}
       />
-      {/* Hide Retired checkbox label */}
+      {}
       <div
         className={`h-4 w-24 rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} flex-shrink-0`}
       />
-      {/* Filter Top per Acc checkbox label */}
+      {}
       <div
         className={`h-4 w-32 rounded ${THEME.skeletonBg} animate-pulse ${THEME.skeletonBorder} flex-shrink-0`}
       />
@@ -561,7 +540,7 @@ function App() {
 
   const SkeletonMainTable = () => (
     <table
-      className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+      className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
     >
       <SkeletonTableHeader />
       <tbody>
@@ -581,9 +560,9 @@ function App() {
 
   const SkeletonSidebar = () => (
     <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
-      {/* Live on Twitch skeleton — mirrors the real Twitch table */}
+      {}
       <table
-        className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
+        className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden glass-panel`}
       >
         <thead>
           <tr
@@ -599,7 +578,7 @@ function App() {
               className={`${THEME.rowEven} animate-pulse ${THEME.rowBorder}`}
             >
               <td className="p-2">
-                {/* Mirrors the purple Twitch badge shape */}
+                {}
                 <div
                   className={`h-7 w-32 bg-purple-900/40 rounded animate-pulse`}
                 />
@@ -608,39 +587,13 @@ function App() {
           ))}
         </tbody>
       </table>
-      {/* Delve top 5 — mirrors the real Twitch table */}
-      <table
-        className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
-      >
-        <thead>
-          <tr
-            className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
-          >
-            <th className="p-2 text-left">Delve top 5</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(5)].map((_, i) => (
-            <tr
-              key={i}
-              className={`${THEME.rowEven} animate-pulse ${THEME.rowBorder}`}
-            >
-              <td className="p-2">
-                <div
-                  className={`h-7 w-32 ${THEME.skeletonBg} rounded animate-pulse`}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
-      {/* Delve 1v1 Battle skeleton — mirrors the battle section layout */}
+      {}
       <div
-        className={`w-full border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden`}
-        style={{ background: "#0a0a0f" }}
+        className={`w-full border-2 ${THEME.borderPrimary} ${THEME.glowSecondary} rounded-lg overflow-hidden glass-panel`}
+        style={{ background: "#08090c" }}
       >
-        {/* Header bar */}
+        {}
         <div
           className={`${THEME.accentPrimary} border-b-2 ${THEME.borderPrimary} p-3 flex items-center justify-center gap-2`}
         >
@@ -658,9 +611,9 @@ function App() {
           />
         </div>
 
-        {/* Arena body */}
+        {}
         <div style={{ padding: "1.25rem 1rem" }}>
-          {/* Fighter row */}
+          {}
           <div
             style={{
               display: "flex",
@@ -669,7 +622,7 @@ function App() {
               marginBottom: "1rem",
             }}
           >
-            {/* Player A */}
+            {}
             <div
               style={{
                 flex: 1,
@@ -697,7 +650,7 @@ function App() {
               />
             </div>
 
-            {/* VS / sword */}
+            {}
             <div
               style={{
                 flexShrink: 0,
@@ -718,7 +671,7 @@ function App() {
               />
             </div>
 
-            {/* Player B */}
+            {}
             <div
               style={{
                 flex: 1,
@@ -747,12 +700,12 @@ function App() {
             </div>
           </div>
 
-          {/* HP bar */}
+          {}
           <div
             className={`h-5 w-full rounded-full ${THEME.skeletonBg} animate-pulse`}
             style={{ animationDelay: "0.3s" }}
           />
-          {/* Bar labels */}
+          {}
           <div
             style={{
               display: "flex",
@@ -774,7 +727,7 @@ function App() {
             />
           </div>
 
-          {/* Lead callout line */}
+          {}
           <div
             className={`h-3 w-40 ${THEME.skeletonBg} rounded animate-pulse mx-auto mt-3`}
             style={{ animationDelay: "0.45s" }}
@@ -789,39 +742,65 @@ function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fira+Code:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
         .doom-title {
-          font-family: 'Cinzel', serif;
+          font-family: 'Oswald', sans-serif;
           font-weight: 700;
-          background: linear-gradient(135deg, #e8c97a 0%, #c8853a 50%, #e8c97a 100%);
+          font-style: normal;
+          text-transform: uppercase;
+          background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 45%, #ff8c42 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
         }
         .doom-divider {
           width: 200px;
           height: 1px;
-          background: linear-gradient(90deg, transparent, #c8853a, transparent);
+          background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
           margin: 0.5rem auto 1rem;
         }
         .doom-th {
-          font-family: 'Cinzel', serif;
+          font-family: 'Inter', sans-serif;
           letter-spacing: 0.08em;
-          color: #c8853a !important;
+          color: #b8a9f0 !important;
           text-transform: uppercase;
+          font-weight: 600;
           font-size: 0.7rem !important;
         }
-        body { background: #0a0a0f; }
+        .glass-panel {
+          box-shadow:
+            inset 0 1px 0 0 rgba(255,255,255,0.06),
+            0 8px 32px -8px rgba(0,0,0,0.6);
+        }
+        .rank-badge-1 {
+          background: radial-gradient(circle, #8b5cf6 0%, #5b21b6 100%);
+          box-shadow: 0 0 0 2px rgba(139,92,246,0.35), 0 0 16px 2px rgba(139,92,246,0.55);
+        }
+        .rank-badge-2 {
+          background: radial-gradient(circle, #cbd5e1 0%, #64748b 100%);
+          box-shadow: 0 0 0 2px rgba(203,213,225,0.25), 0 0 10px 1px rgba(203,213,225,0.35);
+        }
+        .rank-badge-3 {
+          background: radial-gradient(circle, #ff8c42 0%, #b45309 100%);
+          box-shadow: 0 0 0 2px rgba(255,140,66,0.25), 0 0 10px 1px rgba(255,140,66,0.4);
+        }
+        body { background: #08090c; font-family: 'Inter', sans-serif; }
+        html, body, #root {
+          min-height: 100%;
+          overflow-x: hidden;
+          overflow-y: auto !important;
+        }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace !important; }
       `}</style>
       <div
         className={`w-full min-h-screen mx-auto px-16 pt-8 pb-16 ${THEME.textPrimary} font-sans relative`}
         style={{
           background:
-            "radial-gradient(ellipse at top, #1a0a2e 0%, #0a0a0f 60%)",
+            "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139,92,246,0.14) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 85% 15%, rgba(255,140,66,0.08) 0%, transparent 60%), #08090c",
         }}
       >
-        {/* ── League combobox — always reserve its space ─────────────────── */}
+        {}
         {loading ? (
           <div
             className={`px-3 py-2 rounded ${THEME.accentPrimary} animate-pulse absolute top-4 left-4 z-30 ${THEME.borderPrimary} ${THEME.glowPrimary}`}
@@ -848,7 +827,7 @@ function App() {
           </select>
         )}
 
-        {/* ── Title ──────────────────────────────────────────────────────── */}
+        {}
         {loading ? (
           <div
             className={`h-10 w-72 ${THEME.skeletonBg} rounded animate-pulse mx-auto mt-2 mb-3 ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
@@ -862,7 +841,7 @@ function App() {
           </>
         )}
 
-        {/* ── League details / divider line ──────────────────────────────── */}
+        {}
         {loading ? (
           // Reserve the same vertical space as the two detail paragraphs + countdown
           <div className="mb-6">
@@ -872,7 +851,7 @@ function App() {
             <div
               className={`mx-auto mb-3 h-3 w-1/2 ${THEME.skeletonBg} rounded animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
             />
-            {/* Countdown row placeholder — same line-height as the live countdown */}
+            {}
             <div
               className={`mx-auto h-4 w-64 ${THEME.skeletonBg} rounded animate-pulse ${THEME.skeletonBorder} ${THEME.skeletonGlow}`}
             />
@@ -947,7 +926,7 @@ function App() {
           )
         )}
 
-        {/* ── Toolbar — always rendered (skeleton or live) ───────────────── */}
+        {}
         {loading ? (
           <SkeletonToolbar />
         ) : (
@@ -991,7 +970,7 @@ function App() {
               </span>
             </button>
 
-            {/* Search bar */}
+            {}
             <div className="w-full max-w-md relative">
               <div
                 className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
@@ -999,7 +978,7 @@ function App() {
                 {searchBubbles.map((bubble, idx) => (
                   <span
                     key={bubble.type + bubble.value}
-                    className="flex items-center bg-[#c8853a]/80 text-[#0a0a0f] px-2 py-1 rounded-full text-xs font-semibold mr-1"
+                    className="flex items-center bg-[#8b5cf6]/80 text-[#0a0a0f] px-2 py-1 rounded-full text-xs font-semibold mr-1"
                     style={{ marginBottom: 2, marginTop: 2 }}
                   >
                     {bubble.value}
@@ -1068,7 +1047,7 @@ function App() {
                   {suggestions.map((s, idx) => (
                     <li
                       key={s.type + s.value}
-                      className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${highlightedIdx === idx ? "bg-[#c8853a]/30 text-[#e8c97a]" : "hover:bg-[#c8853a]/10"}`}
+                      className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${highlightedIdx === idx ? "bg-[#8b5cf6]/30 text-[#c4b5fd]" : "hover:bg-[#8b5cf6]/10"}`}
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setSearchBubbles([...searchBubbles, s]);
@@ -1136,7 +1115,7 @@ function App() {
           </div>
         )}
 
-        {/* ── Main content ───────────────────────────────────────────────── */}
+        {}
         {loading ? (
           <div className="flex flex-col lg:flex-row gap-8">
             <SkeletonMainTable />
@@ -1144,9 +1123,9 @@ function App() {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Main ladder table */}
+            {}
             <table
-              className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+              className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
             >
               <thead className="sticky top-0 z-10">
                 <tr
@@ -1154,42 +1133,42 @@ function App() {
                 >
                   <th className="p-2 text-left doom-th">#</th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("rank")}
                   >
                     Rank
                     <SortIndicator column="rank" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("character")}
                   >
                     Character
                     <SortIndicator column="character" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("class")}
                   >
                     Class
                     <SortIndicator column="class" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("level")}
                   >
                     Level
                     <SortIndicator column="level" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("account")}
                   >
                     Account
                     <SortIndicator column="account" />
                   </th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("experience")}
                   >
                     Exp
@@ -1198,7 +1177,7 @@ function App() {
                   <th className="p-2 text-left doom-th">Exp%</th>
                   <th className="p-2 text-left doom-th">Diff</th>
                   <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                     onClick={() => handleSort("lastSeen")}
                   >
                     Last Seen
@@ -1206,7 +1185,7 @@ function App() {
                   </th>
                   {showDelve && (
                     <th
-                      className="p-2 text-left cursor-pointer hover:bg-[#c8853a]/10 transition-colors select-none doom-th"
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
                       onClick={() => handleSort("delve")}
                     >
                       Delve Depth
@@ -1255,16 +1234,25 @@ function App() {
                         style={{ animationDelay: `${i * 0.01}s` }}
                       >
                         <td className="text-sm font-mono font-semibold text-center">
-                          {aliveRankMap[entry.rank]
-                            ? aliveRankMap[entry.rank]
-                            : "-"}
+                          {aliveRankMap[entry.rank] &&
+                          aliveRankMap[entry.rank] <= 3 ? (
+                            <span
+                              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[#0a0a0f] font-bold rank-badge-${aliveRankMap[entry.rank]}`}
+                            >
+                              {aliveRankMap[entry.rank]}
+                            </span>
+                          ) : aliveRankMap[entry.rank] ? (
+                            aliveRankMap[entry.rank]
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="relative pl-8 text-sm font-medium font-sans">
                           {entry.rank}
                         </td>
                         <td className="text-sm font-medium font-sans">
                           <a
-                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Ghoti", "Fishy")).replace("#", "-")}/characters?characterName=${encodeURI(entry.character?.name)}`}
+                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}/characters?characterName=${encodeURI(entry.character?.name)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hover:underline"
@@ -1292,7 +1280,7 @@ function App() {
                             </a>
                           ) : (
                             <a
-                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replaceAll("stinky", "slinky").replaceAll("Ghoti", "Fishy")).replace("#", "-")}`}
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
@@ -1303,7 +1291,7 @@ function App() {
                           {typeof entry.account?.challenges?.completed ===
                             "number" && (
                             <span
-                              className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-[#1a1408] text-xs font-bold text-[#e8c97a] border-2 border-[#c8853a]/60"
+                              className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-[#1a1230] text-xs font-bold text-[#c4b5fd] border-2 border-[#8b5cf6]/40"
                               title="Challenges Completed"
                             >
                               {entry.account.challenges.completed}
@@ -1318,9 +1306,9 @@ function App() {
                             <span className="text-xs font-semibold font-mono tracking-tight">
                               {percentToNext.toFixed(2)}%
                             </span>
-                            <div className="w-32 h-2 bg-[#1e1e2a] rounded overflow-hidden">
+                            <div className="w-32 h-2 bg-white/[0.08] rounded overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-[#c8853a] to-[#e8c97a] transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#ff8c42] transition-all duration-500"
                                 style={{ width: `${percentToNext}%` }}
                               />
                             </div>
@@ -1357,7 +1345,7 @@ function App() {
                               );
                             if (minutes > 0)
                               return (
-                                <span className="text-[#e8c97a]">
+                                <span className="text-[#c4b5fd]">
                                   {minutes}m ago
                                 </span>
                               );
@@ -1380,12 +1368,12 @@ function App() {
               </tbody>
             </table>
 
-            {/* Sidebar */}
+            {}
             <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
               {leagueName == "disabled" ? <RecentDeathsDisplay /> : ""}
               {leagueName == "disabled" ? (
                 <table
-                  className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+                  className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
                 >
                   <thead>
                     <tr
@@ -1413,9 +1401,9 @@ function App() {
                 ""
               )}
 
-              {/* Live on Twitch table */}
+              {}
               <table
-                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
+                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
               >
                 <thead>
                   <tr
@@ -1475,132 +1463,23 @@ function App() {
                 </tbody>
               </table>
 
-              {/* Delve Top 5 table */}
-              <table
-                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden`}
-              >
-                <thead>
-                  <tr
-                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
-                  >
-                    <th className="p-2 text-left doom-th">Delve Top 5</th>
-                    <th className="p-2 text-left doom-th">Depth</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const bestPerAccount = {};
-
-                    ladder.forEach((entry) => {
-                      const depth = entry.character?.depth?.default || 0;
-                      if (depth > 0) {
-                        const accName = entry.account?.name;
-                        // If we haven't seen this account, or this character is deeper than the one we stored
-                        if (
-                          !bestPerAccount[accName] ||
-                          depth >
-                            bestPerAccount[accName].character.depth.default
-                        ) {
-                          bestPerAccount[accName] = entry;
-                        }
-                      }
-                    });
-
-                    const delveEntries = Object.values(bestPerAccount)
-                      .sort(
-                        (a, b) =>
-                          b.character.depth.default - a.character.depth.default,
-                      )
-                      .slice(0, 5);
-
-                    return delveEntries.length > 0 ? (
-                      delveEntries.map((entry, i) => (
-                        <tr
-                          key={entry.character.name}
-                          className={
-                            i % 2 === 0
-                              ? `${THEME.rowEven} ${THEME.rowBorder}`
-                              : `${THEME.rowOdd} ${THEME.rowBorder}`
-                          }
-                        >
-                          <td className={`p-2 ${THEME.textPrimary} text-sm`}>
-                            <span
-                              className={`${THEME.textTertiary} font-mono mr-2`}
-                            >
-                              {i + 1}.
-                            </span>
-                            <a
-                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(
-                                entry.account?.name
-                                  .replaceAll("stinky", "slinky")
-                                  .replaceAll("Ghoti", "Fishy"),
-                              ).replace(
-                                "#",
-                                "-",
-                              )}/characters?characterName=${encodeURI(entry.character?.name)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              {entry.character?.name}
-                            </a>
-                            {entry.dead && (
-                              <span
-                                className={`ml-1 text-xs ${THEME.deadText}`}
-                              >
-                                ✝
-                              </span>
-                            )}
-                          </td>
-                          <td className={`p-2 font-mono font-semibold text-sm`}>
-                            <span className="text-[#e8c97a]">
-                              {entry.character.depth.default}
-                            </span>
-                            {entry.character.depth.solo > 0 && (
-                              <span
-                                className={`ml-1 text-xs ${THEME.textTertiary}`}
-                              >
-                                ({entry.character.depth.solo} solo)
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={2}
-                          className={`p-2 text-center ${THEME.textTertiary}`}
-                        >
-                          No delve data yet
-                        </td>
-                      </tr>
-                    );
-                  })()}
-                </tbody>
-              </table>
-
-              {/* Delve 1v1 Battles */}
-              <DelveBattleCarousel
-                ladder={ladder}
-                battlePairs={BATTLE_PAIRS}
-                THEME={THEME}
-              />
+              {}
+              <DelveBattleCarousel ladder={ladder} THEME={THEME} />
             </div>
           </div>
         )}
       </div>
 
-      {/* Fixed footer */}
+      {}
       <footer
-        className={`fixed bottom-0 left-0 w-full ${THEME.textTertiary} text-center py-3 text-sm border-t border-[#c8853a]/20 z-50`}
+        className={`fixed bottom-0 left-0 w-full ${THEME.textTertiary} text-center py-3 text-sm border-t border-[#8b5cf6]/15 z-50`}
         style={{ background: "rgba(10,10,15,0.95)", pointerEvents: "auto" }}
       >
         FezLeaderboard &copy; 2025 - 2026 &mdash; Created by Fezalion |{" "}
         <a
           href="https://github.com/sponsors/Fezalion"
           target="_blank"
-          className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
+          className="bg-gradient-to-r items-center from-[#4ecdc4] via-[#8b5cf6] to-[#ff8c42] bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           Sponsor me ❤️
         </a>{" "}
@@ -1609,7 +1488,7 @@ function App() {
         <a
           rel="stylesheet"
           href="https://fezalion.github.io/impending-doom-calc/"
-          className="bg-gradient-to-r items-center from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent text-center select-auto animate-pulse"
+          className="bg-gradient-to-r items-center from-[#4ecdc4] via-[#8b5cf6] to-[#ff8c42] bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           {" "}
           Impending Doom Calc{" "}
