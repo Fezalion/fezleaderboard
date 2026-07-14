@@ -13,7 +13,7 @@ const TimeBox = ({ value, label }) => (
 const formatTime = (num) => String(num).padStart(2, "0");
 
 const PoECountdown = () => {
-  const targetDate = new Date("Jun 26, 2026 1:00 AM GMT+3").getTime();
+  const targetDate = new Date("July 16, 2026 1:00 PM PDT").getTime();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -44,8 +44,8 @@ const PoECountdown = () => {
   return (
     <div className="overlay-container">
       <div className="header-logo" style={{ textAlign: "center" }}>
-        <img src={logo} alt="Return of the Ancestors" width={600} />
-        <h2 className="reveal-text">Releases on 3PM June 25th PDT</h2>
+        <img src={logo} alt="Return of the Ancestors" width={0} />
+        <h2 className="reveal-text">Watch GGG Live 1PM July 16 (PDT)</h2>
       </div>
 
       {}
