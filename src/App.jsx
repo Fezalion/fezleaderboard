@@ -2,93 +2,14 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
 import DelveBattleCarousel from "./DelveBattleCarousel";
-
-// ============================================================
-// THEME CONFIGURATION - Customize all colors and styles here
-// ============================================================
-const THEME = {
-  // Primary colors
-  bgGradient: "from-[#08090c] to-[#08090c]",
-  textPrimary: "text-[#e8e6f0]",
-  textSecondary: "text-[#a8a5b8]",
-  textTertiary: "text-[#6b6878]",
-  textDark: "text-[#4a4756]",
-
-  // Accent colors (glass panels — translucent over the obsidian backdrop)
-  accentPrimary: "bg-white/[0.04]",
-  accentSecondary: "bg-white/[0.03]",
-  accentTertiary: "bg-[#0d0e16]",
-  accentLight: "bg-white/[0.07]",
-
-  // Border colors
-  borderPrimary: "border-[#8b5cf6]/25",
-  borderSecondary: "border-[#8b5cf6]/12",
-  borderDead: "border-red-900/40",
-
-  // Glow/Shadow effects
-  glowPrimary: "shadow-lg shadow-[#8b5cf6]/10",
-  glowSecondary: "shadow-md shadow-[#8b5cf6]/5",
-  glowLarge: "shadow-xl shadow-[#8b5cf6]/15",
-
-  // Interactive states
-  hoverDark: "hover:bg-[#8b5cf6]/10",
-  hoverMedium: "hover:bg-[#8b5cf6]/07",
-  focusBorder: "focus:border-[#8b5cf6]/70",
-
-  // Special colors
-  linkColor: "text-[#ff8c42]",
-  linkColorHover: "hover:text-[#ffab6b]",
-  deadColor: "bg-red-950/40",
-  deadText: "text-red-400/80",
-  twitch: "bg-[#9147ff]",
-  twitchHover: "hover:bg-[#7c3aed]",
-
-  // Row colors for tables
-  rowEven: "bg-white/[0.015]",
-  rowOdd: "bg-transparent",
-  rowHover: "hover:bg-[#8b5cf6]/[0.07]",
-  rowBorder: "border-b border-white/[0.06]",
-  rowDead:
-    "bg-red-950/15 text-red-400/70 line-through border-b border-red-900/15",
-  rowAlive:
-    "bg-transparent border-b border-white/[0.06] hover:bg-[#8b5cf6]/[0.07]",
-
-  // Skeleton colors
-  skeletonBg: "bg-white/[0.05]",
-  skeletonPulse: "bg-white/[0.09]",
-  skeletonBorder: "border border-white/10",
-  skeletonGlow: "shadow-md shadow-black/40",
-};
-
-// List of leagues to show in the combobox
-const LEAGUE_OPTIONS = [
-  {
-    label: "Shimatta",
-    value: "Shimatta (PL78633)",
-  },
-  {
-    label: "VibeRaters Praise the Tree Tree",
-    value: "VibeRaters Praise the Tree Tree (PL76433)",
-  },
-];
-
-// Get league name from query param if present
-function getLeagueName() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("league") || LEAGUE_OPTIONS[0].value;
-}
-
-const LIMIT = 200;
-const REFRESH_INTERVAL = 300; // seconds
-
-const getApiUrls = (leagueName) => ({
-  API_URL: `https://poe-proxy-nine.vercel.app/api/ladder?league=${encodeURIComponent(
-    leagueName,
-  )}&limit=${LIMIT}`,
-  API2_URL: `https://poe-proxy-nine.vercel.app/api/league?league=${encodeURIComponent(
-    leagueName,
-  )}`,
-});
+import {
+  THEME,
+  LEAGUE_OPTIONS,
+  getLeagueName,
+  LIMIT,
+  REFRESH_INTERVAL,
+  getApiUrls,
+} from "./ladderConfig";
 
 // Reusable skeleton cell
 const SkeletonCell = ({ w = "w-20", delay = 0 }) => (
@@ -1492,6 +1413,15 @@ function App() {
         >
           {" "}
           Impending Doom Calc{" "}
+        </a>{" "}
+        |
+        <a
+          rel="stylesheet"
+          href="https://fezalion.github.io/fezleaderboard/overlays"
+          className="bg-gradient-to-r items-center from-[#4ecdc4] via-[#8b5cf6] to-[#ff8c42] bg-clip-text text-transparent text-center select-auto animate-pulse"
+        >
+          {" "}
+          OBS Overlay Builder{" "}
         </a>{" "}
         |
       </footer>
