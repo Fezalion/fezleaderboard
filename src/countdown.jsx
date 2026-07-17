@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Countdown.css";
 import logo from "/return-of-the-ancestorts-logo-en.png";
-import timerbg from "/timer-bg.png";
+import timerbg from "/timer-bg-green.png";
 
 const TimeBox = ({ value, label }) => (
   <div className="time-box">
