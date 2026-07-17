@@ -52,7 +52,7 @@ body {
 .number {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #3c877c;
+  color: #c0d8d4;
 
   text-shadow:
     0 0 15px rgba(60, 135, 124, 0.4),
@@ -63,8 +63,11 @@ body {
 .label {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #3c877c;
+  color: #c0d8d4;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-top: 20px;
+  text-shadow:
+    0 0 15px rgba(60, 135, 124, 0.4),
+    0px 0px 2px #000;
 }
