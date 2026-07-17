@@ -488,7 +488,7 @@ function Overlays() {
           <p className={`${THEME.textTertiary} text-xs mt-2`}>
             In OBS: Add Source → Browser → paste this URL. Recommended size
             ~800×{40 + rowCount * 36}px. Enable "Shutdown source when not
-            visible" off so it keeps refreshing in the background.
+            visible" so it doesnt use resources while not visible.
           </p>
         </div>
       </div>
