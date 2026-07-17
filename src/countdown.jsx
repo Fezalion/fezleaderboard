@@ -46,7 +46,7 @@ const PoECountdown = () => {
       <div className="header-logo" style={{ textAlign: "center" }}>
         <img src={logo} alt="Curse of the Allflame" width={0} />
         <h2 className="reveal-text">Curse of the Allflame</h2>
-        <h2 className="reveal-text">Releases July 24 July 16 (PDT)</h2>
+        <h2 className="reveal-text">Releases July 24 (PDT)</h2>
       </div>
 
       {}
