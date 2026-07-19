@@ -60,7 +60,10 @@ function Overlays() {
     const names = new Set();
     ladder.forEach((e) => {
       const n = e.character?.name;
-      if (n && n.toLowerCase().includes(lower) && !seen.has(n.toLowerCase())) {
+      const acct = e.account?.name;
+      const matches =
+        n?.toLowerCase().includes(lower) || acct?.toLowerCase().includes(lower);
+      if (n && matches && !seen.has(n.toLowerCase())) {
         names.add(n);
       }
     });
