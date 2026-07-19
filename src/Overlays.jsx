@@ -13,6 +13,14 @@ const OVERLAY_TYPES = [
   { value: "people", label: "Specific People" },
 ];
 
+// Clamp a raw (possibly invalid) numeric string to a safe range, falling
+// back to a default when it isn't a finite number at all.
+function clampNumber(raw, min, max, fallback) {
+  const n = Number(raw);
+  if (raw === null || raw === "" || !Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
 function Overlays() {
   const [league, setLeague] = useState(LEAGUE_OPTIONS[0].value);
   const [overlayType, setOverlayType] = useState("topLevels");
@@ -27,6 +35,7 @@ function Overlays() {
   const [opacity, setOpacity] = useState(100);
   const [refreshSeconds, setRefreshSeconds] = useState(60);
   const [copyState, setCopyState] = useState("idle"); // idle | copied
+  const [loadStatus, setLoadStatus] = useState(null); // { type: "success"|"warning"|"error", message }
 
   // ── People picker state ──────────────────────────────────────────────
   const [ladder, setLadder] = useState([]);
@@ -143,6 +152,164 @@ function Overlays() {
     } catch (err) {
       console.error("Copy failed:", err);
     }
+  };
+
+  // Auto-dismiss the load status banner after a bit.
+  useEffect(() => {
+    if (!loadStatus) return;
+    const t = setTimeout(() => setLoadStatus(null), 7000);
+    return () => clearTimeout(t);
+  }, [loadStatus]);
+
+  // Parse a pasted overlay URL, sanity-check every field, and load whatever
+  // is valid into the builder's inputs so an old link can be re-edited.
+  const loadFromUrl = (text) => {
+    const trimmed = (text || "").trim();
+    if (!trimmed) return;
+
+    let urlObj;
+    try {
+      urlObj = new URL(trimmed);
+    } catch {
+      try {
+        urlObj = new URL(trimmed, window.location.origin);
+      } catch {
+        setLoadStatus({
+          type: "error",
+          message: "That doesn't look like a valid URL.",
+        });
+        return;
+      }
+    }
+
+    const params = urlObj.searchParams;
+    if ([...params.keys()].length === 0) {
+      setLoadStatus({
+        type: "error",
+        message: "No overlay parameters found in that URL.",
+      });
+      return;
+    }
+
+    const warnings = [];
+
+    // Overlay type
+    const rawType = params.get("type");
+    const validType = OVERLAY_TYPES.some((t) => t.value === rawType)
+      ? rawType
+      : "topLevels";
+    if (rawType && validType !== rawType) {
+      warnings.push(`unknown type "${rawType}" → defaulted to Top X — Levels`);
+    }
+
+    // League — keep the current selection if the URL's league isn't one we know
+    const rawLeague = params.get("league");
+    const validLeague = LEAGUE_OPTIONS.some((l) => l.value === rawLeague)
+      ? rawLeague
+      : league;
+    if (rawLeague && validLeague !== rawLeague) {
+      warnings.push(`unknown league "${rawLeague}" → kept current league`);
+    } else if (!rawLeague) {
+      warnings.push("no league in URL → kept current league");
+    }
+
+    // Count
+    const rawCount = params.get("count");
+    const parsedCount = clampNumber(rawCount, 1, 100, 10);
+    if (rawCount !== null && String(parsedCount) !== rawCount) {
+      warnings.push(`count "${rawCount}" out of range → set to ${parsedCount}`);
+    }
+
+    // Depth mode
+    const validDepthMode =
+      params.get("depthMode") === "solo" ? "solo" : "default";
+
+    // Names (for "people" overlays)
+    const rawNames = params.get("names") || "";
+    const parsedNames = Array.from(
+      new Set(
+        rawNames
+          .split(",")
+          .map((n) => n.trim())
+          .filter(Boolean),
+      ),
+    );
+    if (validType === "people" && parsedNames.length === 0) {
+      warnings.push("no characters found in the names list");
+    }
+
+    // People sort
+    const rawSort = params.get("peopleSort");
+    const validSort = ["selected", "level", "delve"].includes(rawSort)
+      ? rawSort
+      : "selected";
+    if (rawSort && validSort !== rawSort) {
+      warnings.push(`unknown sort "${rawSort}" → defaulted to Selection order`);
+    }
+
+    // Booleans (matches OverlayView's own parsing rules)
+    const validShowClass = params.get("showClass") !== "0";
+    const validShowLevel = params.get("showLevel") !== "0";
+    const validShowAccount = params.get("showAccount") === "1";
+    const validShowDelve = params.get("showDelve") === "1";
+
+    // Title — just guard against something absurd
+    const rawTitle = params.get("title") || "";
+    const validTitle = rawTitle.slice(0, 100);
+    if (rawTitle.length > 100) {
+      warnings.push("title was too long → trimmed to 100 characters");
+    }
+
+    // Opacity
+    const rawOpacity = params.get("opacity");
+    const parsedOpacity = clampNumber(rawOpacity, 10, 100, 100);
+    if (rawOpacity !== null && String(parsedOpacity) !== rawOpacity) {
+      warnings.push(
+        `opacity "${rawOpacity}" out of range → set to ${parsedOpacity}%`,
+      );
+    }
+
+    // Refresh interval
+    const rawRefresh = params.get("refresh");
+    const parsedRefresh = clampNumber(rawRefresh, 15, 3600, 60);
+    if (rawRefresh !== null && String(parsedRefresh) !== rawRefresh) {
+      warnings.push(
+        `refresh "${rawRefresh}" out of range → set to ${parsedRefresh}s`,
+      );
+    }
+
+    // Apply everything that survived the sanity checks
+    setLeague(validLeague);
+    setOverlayType(validType);
+    setCount(parsedCount);
+    setDepthMode(validDepthMode);
+    setShowClass(validShowClass);
+    setShowLevel(validShowLevel);
+    setShowAccount(validShowAccount);
+    setShowDelve(validShowDelve);
+    setPeopleSort(validSort);
+    setTitle(validTitle);
+    setOpacity(parsedOpacity);
+    setRefreshSeconds(parsedRefresh);
+    setSearch("");
+    if (validType === "people") {
+      setSelectedNames(parsedNames);
+    }
+
+    setLoadStatus(
+      warnings.length
+        ? {
+            type: "warning",
+            message: `Loaded with adjustments: ${warnings.join("; ")}.`,
+          }
+        : { type: "success", message: "Overlay settings loaded from URL." },
+    );
+  };
+
+  const handleUrlPaste = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text");
+    loadFromUrl(text);
   };
 
   const rowCount =
@@ -264,7 +431,7 @@ function Overlays() {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search character name…"
+                    placeholder="Search character or account name…"
                     className={`w-full p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
                   />
                   {suggestions.length > 0 && (
@@ -479,6 +646,7 @@ function Overlays() {
               readOnly
               value={overlayUrl}
               onFocus={(e) => e.target.select()}
+              onPaste={handleUrlPaste}
               className={`flex-1 p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} text-sm font-mono`}
             />
             <button
@@ -493,6 +661,23 @@ function Overlays() {
             ~800×{40 + rowCount * 36}px. Enable "Shutdown source when not
             visible" so it doesnt use resources while not visible.
           </p>
+          <p className={`${THEME.textTertiary} text-xs mt-1`}>
+            Tip: paste an old overlay URL into the box above (Ctrl/Cmd+V) to
+            reload it back into the builder for editing.
+          </p>
+          {loadStatus && (
+            <p
+              className={`text-xs mt-2 ${
+                loadStatus.type === "error"
+                  ? "text-red-400"
+                  : loadStatus.type === "warning"
+                    ? "text-amber-400"
+                    : "text-emerald-400"
+              }`}
+            >
+              {loadStatus.message}
+            </p>
+          )}
         </div>
       </div>
     </div>
