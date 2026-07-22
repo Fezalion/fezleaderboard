@@ -1129,6 +1129,25 @@ function App() {
                       accountFirstAliveRank[entry.account.name] = entry.rank;
                     }
                   });
+                  if (sortedLadder.length === 0) {
+                    return (
+                      <tr>
+                        <td
+                          colSpan={showDelve ? 11 : 10}
+                          className={`p-8 text-center ${THEME.textTertiary}`}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <img
+                              src="./modcheck.gif"
+                              alt="modcheck"
+                              className="h-16 w-auto"
+                            />
+                            <span>Nothing here...</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }
                   return sortedLadder.map((entry, i) => {
                     const isDead = entry.dead;
                     const exp = entry.character?.experience || 0;

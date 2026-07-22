@@ -63,6 +63,10 @@ export const THEME = {
 // List of leagues to show in the combobox
 export const LEAGUE_OPTIONS = [
   {
+    label: "Yo can I get that",
+    value: "Yo can I get that (PL83733)",
+  },
+  {
     label: "Shimatta",
     value: "Shimatta (PL78633)",
   },

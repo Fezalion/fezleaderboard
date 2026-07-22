@@ -13,8 +13,8 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter basename="/fezleaderboard">
       <Routes>
-        <Route path="/letmein" element={<App />} />
-        <Route path="/" element={<UnderConstruct />} />
+        <Route path="/" element={<App />} />
+        <Route path="/letmeout" element={<UnderConstruct />} />
         <Route path="/music" element={<MusicPlayer />} />
         <Route path="/countdown" element={<PoECountdown />} />
         <Route path="/overlays" element={<Overlays />} />
