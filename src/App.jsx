@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
 import DelveBattleCarousel from "./DelveBattleCarousel";
+import FishyRerollCounter from "./FishyRerollCounter";
 import {
   THEME,
   LEAGUE_OPTIONS,
@@ -1402,6 +1403,9 @@ function App() {
                   })()}
                 </tbody>
               </table>
+
+              {}
+              <FishyRerollCounter ladder={ladder} THEME={THEME} />
 
               {}
               <DelveBattleCarousel ladder={ladder} THEME={THEME} />
