@@ -3,6 +3,7 @@ import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
 import DelveBattleCarousel from "./DelveBattleCarousel";
 import FishyRerollCounter from "./FishyRerollCounter";
+import LeagueStats from "./LeagueStats";
 import {
   THEME,
   LEAGUE_OPTIONS,
@@ -69,6 +70,7 @@ function App() {
     direction: "asc",
   });
   const [lastLogins, setLastLogins] = useState({});
+  const [activeTab, setActiveTab] = useState("leaderboard");
 
   useEffect(() => {
     if (!search.trim()) {
@@ -849,470 +851,542 @@ function App() {
         )}
 
         {}
-        {loading ? (
-          <SkeletonToolbar />
-        ) : (
-          <div className="flex items-center gap-4 justify-start mb-6 relative">
-            <button
-              onClick={handleManualRefresh}
-              title="Refresh"
-              className={`flex items-center justify-center p-2 rounded ${THEME.accentSecondary} ${THEME.hoverDark} transition-colors ${THEME.borderPrimary} focus:outline-none focus:ring relative ${THEME.glowPrimary}`}
-              style={{ minWidth: 40 }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{
-                  transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)",
-                  transform: `rotate(${refreshSpinAngle}deg)`,
-                }}
-              >
-                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                <g
-                  id="SVGRepo_tracerCarrier"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                ></g>
-                <g id="SVGRepo_iconCarrier">
-                  <path
-                    d="M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"
-                    stroke="#ffffffff"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </g>
-              </svg>
-              <span
-                className={`absolute text-[8px] ${THEME.textSecondary} font-mono`}
-                style={{ right: 0, bottom: -3, pointerEvents: "none" }}
-              >
-                {countdown}s
-              </span>
-            </button>
-
-            {}
-            <div className="w-full max-w-md relative">
-              <div
-                className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
-              >
-                {searchBubbles.map((bubble, idx) => (
-                  <span
-                    key={bubble.type + bubble.value}
-                    className="flex items-center bg-[#8b5cf6]/80 text-[#0a0a0f] px-2 py-1 rounded-full text-xs font-semibold mr-1"
-                    style={{ marginBottom: 2, marginTop: 2 }}
-                  >
-                    {bubble.value}
-                    <button
-                      className={`ml-1 ${THEME.textPrimary} hover:text-purple-200 focus:outline-none`}
-                      onClick={() =>
-                        setSearchBubbles(
-                          searchBubbles.filter((b, i) => i !== idx),
-                        )
-                      }
-                      aria-label="Remove"
-                      tabIndex={-1}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 120)
-                  }
-                  onKeyDown={(e) => {
-                    if (showSuggestions && suggestions.length > 0) {
-                      if (e.key === "ArrowDown") {
-                        setHighlightedIdx((idx) =>
-                          Math.min(idx + 1, suggestions.length - 1),
-                        );
-                        e.preventDefault();
-                      } else if (e.key === "ArrowUp") {
-                        setHighlightedIdx((idx) => Math.max(idx - 1, 0));
-                        e.preventDefault();
-                      } else if (e.key === "Enter" && highlightedIdx >= 0) {
-                        const s = suggestions[highlightedIdx];
-                        setSearchBubbles([...searchBubbles, s]);
-                        setSearch("");
-                        setSuggestions([]);
-                        setShowSuggestions(false);
-                        setHighlightedIdx(-1);
-                        e.preventDefault();
-                      }
-                    } else if (
-                      e.key === "Backspace" &&
-                      search === "" &&
-                      searchBubbles.length > 0
-                    ) {
-                      setSearchBubbles(searchBubbles.slice(0, -1));
-                    }
-                  }}
-                  placeholder="Search character, class or account..."
-                  className={`bg-transparent outline-none border-none flex-1 min-w-[120px] text-base font-sans ${THEME.textPrimary} py-1`}
-                  style={{ minWidth: 120 }}
-                />
-              </div>
-              {showSuggestions && suggestions.length > 0 && (
-                <ul
-                  className={`absolute left-0 top-full mt-1 w-full ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} rounded shadow-lg ${THEME.glowPrimary} z-20 max-h-56 overflow-y-auto`}
-                >
-                  {suggestions.map((s, idx) => (
-                    <li
-                      key={s.type + s.value}
-                      className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${highlightedIdx === idx ? "bg-[#8b5cf6]/30 text-[#c4b5fd]" : "hover:bg-[#8b5cf6]/10"}`}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setSearchBubbles([...searchBubbles, s]);
-                        setSearch("");
-                        setSuggestions([]);
-                        setShowSuggestions(false);
-                        setHighlightedIdx(-1);
-                      }}
-                      onMouseEnter={() => setHighlightedIdx(idx)}
-                    >
-                      <span className="font-bold capitalize">{s.value}</span>
-                      <span className={`text-xs ${THEME.textTertiary}`}>
-                        {s.type}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={showDelve}
-                onChange={(e) => setShowDelve(e.target.checked)}
-                className="form-checkbox h-4 w-4 text-blue-600"
-              />
-              Show Delve
-            </label>
-            <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={onlyAlive}
-                onChange={(e) => setOnlyAlive(e.target.checked)}
-                className="form-checkbox h-4 w-4 text-green-600"
-              />
-              Hide Dead
-            </label>
-            <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={hideQuitters}
-                onChange={(e) => setHideQuitters(e.target.checked)}
-                className="form-checkbox h-4 w-4 text-green-600"
-              />
-              Hide Retired
-            </label>
-            <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={onlyTopRanked}
-                onChange={(e) => setOnlyTopRanked(e.target.checked)}
-                className="form-checkbox h-4 w-4 text-amber-600"
-              />
-              Filter Top per Acc.
-            </label>
-            {(sortConfig.key !== "rank" || sortConfig.direction !== "asc") && (
+        {!loading && (
+          <div
+            className={`flex items-center justify-center gap-2 mb-6 border-b-2 ${THEME.borderPrimary}`}
+          >
+            {[
+              { key: "leaderboard", label: "Leaderboard" },
+              { key: "stats", label: "League Stats" },
+            ].map((tab) => (
               <button
-                onClick={() => setSortConfig({ key: "rank", direction: "asc" })}
-                className={`px-3 py-1 ${THEME.accentSecondary} ${THEME.hoverDark} rounded text-sm transition-colors ${THEME.borderPrimary} ${THEME.glowSecondary}`}
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-4 py-2 text-sm font-semibold font-sans tracking-wide uppercase transition-colors border-b-2 -mb-[2px] ${
+                  activeTab === tab.key
+                    ? "border-[#8b5cf6] text-[#c4b5fd]"
+                    : `border-transparent ${THEME.textTertiary} hover:${THEME.textSecondary}`
+                }`}
               >
-                Clear Sort
+                {tab.label}
               </button>
-            )}
+            ))}
           </div>
         )}
 
         {}
-        {loading ? (
-          <div className="flex flex-col lg:flex-row gap-8">
-            <SkeletonMainTable />
-            <SkeletonSidebar />
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-8">
-            {}
-            <table
-              className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
-            >
-              <thead className="sticky top-0 z-10">
-                <tr
-                  className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+        {activeTab === "stats" && !loading && (
+          <LeagueStats ladder={ladder} THEME={THEME} leagueName={leagueName} />
+        )}
+
+        {}
+        {activeTab === "leaderboard" &&
+          (loading ? (
+            <SkeletonToolbar />
+          ) : (
+            <div className="flex items-center gap-4 justify-start mb-6 relative">
+              <button
+                onClick={handleManualRefresh}
+                title="Refresh"
+                className={`flex items-center justify-center p-2 rounded ${THEME.accentSecondary} ${THEME.hoverDark} transition-colors ${THEME.borderPrimary} focus:outline-none focus:ring relative ${THEME.glowPrimary}`}
+                style={{ minWidth: 40 }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{
+                    transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)",
+                    transform: `rotate(${refreshSpinAngle}deg)`,
+                  }}
                 >
-                  <th className="p-2 text-left doom-th">#</th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("rank")}
+                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path
+                      d="M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"
+                      stroke="#ffffffff"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                </svg>
+                <span
+                  className={`absolute text-[8px] ${THEME.textSecondary} font-mono`}
+                  style={{ right: 0, bottom: -3, pointerEvents: "none" }}
+                >
+                  {countdown}s
+                </span>
+              </button>
+
+              {}
+              <div className="w-full max-w-md relative">
+                <div
+                  className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
+                >
+                  {searchBubbles.map((bubble, idx) => (
+                    <span
+                      key={bubble.type + bubble.value}
+                      className="flex items-center bg-[#8b5cf6]/80 text-[#0a0a0f] px-2 py-1 rounded-full text-xs font-semibold mr-1"
+                      style={{ marginBottom: 2, marginTop: 2 }}
+                    >
+                      {bubble.value}
+                      <button
+                        className={`ml-1 ${THEME.textPrimary} hover:text-purple-200 focus:outline-none`}
+                        onClick={() =>
+                          setSearchBubbles(
+                            searchBubbles.filter((b, i) => i !== idx),
+                          )
+                        }
+                        aria-label="Remove"
+                        tabIndex={-1}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() =>
+                      setTimeout(() => setShowSuggestions(false), 120)
+                    }
+                    onKeyDown={(e) => {
+                      if (showSuggestions && suggestions.length > 0) {
+                        if (e.key === "ArrowDown") {
+                          setHighlightedIdx((idx) =>
+                            Math.min(idx + 1, suggestions.length - 1),
+                          );
+                          e.preventDefault();
+                        } else if (e.key === "ArrowUp") {
+                          setHighlightedIdx((idx) => Math.max(idx - 1, 0));
+                          e.preventDefault();
+                        } else if (e.key === "Enter" && highlightedIdx >= 0) {
+                          const s = suggestions[highlightedIdx];
+                          setSearchBubbles([...searchBubbles, s]);
+                          setSearch("");
+                          setSuggestions([]);
+                          setShowSuggestions(false);
+                          setHighlightedIdx(-1);
+                          e.preventDefault();
+                        }
+                      } else if (
+                        e.key === "Backspace" &&
+                        search === "" &&
+                        searchBubbles.length > 0
+                      ) {
+                        setSearchBubbles(searchBubbles.slice(0, -1));
+                      }
+                    }}
+                    placeholder="Search character, class or account..."
+                    className={`bg-transparent outline-none border-none flex-1 min-w-[120px] text-base font-sans ${THEME.textPrimary} py-1`}
+                    style={{ minWidth: 120 }}
+                  />
+                </div>
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul
+                    className={`absolute left-0 top-full mt-1 w-full ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} rounded shadow-lg ${THEME.glowPrimary} z-20 max-h-56 overflow-y-auto`}
                   >
-                    Rank
-                    <SortIndicator column="rank" />
-                  </th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("character")}
+                    {suggestions.map((s, idx) => (
+                      <li
+                        key={s.type + s.value}
+                        className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${highlightedIdx === idx ? "bg-[#8b5cf6]/30 text-[#c4b5fd]" : "hover:bg-[#8b5cf6]/10"}`}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSearchBubbles([...searchBubbles, s]);
+                          setSearch("");
+                          setSuggestions([]);
+                          setShowSuggestions(false);
+                          setHighlightedIdx(-1);
+                        }}
+                        onMouseEnter={() => setHighlightedIdx(idx)}
+                      >
+                        <span className="font-bold capitalize">{s.value}</span>
+                        <span className={`text-xs ${THEME.textTertiary}`}>
+                          {s.type}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showDelve}
+                  onChange={(e) => setShowDelve(e.target.checked)}
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                />
+                Show Delve
+              </label>
+              <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={onlyAlive}
+                  onChange={(e) => setOnlyAlive(e.target.checked)}
+                  className="form-checkbox h-4 w-4 text-green-600"
+                />
+                Hide Dead
+              </label>
+              <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={hideQuitters}
+                  onChange={(e) => setHideQuitters(e.target.checked)}
+                  className="form-checkbox h-4 w-4 text-green-600"
+                />
+                Hide Retired
+              </label>
+              <label className="flex items-center gap-2 text-base font-sans cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={onlyTopRanked}
+                  onChange={(e) => setOnlyTopRanked(e.target.checked)}
+                  className="form-checkbox h-4 w-4 text-amber-600"
+                />
+                Filter Top per Acc.
+              </label>
+              {(sortConfig.key !== "rank" ||
+                sortConfig.direction !== "asc") && (
+                <button
+                  onClick={() =>
+                    setSortConfig({ key: "rank", direction: "asc" })
+                  }
+                  className={`px-3 py-1 ${THEME.accentSecondary} ${THEME.hoverDark} rounded text-sm transition-colors ${THEME.borderPrimary} ${THEME.glowSecondary}`}
+                >
+                  Clear Sort
+                </button>
+              )}
+            </div>
+          ))}
+
+        {}
+        {activeTab === "leaderboard" &&
+          (loading ? (
+            <div className="flex flex-col lg:flex-row gap-8">
+              <SkeletonMainTable />
+              <SkeletonSidebar />
+            </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-8">
+              {}
+              <table
+                className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
+              >
+                <thead className="sticky top-0 z-10">
+                  <tr
+                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
                   >
-                    Character
-                    <SortIndicator column="character" />
-                  </th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("class")}
-                  >
-                    Class
-                    <SortIndicator column="class" />
-                  </th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("level")}
-                  >
-                    Level
-                    <SortIndicator column="level" />
-                  </th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("account")}
-                  >
-                    Account
-                    <SortIndicator column="account" />
-                  </th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("experience")}
-                  >
-                    Exp
-                    <SortIndicator column="experience" />
-                  </th>
-                  <th className="p-2 text-left doom-th">Exp%</th>
-                  <th className="p-2 text-left doom-th">Diff</th>
-                  <th
-                    className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                    onClick={() => handleSort("lastSeen")}
-                  >
-                    Last Seen
-                    <SortIndicator column="lastSeen" />
-                  </th>
-                  {showDelve && (
+                    <th className="p-2 text-left doom-th">#</th>
                     <th
                       className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
-                      onClick={() => handleSort("delve")}
+                      onClick={() => handleSort("rank")}
                     >
-                      Delve Depth
-                      <SortIndicator column="delve" />
+                      Rank
+                      <SortIndicator column="rank" />
                     </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const top1 = sortedLadder.find((e) => !e.dead);
-                  const top1Exp = top1?.character?.experience || 0;
-                  const accountFirstAliveRank = {};
-                  ladder.forEach((entry) => {
-                    if (
-                      !entry.dead &&
-                      entry.account?.name &&
-                      accountFirstAliveRank[entry.account.name] === undefined
-                    ) {
-                      accountFirstAliveRank[entry.account.name] = entry.rank;
-                    }
-                  });
-                  if (sortedLadder.length === 0) {
-                    return (
-                      <tr>
-                        <td
-                          colSpan={showDelve ? 11 : 10}
-                          className={`p-8 text-center ${THEME.textTertiary}`}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            <img
-                              src="./modcheck.gif"
-                              alt="modcheck"
-                              className="h-16 w-auto"
-                            />
-                            <span>Nothing here...</span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  }
-                  return sortedLadder.map((entry, i) => {
-                    const isDead = entry.dead;
-                    const exp = entry.character?.experience || 0;
-                    const lvl = entry.character?.level || 1;
-                    const prevLevelExp = poeExperienceTable[lvl - 1] ?? 0;
-                    const nextLevelExp = poeExperienceTable[lvl] ?? undefined;
-                    let percentToNext = 100;
-                    if (
-                      typeof nextLevelExp === "number" &&
-                      nextLevelExp > prevLevelExp
-                    ) {
-                      percentToNext =
-                        ((exp - prevLevelExp) / (nextLevelExp - prevLevelExp)) *
-                        100;
-                      percentToNext = Math.max(0, Math.min(100, percentToNext));
-                    } else if (typeof nextLevelExp !== "number") {
-                      percentToNext = 100;
-                    }
-                    const expDiff = i === 0 || isDead ? null : exp - top1Exp;
-                    return (
-                      <tr
-                        key={entry.rank}
-                        className={`relative transition-all duration-700 transform *:py-2 *:mx-0 ${isDead ? THEME.rowDead : THEME.rowAlive} animate-fadein ${entry.retired ? "bg-[repeating-linear-gradient(45deg,#ef444420,#ef444420_10px,#ffffff20_10px,#ffffff20_20px)]" : ""}`}
-                        style={{ animationDelay: `${i * 0.01}s` }}
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("character")}
+                    >
+                      Character
+                      <SortIndicator column="character" />
+                    </th>
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("class")}
+                    >
+                      Class
+                      <SortIndicator column="class" />
+                    </th>
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("level")}
+                    >
+                      Level
+                      <SortIndicator column="level" />
+                    </th>
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("account")}
+                    >
+                      Account
+                      <SortIndicator column="account" />
+                    </th>
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("experience")}
+                    >
+                      Exp
+                      <SortIndicator column="experience" />
+                    </th>
+                    <th className="p-2 text-left doom-th">Exp%</th>
+                    <th className="p-2 text-left doom-th">Diff</th>
+                    <th
+                      className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                      onClick={() => handleSort("lastSeen")}
+                    >
+                      Last Seen
+                      <SortIndicator column="lastSeen" />
+                    </th>
+                    {showDelve && (
+                      <th
+                        className="p-2 text-left cursor-pointer hover:bg-[#8b5cf6]/10 transition-colors select-none doom-th"
+                        onClick={() => handleSort("delve")}
                       >
-                        <td className="text-sm font-mono font-semibold text-center">
-                          {aliveRankMap[entry.rank] &&
-                          aliveRankMap[entry.rank] <= 3 ? (
-                            <span
-                              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[#0a0a0f] font-bold rank-badge-${aliveRankMap[entry.rank]}`}
-                            >
-                              {aliveRankMap[entry.rank]}
-                            </span>
-                          ) : aliveRankMap[entry.rank] ? (
-                            aliveRankMap[entry.rank]
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                        <td className="relative pl-8 text-sm font-medium font-sans">
-                          {entry.rank}
-                        </td>
-                        <td className="text-sm font-medium font-sans">
-                          <a
-                            href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}/characters?characterName=${encodeURI(entry.character?.name)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
+                        Delve Depth
+                        <SortIndicator column="delve" />
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const top1 = sortedLadder.find((e) => !e.dead);
+                    const top1Exp = top1?.character?.experience || 0;
+                    const accountFirstAliveRank = {};
+                    ladder.forEach((entry) => {
+                      if (
+                        !entry.dead &&
+                        entry.account?.name &&
+                        accountFirstAliveRank[entry.account.name] === undefined
+                      ) {
+                        accountFirstAliveRank[entry.account.name] = entry.rank;
+                      }
+                    });
+                    if (sortedLadder.length === 0) {
+                      return (
+                        <tr>
+                          <td
+                            colSpan={showDelve ? 11 : 10}
+                            className={`p-8 text-center ${THEME.textTertiary}`}
                           >
-                            {entry.character?.name}
-                          </a>
-                        </td>
-                        <td className="text-sm font-medium font-sans">
-                          {entry.character?.class}
-                        </td>
-                        <td className="text-sm font-medium font-sans">
-                          {entry.character?.level}
-                        </td>
-                        <td className="text-sm font-medium font-sans">
-                          {entry.account?.twitch?.stream ? (
+                            <div className="flex flex-col items-center gap-2">
+                              <img
+                                src="./modcheck.gif"
+                                alt="modcheck"
+                                className="h-16 w-auto"
+                              />
+                              <span>Nothing here...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }
+                    return sortedLadder.map((entry, i) => {
+                      const isDead = entry.dead;
+                      const exp = entry.character?.experience || 0;
+                      const lvl = entry.character?.level || 1;
+                      const prevLevelExp = poeExperienceTable[lvl - 1] ?? 0;
+                      const nextLevelExp = poeExperienceTable[lvl] ?? undefined;
+                      let percentToNext = 100;
+                      if (
+                        typeof nextLevelExp === "number" &&
+                        nextLevelExp > prevLevelExp
+                      ) {
+                        percentToNext =
+                          ((exp - prevLevelExp) /
+                            (nextLevelExp - prevLevelExp)) *
+                          100;
+                        percentToNext = Math.max(
+                          0,
+                          Math.min(100, percentToNext),
+                        );
+                      } else if (typeof nextLevelExp !== "number") {
+                        percentToNext = 100;
+                      }
+                      const expDiff = i === 0 || isDead ? null : exp - top1Exp;
+                      return (
+                        <tr
+                          key={entry.rank}
+                          className={`relative transition-all duration-700 transform *:py-2 *:mx-0 ${isDead ? THEME.rowDead : THEME.rowAlive} animate-fadein ${entry.retired ? "bg-[repeating-linear-gradient(45deg,#ef444420,#ef444420_10px,#ffffff20_10px,#ffffff20_20px)]" : ""}`}
+                          style={{ animationDelay: `${i * 0.01}s` }}
+                        >
+                          <td className="text-sm font-mono font-semibold text-center">
+                            {aliveRankMap[entry.rank] &&
+                            aliveRankMap[entry.rank] <= 3 ? (
+                              <span
+                                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[#0a0a0f] font-bold rank-badge-${aliveRankMap[entry.rank]}`}
+                              >
+                                {aliveRankMap[entry.rank]}
+                              </span>
+                            ) : aliveRankMap[entry.rank] ? (
+                              aliveRankMap[entry.rank]
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td className="relative pl-8 text-sm font-medium font-sans">
+                            {entry.rank}
+                          </td>
+                          <td className="text-sm font-medium font-sans">
                             <a
-                              href={`https://twitch.tv/${entry.account?.twitch.stream.name}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block px-2 py-1 rounded bg-[#9147ff] text-white font-bold hover:bg-[#772ce8] transition-colors duration-200 shadow-sm"
-                              title="Live on Twitch!"
-                            >
-                              <span className="mr-1 align-middle">🔴</span>
-                              {entry.account?.name}
-                            </a>
-                          ) : (
-                            <a
-                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}`}
+                              href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}/characters?characterName=${encodeURI(entry.character?.name)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
                             >
-                              {entry.account?.name}
+                              {entry.character?.name}
                             </a>
-                          )}
-                          {typeof entry.account?.challenges?.completed ===
-                            "number" && (
-                            <span
-                              className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-[#1a1230] text-xs font-bold text-[#c4b5fd] border-2 border-[#8b5cf6]/40"
-                              title="Challenges Completed"
-                            >
-                              {entry.account.challenges.completed}
-                            </span>
-                          )}
-                        </td>
-                        <td className="text-sm font-mono font-semibold">
-                          {entry.character?.experience}
-                        </td>
-                        <td className="text-sm font-medium font-sans">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-xs font-semibold font-mono tracking-tight">
-                              {percentToNext.toFixed(2)}%
-                            </span>
-                            <div className="w-32 h-2 bg-white/[0.08] rounded overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#ff8c42] transition-all duration-500"
-                                style={{ width: `${percentToNext}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-sm font-mono font-semibold">
-                          {i === 0 || isDead
-                            ? "0"
-                            : expDiff < 0
-                              ? expDiff
-                              : `+${expDiff}`}
-                        </td>
-                        <td className="text-sm font-mono">
-                          {(() => {
-                            const ts = lastSeenByAccount[entry.account?.name];
-                            if (!ts)
-                              return <span className="text-[#5a4a3a]">—</span>;
-                            const diff =
-                              Date.now() - new Date(ts * 1000).getTime();
-                            const minutes = Math.floor(diff / 1000 / 60);
-                            const hours = Math.floor(minutes / 60);
-                            const days = Math.floor(hours / 24);
-                            if (days > 0)
-                              return (
-                                <span className="text-[#6a5a4a]">
-                                  {days}d ago
-                                </span>
-                              );
-                            if (hours > 0)
-                              return (
-                                <span className="text-[#a09080]">
-                                  {hours}h ago
-                                </span>
-                              );
-                            if (minutes > 0)
-                              return (
-                                <span className="text-[#c4b5fd]">
-                                  {minutes}m ago
-                                </span>
-                              );
-                            return (
-                              <span className="text-green-400">Just now</span>
-                            );
-                          })()}
-                        </td>
-                        {showDelve && (
-                          <td className="text-sm font-mono font-semibold">
-                            {entry.character?.depth
-                              ? `Depth: ${entry.character.depth.default ?? 0} / Solo: ${entry.character.depth.solo ?? 0}`
-                              : "-"}
                           </td>
-                        )}
-                      </tr>
-                    );
-                  });
-                })()}
-              </tbody>
-            </table>
+                          <td className="text-sm font-medium font-sans">
+                            {entry.character?.class}
+                          </td>
+                          <td className="text-sm font-medium font-sans">
+                            {entry.character?.level}
+                          </td>
+                          <td className="text-sm font-medium font-sans">
+                            {entry.account?.twitch?.stream ? (
+                              <a
+                                href={`https://twitch.tv/${entry.account?.twitch.stream.name}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block px-2 py-1 rounded bg-[#9147ff] text-white font-bold hover:bg-[#772ce8] transition-colors duration-200 shadow-sm"
+                                title="Live on Twitch!"
+                              >
+                                <span className="mr-1 align-middle">🔴</span>
+                                {entry.account?.name}
+                              </a>
+                            ) : (
+                              <a
+                                href={`https://www.pathofexile.com/account/view-profile/${encodeURI(entry.account?.name.replace("#", "-"))}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline"
+                              >
+                                {entry.account?.name}
+                              </a>
+                            )}
+                            {typeof entry.account?.challenges?.completed ===
+                              "number" && (
+                              <span
+                                className="inline-flex items-center justify-center w-6 h-6 mx-2 rounded-full bg-[#1a1230] text-xs font-bold text-[#c4b5fd] border-2 border-[#8b5cf6]/40"
+                                title="Challenges Completed"
+                              >
+                                {entry.account.challenges.completed}
+                              </span>
+                            )}
+                          </td>
+                          <td className="text-sm font-mono font-semibold">
+                            {entry.character?.experience}
+                          </td>
+                          <td className="text-sm font-medium font-sans">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-xs font-semibold font-mono tracking-tight">
+                                {percentToNext.toFixed(2)}%
+                              </span>
+                              <div className="w-32 h-2 bg-white/[0.08] rounded overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#ff8c42] transition-all duration-500"
+                                  style={{ width: `${percentToNext}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="text-sm font-mono font-semibold">
+                            {i === 0 || isDead
+                              ? "0"
+                              : expDiff < 0
+                                ? expDiff
+                                : `+${expDiff}`}
+                          </td>
+                          <td className="text-sm font-mono">
+                            {(() => {
+                              const ts = lastSeenByAccount[entry.account?.name];
+                              if (!ts)
+                                return (
+                                  <span className="text-[#5a4a3a]">—</span>
+                                );
+                              const diff =
+                                Date.now() - new Date(ts * 1000).getTime();
+                              const minutes = Math.floor(diff / 1000 / 60);
+                              const hours = Math.floor(minutes / 60);
+                              const days = Math.floor(hours / 24);
+                              if (days > 0)
+                                return (
+                                  <span className="text-[#6a5a4a]">
+                                    {days}d ago
+                                  </span>
+                                );
+                              if (hours > 0)
+                                return (
+                                  <span className="text-[#a09080]">
+                                    {hours}h ago
+                                  </span>
+                                );
+                              if (minutes > 0)
+                                return (
+                                  <span className="text-[#c4b5fd]">
+                                    {minutes}m ago
+                                  </span>
+                                );
+                              return (
+                                <span className="text-green-400">Just now</span>
+                              );
+                            })()}
+                          </td>
+                          {showDelve && (
+                            <td className="text-sm font-mono font-semibold">
+                              {entry.character?.depth
+                                ? `Depth: ${entry.character.depth.default ?? 0} / Solo: ${entry.character.depth.solo ?? 0}`
+                                : "-"}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    });
+                  })()}
+                </tbody>
+              </table>
 
-            {}
-            <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
-              {leagueName == "disabled" ? <RecentDeathsDisplay /> : ""}
-              {leagueName == "disabled" ? (
+              {}
+              <div className="w-2/8 max-h-dvh overflow-y-auto sticky top-0 flex flex-col gap-6">
+                {leagueName == "disabled" ? <RecentDeathsDisplay /> : ""}
+                {leagueName == "disabled" ? (
+                  <table
+                    className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
+                  >
+                    <thead>
+                      <tr
+                        className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
+                      >
+                        <th className="p-2 text-left">Account</th>
+                        <th className="p-2 text-left">Deaths</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topDeaths.map(([account, deaths], i) => (
+                        <tr
+                          key={i}
+                          className={`${i % 2 === 0 ? THEME.rowEven : THEME.rowOdd} ${THEME.rowBorder}`}
+                        >
+                          <td className={`p-2 ${THEME.textPrimary}`}>
+                            {account}
+                          </td>
+                          <td className={`p-2 ${THEME.textPrimary}`}>
+                            {deaths}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  ""
+                )}
+
+                {}
                 <table
                   className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
                 >
@@ -1320,98 +1394,68 @@ function App() {
                     <tr
                       className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
                     >
-                      <th className="p-2 text-left">Account</th>
-                      <th className="p-2 text-left">Deaths</th>
+                      <th className="p-2 text-left">Live on Twitch</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {topDeaths.map(([account, deaths], i) => (
-                      <tr
-                        key={i}
-                        className={`${i % 2 === 0 ? THEME.rowEven : THEME.rowOdd} ${THEME.rowBorder}`}
-                      >
-                        <td className={`p-2 ${THEME.textPrimary}`}>
-                          {account}
-                        </td>
-                        <td className={`p-2 ${THEME.textPrimary}`}>{deaths}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                ""
-              )}
-
-              {}
-              <table
-                className={`w-full border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}
-              >
-                <thead>
-                  <tr
-                    className={`${THEME.accentPrimary} ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary}`}
-                  >
-                    <th className="p-2 text-left">Live on Twitch</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const uniqueAccounts = new Map();
-                    ladder.forEach((e) => {
-                      if (
-                        e.account?.twitch?.stream &&
-                        e.account?.name &&
-                        !uniqueAccounts.has(e.account.name)
-                      ) {
-                        uniqueAccounts.set(e.account.name, e);
-                      }
-                    });
-                    const uniqueLive = Array.from(uniqueAccounts.values());
-                    return uniqueLive.length > 0 ? (
-                      uniqueLive.map((entry, i) => (
-                        <tr
-                          key={entry.account.name + "-" + i}
-                          className={
-                            i % 2 === 0
-                              ? `${THEME.rowEven} ${THEME.rowBorder}`
-                              : `${THEME.rowOdd} ${THEME.rowBorder}`
-                          }
-                        >
-                          <td className={`p-2 ${THEME.textPrimary}`}>
-                            <a
-                              href={`https://twitch.tv/${entry.account.twitch.stream.name}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded ${THEME.twitch} text-white font-bold ${THEME.twitchHover} transition-colors duration-200 shadow-sm`}
-                              title="Live on Twitch!"
-                            >
-                              <span className="mr-1 align-middle">🔴</span>
-                              {entry.account.name}
-                            </a>
+                    {(() => {
+                      const uniqueAccounts = new Map();
+                      ladder.forEach((e) => {
+                        if (
+                          e.account?.twitch?.stream &&
+                          e.account?.name &&
+                          !uniqueAccounts.has(e.account.name)
+                        ) {
+                          uniqueAccounts.set(e.account.name, e);
+                        }
+                      });
+                      const uniqueLive = Array.from(uniqueAccounts.values());
+                      return uniqueLive.length > 0 ? (
+                        uniqueLive.map((entry, i) => (
+                          <tr
+                            key={entry.account.name + "-" + i}
+                            className={
+                              i % 2 === 0
+                                ? `${THEME.rowEven} ${THEME.rowBorder}`
+                                : `${THEME.rowOdd} ${THEME.rowBorder}`
+                            }
+                          >
+                            <td className={`p-2 ${THEME.textPrimary}`}>
+                              <a
+                                href={`https://twitch.tv/${entry.account.twitch.stream.name}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`inline-flex items-center gap-1 px-2 py-1 rounded ${THEME.twitch} text-white font-bold ${THEME.twitchHover} transition-colors duration-200 shadow-sm`}
+                                title="Live on Twitch!"
+                              >
+                                <span className="mr-1 align-middle">🔴</span>
+                                {entry.account.name}
+                              </a>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={2}
+                            className={`p-2 text-center ${THEME.textTertiary}`}
+                          >
+                            No one is live on Twitch
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={2}
-                          className={`p-2 text-center ${THEME.textTertiary}`}
-                        >
-                          No one is live on Twitch
-                        </td>
-                      </tr>
-                    );
-                  })()}
-                </tbody>
-              </table>
+                      );
+                    })()}
+                  </tbody>
+                </table>
 
-              {}
-              <FishyRerollCounter ladder={ladder} THEME={THEME} />
+                {}
+                <FishyRerollCounter ladder={ladder} THEME={THEME} />
 
-              {}
-              <DelveBattleCarousel ladder={ladder} THEME={THEME} />
+                {}
+                <DelveBattleCarousel ladder={ladder} THEME={THEME} />
+              </div>
             </div>
-          </div>
-        )}
+          ))}
       </div>
 
       {}
