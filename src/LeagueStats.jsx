@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 
-// Palette pulled from the app's existing gradient accents so slices feel native
 const CHART_COLORS = [
   "#8b5cf6",
   "#ff8c42",
