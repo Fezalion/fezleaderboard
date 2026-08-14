@@ -11,7 +11,12 @@ import {
   LIMIT,
   REFRESH_INTERVAL,
   getApiUrls,
+  BANNED_ACCOUNTS,
 } from "./ladderConfig";
+
+const BANNED_ACCOUNTS_SET = new Set(
+  BANNED_ACCOUNTS.map((a) => a.toLowerCase().trim()),
+);
 
 // Reusable skeleton cell
 const SkeletonCell = ({ w = "w-20", delay = 0 }) => (
@@ -128,7 +133,10 @@ function App() {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      var newLadder = data.entries || [];
+      var newLadder = (data.entries || []).filter(
+        (entry) =>
+          !BANNED_ACCOUNTS_SET.has((entry.account?.name || "").toLowerCase()),
+      );
       setLadder(newLadder);
     } catch (err) {
       console.error("Error fetching ladder:", err);
@@ -927,7 +935,7 @@ function App() {
               {}
               <div className="w-full max-w-md relative">
                 <div
-                  className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
+                  className={`flex flex-wrap items-center gap-1 px-2 py-1 rounded ${THEME.accentTertiary} border-2 ${THEME.borderPrimary} focus-within:ring ${THEME.focusBorder} min-h-[40px] ${THEME.glowSecondary}`}
                 >
                   {searchBubbles.map((bubble, idx) => (
                     <span
@@ -996,7 +1004,7 @@ function App() {
                 </div>
                 {showSuggestions && suggestions.length > 0 && (
                   <ul
-                    className={`absolute left-0 top-full mt-1 w-full ${THEME.accentPrimary} border-2 ${THEME.borderPrimary} rounded shadow-lg ${THEME.glowPrimary} z-20 max-h-56 overflow-y-auto`}
+                    className={`absolute left-0 top-full mt-1 w-full ${THEME.accentTertiary} border-2 ${THEME.borderPrimary} rounded shadow-lg ${THEME.glowPrimary} z-20 max-h-56 overflow-y-auto`}
                   >
                     {suggestions.map((s, idx) => (
                       <li
@@ -1075,12 +1083,12 @@ function App() {
         {}
         {activeTab === "leaderboard" &&
           (loading ? (
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row lg:items-start gap-8">
               <SkeletonMainTable />
               <SkeletonSidebar />
             </div>
           ) : (
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row lg:items-start gap-8">
               {}
               <table
                 className={`w-6/8 border-collapse ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel`}

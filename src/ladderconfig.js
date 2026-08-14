@@ -85,6 +85,8 @@ export function getLeagueName() {
 export const LIMIT = 200;
 export const REFRESH_INTERVAL = 300; // seconds
 
+export const BANNED_ACCOUNTS = ["Incogkneeto#3491"];
+
 export const getApiUrls = (leagueName) => ({
   API_URL: `https://poe-proxy-nine.vercel.app/api/ladder?league=${encodeURIComponent(
     leagueName,
