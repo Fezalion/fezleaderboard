@@ -1,31 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Page Not Found</title>
-    <script>
-      // This script tries to fetch the SPA index and replace the document with it,
-      // preserving the clean URL in the address bar. Works on GitHub Pages.
-      (function () {
-        var index = "/index.html";
-        fetch(index)
-          .then(function (resp) {
-            if (resp.status >= 200 && resp.status < 300) return resp.text();
-            throw new Error("index not found");
-          })
-          .then(function (html) {
-            document.open();
-            document.write(html);
-            document.close();
-          })
-          .catch(function () {
-            document.body.innerHTML =
-              "<h1>Page not found</h1><p>This project is deployed at /</p>";
-          });
-      })();
-    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fez Leaderboard</title>
+    <script type="module" crossorigin src="/assets/index-mq9pHREZ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Ipf4-tHU.css">
   </head>
-  <body></body>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
