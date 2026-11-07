@@ -431,3 +431,10 @@ html, body, #root {
   color: #fff;
   letter-spacing: -0.02em;
 }
+
+/* ─── Home: finished leagues ─── */
+
+.links li.finished { opacity: 0.55; }
+.links li.finished:hover,
+.links li.finished:focus-within { opacity: 0.9; }
+.links .tag { color: var(--warn); }

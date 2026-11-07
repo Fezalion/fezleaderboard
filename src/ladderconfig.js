@@ -65,17 +65,20 @@ export const LEAGUE_OPTIONS = [
   {
     label: "Yo can I get that",
     value: "Yo can I get that (PL83733)",
-    code: "yocanigetthat"
+    code: "yocanigetthat",
+    finished: true
   },
   {
     label: "Shimatta",
     value: "Shimatta (PL78633)",
-    code: "shimatta"
+    code: "shimatta",
+    finished: true
   },
   {
     label: "VibeRaters Praise the Tree Tree",
     value: "VibeRaters Praise the Tree Tree (PL76433)",
-    code: "viberaters-praise-the-tree-tree"
+    code: "viberaters-praise-the-tree-tree",
+    finished: true
   },
 ];
 

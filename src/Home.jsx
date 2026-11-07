@@ -6,7 +6,7 @@ export default function Home({ leagues, unknown, navigate }) {
   return (
     <Shell title="fezalion@xyz: ~" home>
       <Prompt host="fezalion@xyz">whoami</Prompt>
-      <h1 className="name">FezLeaderboard</h1>
+      <h1 className="name">Fezalion</h1>
 
       {unknown && (
         <p className="line bad" style={{ marginBottom: 16 }}>
@@ -19,9 +19,12 @@ export default function Home({ leagues, unknown, navigate }) {
         {leagues.map((league) => {
           const code = leagueCode(league);
           return (
-            <li key={code}>
+            <li key={code} className={league.finished ? "finished" : undefined}>
               <a {...linkProps(code, navigate)}>{code}</a>
-              <span className="desc"># {league.label}</span>
+              <span className="desc">
+                # {league.label}
+                {league.finished && <span className="tag"> [finished]</span>}
+              </span>
             </li>
           );
         })}
