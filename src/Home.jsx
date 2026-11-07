@@ -1,11 +1,12 @@
 import { Shell, Prompt } from "./Terminal";
 import { leagueCode, linkProps } from "./nav";
 
+// Same layout as the fezalion.xyz homepage, listing leagues instead of subdomains.
 export default function Home({ leagues, unknown, navigate }) {
   return (
-    <Shell title="fezalion@leaderboard: ~">
-      <Prompt>whoami</Prompt>
-      <h1 className="title">FezLeaderboard</h1>
+    <Shell title="fezalion@xyz: ~" home>
+      <Prompt host="fezalion@xyz">whoami</Prompt>
+      <h1 className="name">FezLeaderboard</h1>
 
       {unknown && (
         <p className="line bad" style={{ marginBottom: 16 }}>
@@ -13,20 +14,20 @@ export default function Home({ leagues, unknown, navigate }) {
         </p>
       )}
 
-      <Prompt>ls leagues/</Prompt>
+      <Prompt host="fezalion@xyz">ls leagues/</Prompt>
       <ul className="links">
         {leagues.map((league) => {
           const code = leagueCode(league);
           return (
             <li key={code}>
-              <a {...linkProps(code, navigate)}>{league.label}</a>
-              <span className="desc"># {code}</span>
+              <a {...linkProps(code, navigate)}>{code}</a>
+              <span className="desc"># {league.label}</span>
             </li>
           );
         })}
       </ul>
 
-      <Prompt>
+      <Prompt host="fezalion@xyz">
         <span className="cursor" aria-hidden="true" />
       </Prompt>
     </Shell>

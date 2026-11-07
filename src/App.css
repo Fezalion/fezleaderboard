@@ -50,7 +50,8 @@ html, body, #root {
 /* ─── Window chrome ─── */
 
 .titlebar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
@@ -61,7 +62,16 @@ html, body, #root {
 }
 
 .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
-.title-text { flex: 1; text-align: center; margin-right: 45px; }
+.dots { display: flex; gap: 8px; }
+.title-text { min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.terminal .titlebar-link { justify-self: end; padding: 0 10px; border: 1px solid var(--border); color: var(--dim); white-space: nowrap; }
+.terminal .titlebar-link:hover { border-color: var(--link); color: var(--link); text-decoration: none; }
+
+@media (max-width: 520px) {
+  .titlebar { grid-template-columns: 1fr auto; }
+  .dots { display: none; }
+  .title-text { text-align: left; }
+}
 
 .screen {
   flex: 1;
@@ -405,4 +415,19 @@ html, body, #root {
 @media (max-width: 520px) {
   .links .desc { display: block; margin-left: 0; }
   .links li { margin-bottom: 10px; }
+}
+
+/* ─── Home: identical to the fezalion.xyz homepage ─── */
+
+.terminal-home { font-size: 16px; }
+.terminal-home .screen { padding: clamp(20px, 5vw, 56px); }
+.terminal-home .cursor { margin-left: 0; }
+
+.name {
+  margin: 4px 0 28px;
+  font-size: clamp(2.5rem, 9vw, 6rem);
+  line-height: 1.1;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
 }
