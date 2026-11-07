@@ -11,7 +11,7 @@ import OverlayView from "./OverlayView";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter basename="/fezleaderboard">
+    <BrowserRouter basename="/">
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/letmeout" element={<UnderConstruct />} />
