@@ -1,17 +1,17 @@
 import { useMemo, useState } from "react";
 
 const CHART_COLORS = [
-  "#8b5cf6",
-  "#ff8c42",
-  "#4ecdc4",
-  "#c4b5fd",
-  "#f472b6",
-  "#facc15",
-  "#34d399",
-  "#60a5fa",
-  "#fb7185",
+  "#7fe0a4",
+  "#8fd3ff",
+  "#e0b46b",
+  "#b794f6",
+  "#e07a7a",
+  "#f2a6c8",
   "#a3e635",
-  "#e879f9",
+  "#60a5fa",
+  "#fb923c",
+  "#67e8f9",
+  "#c4b5fd",
   "#94a3b8",
 ];
 
@@ -37,7 +37,7 @@ function describeArc(cx, cy, rOuter, rInner, startAngle, endAngle) {
 }
 
 // Generic donut chart. Takes [{ label, value }] and renders slices + a legend.
-function DonutChart({ data, THEME, size = 400, thickness = 128 }) {
+function DonutChart({ data, size = 400, thickness = 128 }) {
   const [hovered, setHovered] = useState(null);
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const cx = size / 2;
@@ -60,20 +60,14 @@ function DonutChart({ data, THEME, size = 400, thickness = 128 }) {
   });
 
   return (
-    <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-start">
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
-        width={size}
-        height={size}
-        className="flex-shrink-0"
-      >
+    <div className="donut-wrap">
+      <svg viewBox={`0 0 ${size} ${size}`} className="donut">
         {slices.map((s, i) => (
           <path
             key={s.label + i}
             d={s.path}
             fill={s.color}
             opacity={hovered === null || hovered === i ? 1 : 0.35}
-            className="transition-opacity duration-150 cursor-pointer"
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
           />
@@ -82,7 +76,7 @@ function DonutChart({ data, THEME, size = 400, thickness = 128 }) {
           x={cx}
           y={cy - 6}
           textAnchor="middle"
-          className={`fill-current ${THEME.textPrimary}`}
+          className="donut-total"
           style={{ fontSize: 22, fontWeight: 700 }}
         >
           {hovered !== null ? `${slices[hovered].pct.toFixed(1)}%` : total}
@@ -91,38 +85,31 @@ function DonutChart({ data, THEME, size = 400, thickness = 128 }) {
           x={cx}
           y={cy + 14}
           textAnchor="middle"
-          className={`fill-current ${THEME.textTertiary}`}
+          className="donut-label"
           style={{ fontSize: 11 }}
         >
           {hovered !== null ? slices[hovered].label : "total"}
         </text>
       </svg>
 
-      <div className="grid grid-cols-2 gap-1 text-sm font-sans max-h-128 overflow-y-auto pr-1 w-full">
+      <div className="legend">
         {slices
           .slice()
           .sort((a, b) => b.value - a.value)
           .map((s, i) => (
             <div
               key={s.label + i}
-              className={`flex items-center justify-between gap-3 px-2 py-1 rounded cursor-pointer ${THEME.hoverDark}`}
+              className="legend-row"
               onMouseEnter={() =>
                 setHovered(data.findIndex((d) => d.label === s.label))
               }
               onMouseLeave={() => setHovered(null)}
             >
-              <span className="flex items-center gap-2 min-w-0">
-                <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ background: s.color }}
-                />
-                <span className={`truncate ${THEME.textSecondary}`}>
-                  {s.label}
-                </span>
+              <span className="legend-label">
+                <span className="swatch" style={{ background: s.color }} />
+                <span className="legend-text">{s.label}</span>
               </span>
-              <span
-                className={`font-mono text-xs flex-shrink-0 ${THEME.textTertiary}`}
-              >
+              <span className="dim">
                 {s.value} ({s.pct.toFixed(1)}%)
               </span>
             </div>
@@ -132,56 +119,39 @@ function DonutChart({ data, THEME, size = 400, thickness = 128 }) {
   );
 }
 
-// Small horizontal bar list, e.g. for level buckets
-function BarList({ data, THEME, maxBars = 10 }) {
+// Horizontal bar list, e.g. for level buckets
+function BarList({ data, maxBars = 10 }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
-    <div className="flex flex-col gap-2">
+    <div className="barlist">
       {data.slice(0, maxBars).map((d, i) => (
-        <div key={d.label + i} className="flex items-center gap-2">
-          <span
-            className={`w-16 text-xs font-mono flex-shrink-0 ${THEME.textTertiary}`}
-          >
-            {d.label}
-          </span>
-          <div className="flex-1 h-3 bg-white/[0.08] rounded overflow-hidden">
+        <div key={d.label + i} className="barlist-row">
+          <span className="dim barlist-label">{d.label}</span>
+          <div className="bar-track">
             <div
-              className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#ff8c42] transition-all duration-500"
+              className="bar-fill"
               style={{ width: `${(d.value / max) * 100}%` }}
             />
           </div>
-          <span
-            className={`w-10 text-xs font-mono text-right flex-shrink-0 ${THEME.textSecondary}`}
-          >
-            {d.value}
-          </span>
+          <span className="barlist-value">{d.value}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function StatCard({ label, value, sub, THEME }) {
+function StatCard({ label, value, sub }) {
   return (
-    <div
-      className={`flex flex-col items-center justify-center p-4 rounded-lg glass-panel border-2 ${THEME.borderPrimary}`}
-    >
-      <span className={`text-2xl font-bold font-mono ${THEME.textPrimary}`}>
-        {value}
-      </span>
-      <span className={`text-xs uppercase tracking-wide ${THEME.textTertiary}`}>
-        {label}
-      </span>
-      {sub && (
-        <span className={`text-[11px] mt-1 ${THEME.textSecondary}`}>{sub}</span>
-      )}
+    <div className="stat">
+      <span className="stat-value">{value}</span>
+      <span className="stat-label">{label}</span>
+      {sub && <span className="stat-sub">{sub}</span>}
     </div>
   );
 }
 
 // League-wide stats: class/ascendancy split, alive vs dead, level spread, and misc counts.
-// Props mirror the other sidebar widgets (FishyRerollCounter, DelveBattleCarousel): ladder + THEME.
-function LeagueStats({ ladder, THEME, leagueName }) {
+function LeagueStats({ ladder, leagueName }) {
   const stats = useMemo(() => {
     if (!ladder || ladder.length === 0) return null;
 
@@ -236,18 +206,10 @@ function LeagueStats({ ladder, THEME, leagueName }) {
         ? (levels[levels.length / 2 - 1] + levels[levels.length / 2]) / 2
         : levels[Math.floor(levels.length / 2)];
 
-    const topClassEntry = Object.entries(classCounts).sort(
-      (a, b) => b[1] - a[1],
-    )[0];
-
     return {
       classData: Object.entries(classCounts)
         .map(([label, value]) => ({ label, value }))
         .sort((a, b) => b.value - a.value),
-      aliveDeadData: [
-        { label: "Alive", value: alive },
-        { label: "Dead", value: dead },
-      ],
       levelBucketData: Object.entries(levelBuckets)
         .map(([label, value]) => ({ label, value }))
         .sort((a, b) => parseInt(a.label) - parseInt(b.label)),
@@ -264,8 +226,6 @@ function LeagueStats({ ladder, THEME, leagueName }) {
         challengeSamples > 0
           ? (totalChallenges / challengeSamples).toFixed(1)
           : null,
-      topClass: topClassEntry ? topClassEntry[0] : "-",
-      topClassCount: topClassEntry ? topClassEntry[1] : 0,
       hasDelve: depthEntries > 0,
       maxDepthDefault,
       maxDepthSolo,
@@ -275,96 +235,55 @@ function LeagueStats({ ladder, THEME, leagueName }) {
   if (!stats) return null;
 
   return (
-    <div
-      className={`w-full ${THEME.textPrimary} border-2 ${THEME.borderPrimary} ${THEME.glowLarge} rounded-lg overflow-hidden glass-panel p-4 flex flex-col gap-6`}
-    >
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold font-sans">
-          League Stats{leagueName ? ` — ${leagueName}` : ""}
-        </h2>
-      </div>
+    <section className="panel">
+      <h2>league stats{leagueName ? ` — ${leagueName}` : ""}</h2>
 
-      {/* Top-line numbers */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard
-          label="Characters"
-          value={stats.totalCharacters}
-          THEME={THEME}
-        />
-        <StatCard
-          label="Accounts"
-          value={stats.uniqueAccountCount}
-          THEME={THEME}
-        />
-        <StatCard
-          label="Alive"
-          value={`${((stats.alive / stats.totalCharacters) * 100).toFixed(0)}%`}
-          sub={`${stats.alive} / ${stats.totalCharacters}`}
-          THEME={THEME}
-        />
-        <StatCard label="Retired" value={stats.retired} THEME={THEME} />
-        <StatCard label="Avg Level" value={stats.avgLevel} THEME={THEME} />
-        <StatCard
-          label="Median Level"
-          value={stats.medianLevel}
-          THEME={THEME}
-        />
-        <StatCard label="Top Level" value={stats.topLevel} THEME={THEME} />
-        <StatCard
-          label="Live on Twitch"
-          value={stats.liveOnTwitch}
-          THEME={THEME}
-        />
-      </div>
-
-      {stats.avgChallenges !== null && (
-        <div className="text-sm font-sans">
-          <span className={THEME.textTertiary}>
-            Avg. challenges completed:{" "}
-          </span>
-          <span className={`font-mono font-semibold ${THEME.textPrimary}`}>
-            {stats.avgChallenges}
-          </span>
+      <div className="panel-body">
+        <div className="stat-grid">
+          <StatCard label="Characters" value={stats.totalCharacters} />
+          <StatCard label="Accounts" value={stats.uniqueAccountCount} />
+          <StatCard
+            label="Alive"
+            value={`${((stats.alive / stats.totalCharacters) * 100).toFixed(0)}%`}
+            sub={`${stats.alive} / ${stats.totalCharacters}`}
+          />
+          <StatCard label="Retired" value={stats.retired} />
+          <StatCard label="Avg Level" value={stats.avgLevel} />
+          <StatCard label="Median Level" value={stats.medianLevel} />
+          <StatCard label="Top Level" value={stats.topLevel} />
+          <StatCard label="Live on Twitch" value={stats.liveOnTwitch} />
         </div>
-      )}
 
-      {stats.hasDelve && (
-        <div className="text-sm font-sans flex gap-6">
-          <span>
-            <span className={THEME.textTertiary}>Deepest delve: </span>
-            <span className={`font-mono font-semibold ${THEME.textPrimary}`}>
-              {stats.maxDepthDefault}
-            </span>
-          </span>
-          <span>
-            <span className={THEME.textTertiary}>Deepest solo: </span>
-            <span className={`font-mono font-semibold ${THEME.textPrimary}`}>
-              {stats.maxDepthSolo}
-            </span>
-          </span>
+        {(stats.avgChallenges !== null || stats.hasDelve) && (
+          <dl className="info" style={{ margin: 0 }}>
+            {stats.avgChallenges !== null && (
+              <>
+                <dt>avg. challenges completed</dt>
+                <dd>{stats.avgChallenges}</dd>
+              </>
+            )}
+            {stats.hasDelve && (
+              <>
+                <dt>deepest delve</dt>
+                <dd>{stats.maxDepthDefault}</dd>
+                <dt>deepest solo</dt>
+                <dd>{stats.maxDepthSolo}</dd>
+              </>
+            )}
+          </dl>
+        )}
+
+        <div>
+          <h3 className="sect">class / ascendancy breakdown</h3>
+          <DonutChart data={stats.classData} />
         </div>
-      )}
 
-      {/* Class / Ascendancy breakdown */}
-      <div>
-        <h3
-          className={`text-sm font-semibold mb-3 font-sans ${THEME.textSecondary}`}
-        >
-          Class / Ascendancy Breakdown
-        </h3>
-        <DonutChart data={stats.classData} THEME={THEME} />
+        <div>
+          <h3 className="sect">level distribution</h3>
+          <BarList data={stats.levelBucketData} maxBars={20} />
+        </div>
       </div>
-
-      {/* Level distribution */}
-      <div>
-        <h3
-          className={`text-sm font-semibold mb-3 font-sans ${THEME.textSecondary}`}
-        >
-          Level Distribution
-        </h3>
-        <BarList data={stats.levelBucketData} THEME={THEME} maxBars={20} />
-      </div>
-    </div>
+    </section>
   );
 }
 

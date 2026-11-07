@@ -6,7 +6,7 @@
   "homepage": "https://leaderboard.fezalion.xyz",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy404.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist"
