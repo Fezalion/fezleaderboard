@@ -1492,7 +1492,7 @@ function App() {
         |
         <a
           rel="stylesheet"
-          href="https://fezalion.xyz/overlays"
+          href="https://leaderboard.fezalion.xyz/overlays"
           className="bg-gradient-to-r items-center from-[#4ecdc4] via-[#8b5cf6] to-[#ff8c42] bg-clip-text text-transparent text-center select-auto animate-pulse"
         >
           {" "}
