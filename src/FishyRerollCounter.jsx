@@ -6,6 +6,8 @@ const FishyRerollCounter = ({ ladder }) => {
   ).length;
   const rerolls = Math.max(charCount - 1, 0);
 
+  if (rerolls === 0) return null;
+
   return (
     <section className="panel">
       <h2>fishy reroll counter</h2>
