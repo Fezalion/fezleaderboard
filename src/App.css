@@ -29,7 +29,7 @@ html, body, #root {
 
 .terminal *, .terminal *::before, .terminal *::after { box-sizing: border-box; }
 
-.terminal button {
+:where(.terminal button) {
   font: inherit;
   color: inherit;
   background: none;
