@@ -144,6 +144,29 @@ function LeaguePage({ league, navigate }) {
   const leagueVanityName = league.label;
   const { API_URL, API2_URL } = getApiUrls(leagueName);
 
+  function LeagueBackdrop({ src }) {
+  if (!src) return null;
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: -0,
+        pointerEvents: "none",
+        backgroundImage: `url("${src}")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "top left",
+        backgroundSize: "contain",
+        WebkitMaskImage:
+          "radial-gradient(ellipse 80% 80% at 0% 0%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
+        maskImage:
+          "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
+      }}
+    />
+  );
+}
+
   // ─── Data fetching ────────────────────────────────────────────────────────
 
   const fetchLastLogins = useCallback(async () => {
@@ -412,7 +435,10 @@ function LeaguePage({ league, navigate }) {
   );
 
   return (
+    <>
+    
     <Shell title={`fezalion@leaderboard: ~/leagues/${leagueCode(league)}`}>
+    <LeagueBackdrop src={league.image} />
         <Prompt>
           <a {...linkProps(null, navigate)}>cd ..</a>
         </Prompt>
@@ -767,6 +793,7 @@ function LeaguePage({ league, navigate }) {
           </>
         )}
     </Shell>
+    </>
   );
 }
 

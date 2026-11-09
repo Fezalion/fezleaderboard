@@ -66,7 +66,8 @@ export const LEAGUE_OPTIONS = [
     label: "Yo can I get that",
     value: "Yo can I get that (PL83733)",
     code: "yocanigetthat",
-    finished: true
+    finished: true,
+    //image: "https://kappa.lol/6OUdsQ.png",
   },
   {
     label: "Shimatta",
