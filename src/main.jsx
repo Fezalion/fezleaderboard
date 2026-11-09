@@ -17,6 +17,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/music" element={<MusicPlayer />} />
         <Route path="/overlays" element={<Overlays />} />
         <Route path="/overlay" element={<OverlayView />} />
+        <Route path="*" element={<App />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
