@@ -141,6 +141,7 @@ function LeaguePage({ league, navigate }) {
   const [countdownType, setCountdownType] = useState(null);
 
   const leagueName = league.value;
+  const leagueVanityName = league.label;
   const { API_URL, API2_URL } = getApiUrls(leagueName);
 
   // ─── Data fetching ────────────────────────────────────────────────────────
@@ -416,7 +417,7 @@ function LeaguePage({ league, navigate }) {
           <a {...linkProps(null, navigate)}>cd ..</a>
         </Prompt>
 
-        <h1 className="title">{leagueName} leaderboard</h1>
+        <h1 className="title">{leagueVanityName} leaderboard</h1>
 
         {details?.name && (
           <dl className="info">
