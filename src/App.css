@@ -438,3 +438,8 @@ html, body, #root {
 .links li.finished:hover,
 .links li.finished:focus-within { opacity: 0.9; }
 .links .tag { color: var(--warn); }
+/* ─── Progress bars (percent text centered inside the bar) ─── */
+
+.ascii-bar { white-space: pre; }
+.ascii-on { background: var(--accent); color: var(--bg); font-weight: 700; }
+.ascii-off { background: var(--border); color: var(--text); }

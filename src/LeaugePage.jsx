@@ -10,8 +10,12 @@ import {
   REFRESH_INTERVAL,
   getApiUrls,
   BANNED_ACCOUNTS,
-} from "./ladderConfig";
+} from "./ladderconfig";
 import "./App.css";
+
+// Total experience required to reach level 100 (table[lvl] = exp for lvl + 1)
+const LEVEL_100_EXP =
+  poeExperienceTable[99] ?? poeExperienceTable[poeExperienceTable.length - 1];
 
 const BANNED_ACCOUNTS_SET = new Set(
   BANNED_ACCOUNTS.map((a) => a.toLowerCase().trim()),
@@ -94,13 +98,18 @@ function SortTh({ column, sort, onSort, children }) {
 }
 
 function ExpBar({ pct }) {
+  const label = `${pct.toFixed(2)}%`;
+
+  // The percent is written into the middle of the bar, with the
+  // filled part drawn as inverse video so the text stays readable on it.
   const width = 12;
   const filled = Math.round((pct / 100) * width);
+  const start = Math.floor((width - label.length) / 2);
+  const cells = (" ".repeat(start) + label).padEnd(width, " ");
   return (
-    <span>
-      <span className="accent">{"█".repeat(filled)}</span>
-      <span className="dim">{"░".repeat(width - filled)}</span>{" "}
-      {pct.toFixed(2)}%
+    <span className="ascii-bar">
+      <span className="ascii-on">{cells.slice(0, filled)}</span>
+      <span className="ascii-off">{cells.slice(filled)}</span>
     </span>
   );
 }
@@ -376,9 +385,6 @@ function LeaguePage({ league, navigate }) {
     return 0;
   });
 
-  const top1Exp =
-    sortedLadder.find((e) => !e.dead)?.character?.experience || 0;
-
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleSort = (key) =>
@@ -624,7 +630,7 @@ function LeaguePage({ league, navigate }) {
                           Exp
                         </SortTh>
                         <th>Exp%</th>
-                        <th>Diff</th>
+                        <th>To 100</th>
                         <SortTh column="lastSeen" sort={sort} onSort={handleSort}>
                           Last Seen
                         </SortTh>
@@ -657,7 +663,10 @@ function LeaguePage({ league, navigate }) {
                             ),
                           );
                         }
-                        const diff = i === 0 || isDead ? null : exp - top1Exp;
+                        const pct100 = Math.max(
+                          0,
+                          Math.min(100, (exp / LEVEL_100_EXP) * 100),
+                        );
                         const aliveRank = aliveRankMap[entry.rank];
                         const acc = entry.account?.name ?? "";
                         const stream = entry.account?.twitch?.stream;
@@ -725,7 +734,7 @@ function LeaguePage({ league, navigate }) {
                               <ExpBar pct={pct} />
                             </td>
                             <td>
-                              {diff === null ? "0" : diff < 0 ? diff : `+${diff}`}
+                              <ExpBar pct={pct100} />
                             </td>
                             <td>
                               <LastSeen ts={lastSeenByAccount[acc]} />
