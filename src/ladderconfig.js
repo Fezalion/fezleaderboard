@@ -71,6 +71,13 @@ export const LEAGUE_OPTIONS = [
     image: "https://kappa.lol/6OUdsQ.png",
   },  
   {
+    label: "Yo Can I Coven That",
+    value: "Yo Can I Coven That (PL87614)",
+    code: "yocanicoventhat",
+    finished: false,
+    eggplant: false,
+  },
+  {
     label: "Yo can I get that",
     value: "Yo can I get that (PL83733)",
     code: "yocanigetthat",
