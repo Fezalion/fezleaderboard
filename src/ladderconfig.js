@@ -63,23 +63,33 @@ export const THEME = {
 // List of leagues to show in the combobox
 export const LEAGUE_OPTIONS = [
   {
+    label: "Big Black Coven",
+    value: "Big Black Coven (PL87573)",
+    code: "bigblackcoven",
+    finished: false,
+    eggplant: true,
+    image: "https://kappa.lol/6OUdsQ.png",
+  },  
+  {
     label: "Yo can I get that",
     value: "Yo can I get that (PL83733)",
     code: "yocanigetthat",
     finished: true,
-    //image: "https://kappa.lol/6OUdsQ.png",
+    eggplant: false,
   },
   {
     label: "Shimatta",
     value: "Shimatta (PL78633)",
     code: "shimatta",
-    finished: true
+    finished: true,
+    eggplant: false,
   },
   {
     label: "VibeRaters Praise the Tree Tree",
     value: "VibeRaters Praise the Tree Tree (PL76433)",
     code: "viberaters-praise-the-tree-tree",
-    finished: true
+    finished: true,
+    eggplant: false,
   },
 ];
 

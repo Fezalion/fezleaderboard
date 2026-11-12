@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useId } from "react";
 import { poeExperienceTable } from "./poeExperienceTable";
 import RecentDeathsDisplay from "./RecentDeaths";
 import DelveBattleCarousel from "./DelveBattleCarousel";
@@ -97,7 +97,79 @@ function SortTh({ column, sort, onSort, children }) {
   );
 }
 
-function ExpBar({ pct }) {
+// Discord eggplant emoji (36x36, drawn diagonally). It is rotated -45deg so it
+// lies flat, then stretched slightly wider to suit a bar. A dim copy sits
+// underneath and the full-colour copy is revealed left -> right via a clipPath.
+const EGG_BODY =
+  "M6 4c3 0 5 2 8 6s7.957 7.191 12 8c5 1 9 5 9 11 0 4.897-3.846 7-9 7-5 0-9-3-14-8S2 14 2 10s1-6 4-6z";
+const EGG_LEAF =
+  "M3.515 0c1.248 0 1.248 1.248 1.248 2.495 0 1.764 1.248 1.129 2.496 1.129C8.505 3.624 11 6 11 6H7.258c-1.248 0 0 2.614-1.248 2.614S4.762 7.426 3.515 7.426 2 11 2 11s-1.604-4.153.267-6.024C3.515 3.728 1.02 0 3.515 0z";
+const EGG_TRANSFORM = "scale(1.5 1) rotate(-45 18 18)";
+const EGG_SPAN = { start: -8.1, end: 59.9 }; // horizontal extent after transform
+
+function EggplantBar({ pct }) {
+  const uid = useId().replace(/:/g, "");
+  const safe = Math.max(0, Math.min(100, pct));
+  const label = `${pct.toFixed(2)}%`;
+  const fillX = EGG_SPAN.start + (safe / 100) * (EGG_SPAN.end - EGG_SPAN.start);
+
+  return (
+    <svg
+      viewBox="-8 10 62 20"
+      width="100"
+      height="32"
+      role="img"
+      aria-label={`Experience ${label}`}
+      style={{ display: "block", overflow: "visible" }}
+    >
+      <defs>
+        <clipPath id={`clip-${uid}`}>
+          <rect x="-10" y="0" width={fillX + 10} height="40" />
+        </clipPath>
+      </defs>
+
+      {/* empty eggplant */}
+      <g transform={EGG_TRANSFORM}>
+        <path
+          d={EGG_BODY}
+          fill="#744EAA"
+          fillOpacity="0.2"
+          stroke="#8b5cf6"
+          strokeOpacity="0.5"
+          strokeWidth="0.5"
+        />
+        <path d={EGG_LEAF} fill="#77B255" fillOpacity="0.22" />
+      </g>
+
+      {/* filled eggplant, revealed left -> right */}
+      <g clipPath={`url(#clip-${uid})`}>
+        <g transform={EGG_TRANSFORM}>
+          <path d={EGG_BODY} fill="#744EAA" />
+          <path d={EGG_LEAF} fill="#77B255" />
+        </g>
+      </g>
+
+      <text
+        x="39"
+        y="19.8"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="5.5"
+        fontWeight="700"
+        fill="#fff"
+        stroke="rgba(0,0,0,0.75)"
+        strokeWidth="1.3"
+        paintOrder="stroke"
+        style={{ fontFamily: "inherit" }}
+      >
+        {label}
+      </text>
+    </svg>
+  );
+}
+
+function ExpBar({ pct, eggplant }) {
+  if (eggplant) return <EggplantBar pct={pct} />;
   const label = `${pct.toFixed(2)}%`;
 
   // The percent is written into the middle of the bar, with the
@@ -647,7 +719,7 @@ function LeaguePage({ league, navigate }) {
                           <td colSpan={showDelve ? 11 : 10}>no results</td>
                         </tr>
                       )}
-                      {sortedLadder.map((entry, i) => {
+                      {sortedLadder.map((entry) => {
                         const isDead = entry.dead;
                         const exp = entry.character?.experience || 0;
                         const lvl = entry.character?.level || 1;
@@ -731,10 +803,10 @@ function LeaguePage({ league, navigate }) {
                             </td>
                             <td>{entry.character?.experience}</td>
                             <td>
-                              <ExpBar pct={pct} />
+                              <ExpBar pct={pct} eggplant={league.eggplant} />
                             </td>
                             <td>
-                              <ExpBar pct={pct100} />
+                              <ExpBar pct={pct100} eggplant={league.eggplant} />
                             </td>
                             <td>
                               <LastSeen ts={lastSeenByAccount[acc]} />
