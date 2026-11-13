@@ -531,11 +531,7 @@ function Overlays() {
               {ladderLoading ? "refreshing…" : "refresh"}
             </button>
           </div>
-          <div className="panel-body">
-            <p className="dim line">
-              # the checkered area is transparent — that's what OBS sees through.
-              This is the exact component the overlay page renders.
-            </p>
+          <div className="panel-body">            
             <div className="ov-checker">
               <OverlayPanel
                 rows={previewRows}
