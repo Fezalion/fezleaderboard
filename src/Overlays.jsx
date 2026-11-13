@@ -1,10 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  THEME,
-  LEAGUE_OPTIONS,
-  getApiUrls,
-  computeOverlayRows,
-} from "./ladderConfig";
+import { LEAGUE_OPTIONS, getApiUrls, computeOverlayRows } from "./ladderConfig";
+import { Shell, Prompt } from "./Terminal";
 import OverlayPanel from "./OverlayPanel";
 
 const OVERLAY_TYPES = [
@@ -19,6 +15,33 @@ function clampNumber(raw, min, max, fallback) {
   const n = Number(raw);
   if (raw === null || raw === "" || !Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, n));
+}
+
+
+function Toggle({ checked, onChange, children }) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      className="toggle"
+      onClick={() => onChange(!checked)}
+    >
+      [{checked ? "x" : "\u00a0"}] {children}
+    </button>
+  );
+}
+
+function DepthSelect({ value, onChange }) {
+  return (
+    <div>
+      <h3 className="sect">depth mode</h3>
+      <select className="select" value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="default">Delve (Default)</option>
+        <option value="solo">Delve (Solo)</option>
+      </select>
+    </div>
+  );
 }
 
 function Overlays() {
@@ -316,37 +339,23 @@ function Overlays() {
     overlayType === "people" ? Math.max(selectedNames.length, 1) : count;
 
   return (
-    <div
-      className={`min-h-dvh w-full bg-gradient-to-b ${THEME.bgGradient} ${THEME.textPrimary} px-6 py-10`}
-    >
-      <style>{`
-        html, body, #root {
-          min-height: 100%;
-          overflow-x: hidden;
-          overflow-y: auto !important;
-        }
-      `}</style>
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
-        <div>
-          <h1 className="text-2xl font-bold">OBS Overlay Builder</h1>
-          <p className={`${THEME.textSecondary} text-sm mt-1`}>
-            Configure an overlay below, then copy the generated URL into an OBS
-            Browser Source.
-          </p>
-        </div>
+    <Shell title="fezalion@xyz: overlay-builder">
+      <Prompt host="fezalion@xyz">overlay --build</Prompt>
+      <h1 className="title">OBS Overlay Builder</h1>
+      <p className="line dim" style={{ marginBottom: 20 }}>
+        # configure an overlay, then paste the generated URL into an OBS Browser Source
+      </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Left column */}
-          <div className="flex flex-col gap-6">
-            {/* League */}
-            <div
-              className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel`}
-            >
-              <label className="block text-sm font-semibold mb-2">League</label>
+      <div className="ov-grid">
+        {/* Left column */}
+        <div className="ov-col">
+          <section className="panel">
+            <h2>league</h2>
+            <div className="panel-body">
               <select
+                className="select ov-full"
                 value={league}
                 onChange={(e) => setLeague(e.target.value)}
-                className={`w-full p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
               >
                 {LEAGUE_OPTIONS.map((l) => (
                   <option key={l.value} value={l.value}>
@@ -355,134 +364,100 @@ function Overlays() {
                 ))}
               </select>
             </div>
+          </section>
 
-            {/* Overlay type */}
-            <div
-              className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel`}
-            >
-              <label className="block text-sm font-semibold mb-2">
-                Overlay Type
-              </label>
-              <div className="flex flex-col gap-2">
+          <section className="panel">
+            <h2>overlay type</h2>
+            <div className="panel-body">
+              <div className="tabs" role="tablist" style={{ flexWrap: "wrap", marginBottom: 0 }}>
                 {OVERLAY_TYPES.map((t) => (
-                  <label
+                  <button
                     key={t.value}
-                    className="flex items-center gap-2 cursor-pointer"
+                    type="button"
+                    role="tab"
+                    className="tab"
+                    aria-selected={overlayType === t.value}
+                    onClick={() => setOverlayType(t.value)}
                   >
-                    <input
-                      type="radio"
-                      name="overlayType"
-                      value={t.value}
-                      checked={overlayType === t.value}
-                      onChange={() => setOverlayType(t.value)}
-                    />
-                    <span>{t.label}</span>
-                  </label>
+                    {t.label}
+                  </button>
                 ))}
               </div>
             </div>
+          </section>
 
-            {/* Type-specific options */}
-            {(overlayType === "topLevels" || overlayType === "topDelve") && (
-              <div
-                className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel`}
-              >
-                <label className="block text-sm font-semibold mb-2">
-                  Top X
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={count}
-                  onChange={(e) => setCount(Number(e.target.value))}
-                  className={`w-32 p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
-                />
+          {(overlayType === "topLevels" || overlayType === "topDelve") && (
+            <section className="panel">
+              <h2>top x</h2>
+              <div className="panel-body">
+                <div>
+                  <h3 className="sect">count (1–100)</h3>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={count}
+                    onChange={(e) => setCount(Number(e.target.value))}
+                    className="input ov-short"
+                  />
+                </div>
                 {overlayType === "topDelve" && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-semibold mb-2">
-                      Depth Mode
-                    </label>
-                    <select
-                      value={depthMode}
-                      onChange={(e) => setDepthMode(e.target.value)}
-                      className={`p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
-                    >
-                      <option value="default">Delve (Default)</option>
-                      <option value="solo">Delve (Solo)</option>
-                    </select>
-                  </div>
+                  <DepthSelect value={depthMode} onChange={setDepthMode} />
                 )}
               </div>
-            )}
+            </section>
+          )}
 
-            {overlayType === "people" && (
-              <div
-                className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel`}
-              >
-                <label className="block text-sm font-semibold mb-2">
-                  Pick characters from the current ladder{" "}
-                  {ladderLoading && (
-                    <span className={THEME.textTertiary}>(loading…)</span>
-                  )}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search character or account name…"
-                    className={`w-full p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
-                  />
-                  {suggestions.length > 0 && (
-                    <ul
-                      className={`absolute z-10 w-full mt-1 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} max-h-56 overflow-y-auto`}
-                    >
-                      {suggestions.map((name) => (
-                        <li
-                          key={name}
-                          onClick={() => addName(name)}
-                          className={`p-2 cursor-pointer ${THEME.hoverDark}`}
-                        >
+          {overlayType === "people" && (
+            <section className="panel">
+              <h2>characters{ladderLoading ? " (loading…)" : ""}</h2>
+              <div className="panel-body">
+                <div>
+                  <h3 className="sect">pick from the current ladder</h3>
+                  <div className="search ov-search">
+                    <div className="search-box">
+                      {selectedNames.map((name) => (
+                        <span key={name} className="chip">
                           {name}
-                        </li>
+                          <button
+                            type="button"
+                            onClick={() => removeName(name)}
+                            aria-label={`Remove ${name}`}
+                          >
+                            ×
+                          </button>
+                        </span>
                       ))}
-                    </ul>
+                      <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="search character or account…"
+                      />
+                    </div>
+                    {suggestions.length > 0 && (
+                      <ul className="suggest">
+                        {suggestions.map((name) => (
+                          <li key={name} onClick={() => addName(name)}>
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {selectedNames.length === 0 && !ladderLoading && (
+                    <p className="dim" style={{ margin: "8px 0 0" }}>
+                      no characters selected yet
+                    </p>
                   )}
                 </div>
-                {selectedNames.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {selectedNames.map((name) => (
-                      <span
-                        key={name}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded ${THEME.accentLight} border ${THEME.borderSecondary} text-sm`}
-                      >
-                        {name}
-                        <button
-                          onClick={() => removeName(name)}
-                          className={`${THEME.textTertiary} hover:text-red-400`}
-                          aria-label={`Remove ${name}`}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {selectedNames.length === 0 && !ladderLoading && (
-                  <p className={`${THEME.textTertiary} text-xs mt-2`}>
-                    No characters selected yet.
-                  </p>
-                )}
 
-                <div className="mt-4">
-                  <label className="block text-sm font-semibold mb-2">
-                    Sort By
-                  </label>
+                <div>
+                  <h3 className="sect">sort by</h3>
                   <select
+                    className="select"
                     value={peopleSort}
                     onChange={(e) => setPeopleSort(e.target.value)}
-                    className={`w-full p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
                   >
                     <option value="selected">Selection order</option>
                     <option value="level">Level</option>
@@ -491,196 +466,136 @@ function Overlays() {
                 </div>
 
                 {(showDelve || peopleSort === "delve") && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-semibold mb-2">
-                      Depth Mode
-                    </label>
-                    <select
-                      value={depthMode}
-                      onChange={(e) => setDepthMode(e.target.value)}
-                      className={`p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
-                    >
-                      <option value="default">Delve (Default)</option>
-                      <option value="solo">Delve (Solo)</option>
-                    </select>
-                  </div>
+                  <DepthSelect value={depthMode} onChange={setDepthMode} />
                 )}
               </div>
-            )}
-          </div>
+            </section>
+          )}
+        </div>
 
-          {/* Right column */}
-          <div className="flex flex-col gap-6">
-            {/* Display options */}
-            <div
-              className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel flex flex-col gap-3`}
-            >
-              <label className="block text-sm font-semibold">
-                Display Options
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showClass}
-                  onChange={(e) => setShowClass(e.target.checked)}
-                />
-                Show class
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showLevel}
-                  onChange={(e) => setShowLevel(e.target.checked)}
-                />
-                Show level
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showAccount}
-                  onChange={(e) => setShowAccount(e.target.checked)}
-                />
-                Show account name
-              </label>
-              {overlayType === "people" && (
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showDelve}
-                    onChange={(e) => setShowDelve(e.target.checked)}
-                  />
-                  Show delve depth
-                </label>
-              )}
+        {/* Right column */}
+        <div className="ov-col">
+          <section className="panel">
+            <h2>display options</h2>
+            <div className="panel-body">
+              <div className="ov-fields">
+                <Toggle checked={showClass} onChange={setShowClass}>show class</Toggle>
+                <Toggle checked={showLevel} onChange={setShowLevel}>show level</Toggle>
+                <Toggle checked={showAccount} onChange={setShowAccount}>show account name</Toggle>
+                {overlayType === "people" && (
+                  <Toggle checked={showDelve} onChange={setShowDelve}>show delve depth</Toggle>
+                )}
+              </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Overlay title (optional)
-                </label>
+                <h3 className="sect">overlay title (optional)</h3>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Top 10 Delvers"
-                  className={`w-full p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
+                  className="input ov-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Panel opacity ({opacity}%)
-                </label>
+                <h3 className="sect">panel opacity ({opacity}%)</h3>
                 <input
                   type="range"
                   min={10}
                   max={100}
                   value={opacity}
                   onChange={(e) => setOpacity(Number(e.target.value))}
-                  className="w-full accent-[#8b5cf6]"
+                  className="range"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Refresh interval (seconds)
-                </label>
+                <h3 className="sect">refresh interval (seconds)</h3>
                 <input
                   type="number"
                   min={15}
                   value={refreshSeconds}
                   onChange={(e) => setRefreshSeconds(Number(e.target.value))}
-                  className={`w-32 p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} ${THEME.focusBorder} outline-none`}
+                  className="input ov-short"
                 />
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Live preview — full width, spans both columns */}
-        <div
-          className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowSecondary} glass-panel`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-semibold">Live Preview</label>
-            <button
-              onClick={fetchLadder}
-              className={`text-xs px-2 py-1 rounded ${THEME.accentLight} border ${THEME.borderSecondary} ${THEME.hoverDark} transition-colors`}
-            >
-              {ladderLoading ? "Refreshing…" : "Refresh"}
-            </button>
-          </div>
-          <p className={`${THEME.textTertiary} text-xs mb-3`}>
-            The checkered area represents transparency — that's what OBS will
-            see through. This is the exact same component the overlay page
-            renders.
-          </p>
-          <div
-            className="rounded-lg p-6 overflow-auto"
-            style={{
-              backgroundImage:
-                "linear-gradient(45deg, rgba(255,255,255,0.06) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.06) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.06) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.06) 75%)",
-              backgroundSize: "20px 20px",
-              backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
-            }}
-          >
-            <OverlayPanel
-              rows={previewRows}
-              type={overlayType}
-              depthMode={depthMode}
-              showClass={showClass}
-              showLevel={showLevel}
-              showAccount={showAccount}
-              showDelve={showDelve}
-              title={title}
-              opacity={opacity}
-            />
-          </div>
-        </div>
-
-        {/* Generated URL */}
-        <div
-          className={`p-4 rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentPrimary} ${THEME.glowLarge} glass-panel`}
-        >
-          <label className="block text-sm font-semibold mb-2">
-            OBS Browser Source URL
-          </label>
-          <div className="flex gap-2">
-            <input
-              readOnly
-              value={overlayUrl}
-              onFocus={(e) => e.target.select()}
-              onPaste={handleUrlPaste}
-              className={`flex-1 p-2 rounded ${THEME.accentTertiary} border ${THEME.borderSecondary} text-sm font-mono`}
-            />
-            <button
-              onClick={handleCopy}
-              className={`px-4 py-2 rounded font-semibold ${THEME.accentLight} border ${THEME.borderPrimary} ${THEME.hoverDark} transition-colors`}
-            >
-              {copyState === "copied" ? "Copied!" : "Copy"}
-            </button>
-          </div>
-          <p className={`${THEME.textTertiary} text-xs mt-2`}>
-            In OBS: Add Source → Browser → paste this URL. Recommended size
-            ~800×{40 + rowCount * 36}px. Enable "Shutdown source when not
-            visible" so it doesnt use resources while not visible.
-          </p>
-          <p className={`${THEME.textTertiary} text-xs mt-1`}>
-            Tip: paste an old overlay URL into the box above (Ctrl/Cmd+V) to
-            reload it back into the builder for editing.
-          </p>
-          {loadStatus && (
-            <p
-              className={`text-xs mt-2 ${
-                loadStatus.type === "error"
-                  ? "text-red-400"
-                  : loadStatus.type === "warning"
-                    ? "text-amber-400"
-                    : "text-emerald-400"
-              }`}
-            >
-              {loadStatus.message}
-            </p>
-          )}
+          </section>
         </div>
       </div>
-    </div>
+
+      <div className="ov-stack">
+        {/* Live preview */}
+        <section className="panel">
+          <div className="panel-head">
+            <h2>live preview</h2>
+            <button type="button" onClick={fetchLadder} disabled={ladderLoading}>
+              {ladderLoading ? "refreshing…" : "refresh"}
+            </button>
+          </div>
+          <div className="panel-body">
+            <p className="dim line">
+              # the checkered area is transparent — that's what OBS sees through.
+              This is the exact component the overlay page renders.
+            </p>
+            <div className="ov-checker">
+              <OverlayPanel
+                rows={previewRows}
+                type={overlayType}
+                depthMode={depthMode}
+                showClass={showClass}
+                showLevel={showLevel}
+                showAccount={showAccount}
+                showDelve={showDelve}
+                title={title}
+                opacity={opacity}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Generated URL */}
+        <section className="panel">
+          <h2>obs browser source url</h2>
+          <div className="panel-body">
+            <div className="ov-row">
+              <input
+                readOnly
+                value={overlayUrl}
+                onFocus={(e) => e.target.select()}
+                onPaste={handleUrlPaste}
+                className="input"
+              />
+              <button type="button" className="btn" onClick={handleCopy}>
+                {copyState === "copied" ? "copied!" : "copy"}
+              </button>
+            </div>
+            <div>
+              <p className="dim line">
+                # In OBS: Add Source → Browser → paste this URL. Recommended size
+                ~800×{70 + rowCount * 31}px. Enable "Shutdown source when not
+                visible" so it doesn't use resources while hidden.
+              </p>
+              <p className="dim line">
+                # Tip: paste an old overlay URL into the box above (Ctrl/Cmd+V)
+                to reload it into the builder for editing.
+              </p>
+            </div>
+            {loadStatus && (
+              <p
+                className={`line ${
+                  loadStatus.type === "error" ? "bad" : loadStatus.type === "warning" ? "warn" : "accent"
+                }`}
+              >
+                {loadStatus.message}
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <Prompt host="fezalion@xyz">
+        <span className="cursor" aria-hidden="true" />
+      </Prompt>
+    </Shell>
   );
 }
 

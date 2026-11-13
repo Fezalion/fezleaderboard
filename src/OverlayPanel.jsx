@@ -1,8 +1,3 @@
-import { THEME } from "./ladderConfig";
-
-// Pure presentational panel: given rows + display options, renders the
-// overlay table. Used by OverlayView (the real OBS page) and by the
-// live preview in Overlays.jsx, so the two can never visually drift apart.
 function OverlayPanel({
   rows,
   type,
@@ -14,70 +9,48 @@ function OverlayPanel({
   title,
   opacity = 100,
 }) {
+  const showDepth = type === "topDelve" || (type === "people" && showDelve);
+  const colCount = 2 + (showClass ? 1 : 0) + (showLevel ? 1 : 0) + (showDepth ? 1 : 0) + (showAccount ? 1 : 0);
+
   return (
     <div
-      className={`inline-block rounded-lg border-2 ${THEME.borderPrimary} ${THEME.accentTertiary} ${THEME.glowLarge} overflow-hidden`}
-      style={{
-        backdropFilter: "blur(2px)",
-        opacity: Math.max(0, Math.min(100, opacity)) / 100,
-      }}
+      className="terminal overlay-panel panel"
+      style={{ opacity: Math.max(0, Math.min(100, opacity)) / 100 }}
     >
-      {title && (
-        <div
-          className={`px-4 py-2 text-lg font-bold ${THEME.textPrimary} border-b-2 ${THEME.borderPrimary} ${THEME.accentPrimary}`}
-        >
-          {title}
-        </div>
-      )}
-      <table className="border-collapse">
+      {title && <h2>{title}</h2>}
+      <table className="ladder">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Character</th>
+            {showClass && <th>Class</th>}
+            {showLevel && <th>Level</th>}
+            {showDepth && <th>Depth</th>}
+            {showAccount && <th>Account</th>}
+          </tr>
+        </thead>
         <tbody>
           {rows.length === 0 && (
-            <tr>
-              <td className={`px-4 py-3 ${THEME.textTertiary} text-sm`}>
-                Waiting for ladder data…
-              </td>
+            <tr className="empty">
+              <td colSpan={colCount}>waiting for ladder data…</td>
             </tr>
           )}
           {rows.map((entry, i) => (
             <tr
               key={`${entry.account?.name || "u"}-${entry.character?.name || i}`}
-              className={`${i % 2 === 0 ? THEME.rowEven : THEME.rowOdd} ${THEME.rowBorder} ${entry.dead ? THEME.rowDead : ""}`}
+              className={entry.dead ? "row-dead" : undefined}
             >
-              <td
-                className={`px-3 py-1.5 text-sm font-mono font-semibold ${THEME.textTertiary}`}
-              >
-                {i + 1}
-              </td>
-              <td
-                className={`px-3 py-1.5 text-sm font-semibold ${THEME.textPrimary}`}
-              >
+              <td className={i < 3 ? `r${i + 1}` : "dim"}>{i + 1}</td>
+              <td className="char">
                 {entry.character?.name}
-                {entry.dead && <span className="ml-1 text-red-400">☠</span>}
+                {entry.dead && <span className="bad"> ☠</span>}
               </td>
-              {showClass && (
-                <td className={`px-3 py-1.5 text-sm ${THEME.textSecondary}`}>
-                  {entry.character?.class}
-                </td>
+              {showClass && <td>{entry.character?.class}</td>}
+              {showLevel && <td>{entry.character?.level}</td>}
+              {showDepth && (
+                <td className="accent">{entry.character?.depth?.[depthMode] ?? 0}</td>
               )}
-              {showLevel && (
-                <td
-                  className={`px-3 py-1.5 text-sm font-mono ${THEME.textPrimary}`}
-                >
-                  Lv {entry.character?.level}
-                </td>
-              )}
-              {(type === "topDelve" || (type === "people" && showDelve)) && (
-                <td
-                  className={`px-3 py-1.5 text-sm font-mono ${THEME.linkColor}`}
-                >
-                  Depth {entry.character?.depth?.[depthMode] ?? 0}
-                </td>
-              )}
-              {showAccount && (
-                <td className={`px-3 py-1.5 text-sm ${THEME.textSecondary}`}>
-                  {entry.account?.name}
-                </td>
-              )}
+              {showAccount && <td className="dim">{entry.account?.name}</td>}
             </tr>
           ))}
         </tbody>

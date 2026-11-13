@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { LEAGUE_OPTIONS, getApiUrls, computeOverlayRows } from "./ladderConfig";
+import { LEAGUE_OPTIONS, getApiUrls, computeOverlayRows } from "./ladderconfig";
 import OverlayPanel from "./OverlayPanel";
 
 function useOverlayParams() {
@@ -68,14 +68,10 @@ function OverlayView() {
   const [ladder, setLadder] = useState([]);
   const { API_URL } = getApiUrls(league);
 
-  // Make the page background transparent so OBS only captures the panel
   useEffect(() => {
-    document.documentElement.style.background = "transparent";
-    document.body.style.background = "transparent";
-    return () => {
-      document.documentElement.style.background = "";
-      document.body.style.background = "";
-    };
+    const els = [document.documentElement, document.body, document.getElementById("root")].filter(Boolean);
+    els.forEach((el) => (el.style.background = "transparent"));
+    return () => els.forEach((el) => (el.style.background = ""));
   }, []);
 
   const fetchLadder = useCallback(async () => {
@@ -107,10 +103,7 @@ function OverlayView() {
   );
 
   return (
-    <div
-      className="min-h-dvh w-full flex items-start justify-start p-4"
-      style={{ background: "transparent" }}
-    >
+    <div style={{ padding: 16, background: "transparent" }}>
       <OverlayPanel
         rows={rows}
         type={type}

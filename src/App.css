@@ -443,3 +443,59 @@ html, body, #root {
 .ascii-bar { white-space: pre; }
 .ascii-on { background: var(--accent); color: var(--bg); font-weight: 700; }
 .ascii-off { background: var(--border); color: var(--text); }
+/* ─── Overlay builder + OBS overlay panel ─── */
+
+.input {
+  padding: 2px 8px;
+  background: var(--bar);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text);
+  font: inherit;
+}
+.input::placeholder { color: var(--dim); }
+.input:focus { outline: 1px solid var(--accent); }
+.ov-full { width: 100%; }
+.ov-short { width: 8rem; }
+.warn { color: var(--warn); }
+.range { width: 100%; accent-color: var(--accent); }
+
+.ov-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+@media (min-width: 960px) { .ov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ov-col, .ov-stack { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.ov-fields { display: flex; flex-direction: column; gap: 8px; }
+.ov-row { display: flex; gap: 8px; }
+.ov-row .input { flex: 1; min-width: 0; }
+.terminal .ov-search { flex: none; max-width: none; }
+
+.ov-checker {
+  padding: 24px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.06) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+}
+
+.terminal.overlay-panel { display: inline-block; height: auto; background: var(--bg); }
+.overlay-panel h2 {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.overlay-panel .row-dead { opacity: 0.55; }
+.overlay-panel .row-dead .char { color: var(--bad); }
+
+.toggle { text-align: left; }
