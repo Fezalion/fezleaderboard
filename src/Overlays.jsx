@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { LEAGUE_OPTIONS, getApiUrls, computeOverlayRows } from "./ladderConfig";
+import { LEAGUE_OPTIONS, getApiUrls, computeOverlayRows } from "./ladderconfig";
 import { Shell, Prompt } from "./Terminal";
 import OverlayPanel from "./OverlayPanel";
 

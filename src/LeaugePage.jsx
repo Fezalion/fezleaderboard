@@ -854,9 +854,9 @@ function LeaguePage({ league, navigate }) {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="live"
-                              title="Live on Twitch"
+                              title={`Live on Twitch (${entry.account.name})`}
                             >
-                              ● {entry.account.name}
+                              ● {entry.account.twitch.stream.name}
                             </a>
                           </li>
                         ))}
